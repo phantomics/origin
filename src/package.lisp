@@ -9,10 +9,18 @@
   (:export
    ;; Conditions
    #:origin-error
+   #:origin-error-message
    #:process-not-found
+   #:process-not-found-name
    #:process-already-running
+   #:process-already-running-name
    #:process-start-failed
+   #:process-start-failed-name
+   #:process-start-failed-cause
    #:process-restart-limit-reached
+   #:process-restart-limit-name
+   #:process-restart-limit-count
+   #:process-restart-limit-max
 
    ;; Protocol (generic functions)
    #:start-process
