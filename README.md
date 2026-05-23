@@ -5,9 +5,21 @@
 A process manager for Common Lisp that spawns, supervises, and controls
 blocking applications as managed threads within a single SBCL image.
 
-Designing a computer program is difficult. Designing a system involving multiple computer programs working in concert is a challenge on a different level. Processes and resources present in a system must be balanced carefully to serve the work being done. Origin is a tool to maintain this balance in Common Lisp systems, designed around CL's unique qualities as an interactive image-based software system.
+Designing a computer program is difficult. Designing a system involving
+multiple computer programs working in concert is a challenge on a different
+level. Processes and resources present in a system must be balanced carefully
+to serve the work being done. Origin is a tool to maintain this balance in
+Common Lisp systems, designed around CL's unique qualities as an interactive
+image-based software system.
 
-Under common operating systems, process management is done through initialization systems managing service configurations, but from the perspective of symbolic computing these models lack depth. Such systems have little inherent awareness of the software they administer, relying on explicit configuration for the small amount of data they track and using complex scripts to fill the gaps. Origin brings Common Lisp's semantic flexibility into the realm of system management, marshaling software processes according to their kind and objective as expressed in their own code.
+Under common operating systems, process management is done through initialization
+systems managing service configurations, but from the perspective of symbolic
+computing these models lack depth. Such systems have little inherent awareness of
+the software they administer, relying on explicit configuration for the small
+amount of data they track and using complex scripts to fill the gaps. Origin
+brings Common Lisp's semantic flexibility into the realm of system management,
+marshaling software processes according to their kind and objective as expressed
+in their own code.
 
 
 Origin draws from the tradition of Lisp Machines, Erlang/OTP supervision
