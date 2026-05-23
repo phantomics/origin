@@ -33,19 +33,22 @@
 (def-test process-not-found-slots ()
   "process-not-found carries the process name."
   (let ((c (make-condition 'process-not-found :name "missing-proc")))
-    (is (equal "missing-proc" (process-not-found-name c)))))
+    (assert-that c
+      (has-accessors 'process-not-found-name "missing-proc"))))
 
 (def-test process-already-running-slots ()
   "process-already-running carries the process name."
   (let ((c (make-condition 'process-already-running :name "running-proc")))
-    (is (equal "running-proc" (process-already-running-name c)))))
+    (assert-that c
+      (has-accessors 'process-already-running-name "running-proc"))))
 
 (def-test process-start-failed-slots ()
   "process-start-failed carries name and optional cause."
   (let ((c (make-condition 'process-start-failed
                            :name "bad-proc" :cause "boom")))
-    (is (equal "bad-proc" (process-start-failed-name c)))
-    (is (equal "boom" (process-start-failed-cause c))))
+    (assert-that c
+      (has-accessors 'process-start-failed-name "bad-proc"
+                     'process-start-failed-cause "boom")))
   ;; Cause defaults to nil
   (let ((c (make-condition 'process-start-failed :name "bad-proc")))
     (is (null (process-start-failed-cause c)))))
@@ -54,9 +57,10 @@
   "process-restart-limit-reached carries name, count, and max."
   (let ((c (make-condition 'process-restart-limit-reached
                            :name "limited" :count 5 :max 5)))
-    (is (equal "limited" (process-restart-limit-name c)))
-    (is (= 5 (process-restart-limit-count c)))
-    (is (= 5 (process-restart-limit-max c)))))
+    (assert-that c
+      (has-accessors 'process-restart-limit-name "limited"
+                     'process-restart-limit-count 5
+                     'process-restart-limit-max 5))))
 
 ;;; -----------------------------------------------------------------------
 ;;; Report strings

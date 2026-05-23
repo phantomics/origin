@@ -4,7 +4,6 @@
 
 (defpackage #:origin-tests
   (:use #:cl #:origin #:fiveam)
-  (:shadowing-import-from #:origin #:restart #:log)
   (:shadow #:run-all-tests)
   (:import-from #:hamcrest/fiveam
                 #:assert-that)

@@ -154,6 +154,14 @@
         all-pass)
       (run! 'origin)))
 
+(defun %resolve-suite-name (name)
+  "Resolve a suite name keyword or string to the interned symbol."
+  (etypecase name
+    (keyword (find-symbol (symbol-name name) :origin-tests))
+    (string (find-symbol (string-upcase name) :origin-tests))
+    (symbol name)))
+
 (defun run-suite (suite-name)
-  "Run a single named test suite. Returns T if all pass."
-  (run! suite-name))
+  "Run a single named test suite. Accepts keywords, strings, or symbols.
+   Returns T if all pass."
+  (run! (%resolve-suite-name suite-name)))

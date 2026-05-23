@@ -1,7 +1,7 @@
 ;;;; tests/test-api.lisp
 ;;;;
 ;;;; Tests for the public REPL-facing API:
-;;;; define-process, start, stop, restart, kill, status, info, log, shutdown.
+;;;; define-process, start, stop, reset, kill, status, info, logs, shutdown.
 
 (in-package #:origin-tests)
 (in-suite api)
@@ -71,18 +71,18 @@
         (assert-that result (instance-of 'managed-process))
         (is (eq :stopped (status :stop-test)))))))
 
-(def-test restart-by-name ()
-  "origin:restart cycles stop/start."
+(def-test reset-by-name ()
+  "origin:reset cycles stop/start."
   (with-clean-origin
     (multiple-value-bind (entry-fn stop-fn) (make-blocking-fn)
-      (define-process :restart-test :entry-point entry-fn :stop-function stop-fn)
-      (start :restart-test)
-      (let ((original-thread (process-thread (find-process :restart-test))))
-        (restart :restart-test)
-        (is (eq :running (status :restart-test)))
-        ;; Different thread after restart
+      (define-process :reset-test :entry-point entry-fn :stop-function stop-fn)
+      (start :reset-test)
+      (let ((original-thread (process-thread (find-process :reset-test))))
+        (reset :reset-test)
+        (is (eq :running (status :reset-test)))
+        ;; Different thread after reset
         (is (not (eq original-thread
-                     (process-thread (find-process :restart-test)))))))))
+                     (process-thread (find-process :reset-test)))))))))
 
 (def-test kill-by-name ()
   "origin:kill force-terminates a process by name."
@@ -137,21 +137,21 @@
       (is (search "info-test" output))
       (is (search "Info test process" output)))))
 
-(def-test log-output ()
-  "origin:log returns event list."
+(def-test logs-output ()
+  "origin:logs returns event list."
   (with-clean-origin
     ;; Generate some events
     (origin::%log-event :test "log-output" "test event")
-    (let ((result (log)))
+    (let ((result (logs)))
       (is (listp result))
       (is (>= (length result) 1)))))
 
-(def-test log-filtered ()
-  "origin:log :name filters to matching events."
+(def-test logs-filtered ()
+  "origin:logs :name filters to matching events."
   (with-clean-origin
     (origin::%log-event :test "alpha" "alpha event")
     (origin::%log-event :test "beta" "beta event")
-    (let ((result (log :name "alpha")))
+    (let ((result (logs :name "alpha")))
       (is (= 1 (length result)))
       (is (equal "alpha" (getf (first result) :process))))))
 

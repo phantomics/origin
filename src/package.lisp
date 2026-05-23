@@ -4,8 +4,6 @@
 
 (defpackage #:origin
   (:use #:cl)
-  (:shadow #:restart   ; CL:RESTART is the restart type
-           #:log)      ; CL:LOG is the logarithm function
   (:export
    ;; Conditions
    #:origin-error
@@ -66,9 +64,9 @@
    #:discover
    #:start
    #:stop
-   #:restart
+   #:reset
    #:kill
    #:status
    #:info
-   #:log
+   #:logs
    #:shutdown))

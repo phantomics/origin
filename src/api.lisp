@@ -70,13 +70,13 @@ Returns the process instance."
     (%log-event :stopped (process-name process) "Stopped via ORIGIN:STOP")
     process))
 
-(defun restart (name)
-  "Restart the registered process identified by NAME.
+(defun reset (name)
+  "Reset (restart) the registered process identified by NAME.
 Stops the process if running, then starts it again.
 Returns the process instance."
   (let ((process (find-process name)))
     (restart-process process)
-    (%log-event :restarted (process-name process) "Restarted via ORIGIN:RESTART")
+    (%log-event :restarted (process-name process) "Restarted via ORIGIN:RESET")
     process))
 
 (defun kill (name)
@@ -161,7 +161,7 @@ Returns the process info plist."
               (getf (getf info :crash-info) :condition)))
     info))
 
-(defun log (&key name (count 20))
+(defun logs (&key name (count 20))
   "Display recent events from the supervisor event log.
 If NAME is given, filter to events for that process.
 COUNT limits the number of events shown (default 20).
