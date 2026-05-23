@@ -21,7 +21,6 @@ brings Common Lisp's semantic flexibility into the realm of system management,
 marshaling software processes according to their kind and objective as expressed
 in their own code.
 
-
 Origin draws from the tradition of Lisp Machines, Erlang/OTP supervision
 trees, and autonomic computing to provide a foundation for a Lisp-native
 runtime environment -- one where applications connect and disconnect
