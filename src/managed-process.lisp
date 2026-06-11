@@ -2,6 +2,12 @@
 ;;;;
 ;;;; The core CLOS class representing a managed unit of execution,
 ;;;; and method implementations for the lifecycle/inspection protocol.
+;;;;
+;;;; A process may run in one of two execution modes:
+;;;;   :THREAD       - Origin spawns and owns a preemptive thread (default).
+;;;;   :COOPERATIVE  - An external executor drives the process (e.g. a
+;;;;                   main-thread dispatcher).  Origin tracks lifecycle
+;;;;                   and supervision but does not spawn a thread.
 
 (in-package #:origin)
 
@@ -26,8 +32,10 @@
    ;; Entry points
    (entry-point
     :initarg :entry-point
+    :initform nil
     :accessor process-entry-point
-    :documentation "Function designator for the process's main blocking loop.")
+    :documentation "Function designator for the process's main blocking loop.
+Used by :THREAD mode processes; :COOPERATIVE processes may leave this NIL.")
    (stop-function
     :initarg :stop-function
     :initform nil
@@ -40,6 +48,21 @@ If NIL, the process can only be stopped by thread termination.")
     :accessor process-entry-args
     :type list
     :documentation "Arguments to pass to the entry-point function.")
+
+   ;; Execution mode
+   (execution-mode
+    :initarg :execution-mode
+    :initform :thread
+    :accessor process-execution-mode
+    :type (member :thread :cooperative)
+    :documentation ":THREAD - Origin spawns a preemptive thread (default).
+:COOPERATIVE - An external executor drives this process.")
+   (liveness-fn
+    :initarg :liveness-fn
+    :initform nil
+    :accessor process-liveness-fn
+    :documentation "Zero-arg predicate returning T if the process is alive.
+Used by :COOPERATIVE processes; ignored for :THREAD mode.")
 
    ;; Thread state
    (thread
@@ -133,8 +156,9 @@ If NIL, the process can only be stopped by thread termination.")
     :documentation "Universal time at which the supervisor should attempt the next restart."))
   (:documentation
    "A managed unit of execution within the Origin system.
-Represents a blocking application that runs in its own thread,
-with lifecycle management, supervision, and metadata."))
+May run as a preemptive thread (:THREAD mode) or be driven by a
+cooperative executor (:COOPERATIVE mode).  In either mode, Origin
+provides lifecycle management, supervision, and crash recovery."))
 
 (defmethod print-object ((process managed-process) stream)
   (print-unreadable-object (process stream :type t :identity nil)
@@ -150,9 +174,16 @@ Also synchronizes status with actual thread liveness."
   (%process-status process))
 
 (defmethod process-alive-p ((process managed-process))
-  "Return T if the process's thread is alive."
-  (let ((thread (process-thread process)))
-    (and thread (sb-thread:thread-alive-p thread))))
+  "Return T if the process is alive.
+For :THREAD mode, checks the underlying sb-thread.
+For :COOPERATIVE mode, calls the registered liveness predicate."
+  (ecase (process-execution-mode process)
+    (:thread
+     (let ((thread (process-thread process)))
+       (and thread (sb-thread:thread-alive-p thread))))
+    (:cooperative
+     (let ((fn (process-liveness-fn process)))
+       (and fn (funcall fn) t)))))
 
 (defmethod process-info ((process managed-process))
   "Return a plist describing PROCESS."
@@ -160,6 +191,7 @@ Also synchronizes status with actual thread liveness."
     (list :name (process-name process)
           :description (process-description process)
           :status (%process-status process)
+          :execution-mode (process-execution-mode process)
           :alive (process-alive-p process)
           :uptime (if (and (process-started-at process)
                            (member (%process-status process)
@@ -199,12 +231,24 @@ and exits cleanly rather than entering the debugger."
           (setf (%process-status proc) :crashed))))))
 
 (defmethod start-process ((process managed-process))
-  "Start PROCESS by spawning a new thread."
+  "Start PROCESS.
+For :THREAD mode, spawns a new thread running the entry-point.
+For :COOPERATIVE mode, delegates to the registered cooperative executor."
   (when (process-alive-p process)
     (error 'process-already-running :name (process-name process)))
   (setf (%process-status process) :starting)
   (setf (process-started-at process) (get-universal-time))
   (setf (process-stopped-at process) nil)
+  (setf (process-crash-info process) nil)
+  (ecase (process-execution-mode process)
+    (:thread
+     (%start-process-thread process))
+    (:cooperative
+     (%start-process-cooperative process)))
+  process)
+
+(defun %start-process-thread (process)
+  "Start PROCESS by spawning a preemptive thread."
   (let ((thread-fn (%make-thread-function process)))
     (handler-case
         (let ((thread (sb-thread:make-thread
@@ -221,8 +265,7 @@ and exits cleanly rather than entering the debugger."
             (setf (%process-status process) :crashed)
             (error 'process-start-failed
                    :name (process-name process)
-                   :cause (getf (process-crash-info process) :condition)))
-          process)
+                   :cause (getf (process-crash-info process) :condition))))
       (error (c)
         (setf (%process-status process) :crashed)
         (setf (process-stopped-at process) (get-universal-time))
@@ -230,8 +273,45 @@ and exits cleanly rather than entering the debugger."
                :name (process-name process)
                :cause (princ-to-string c))))))
 
+(defun %start-process-cooperative (process)
+  "Start a :COOPERATIVE process via the registered executor."
+  (unless *cooperative-start-hook*
+    (error 'origin-error
+           :message (format nil "Cannot start ~S: no cooperative executor registered"
+                            (process-name process))))
+  (handler-case
+      (progn
+        (funcall *cooperative-start-hook* process)
+        (if (process-alive-p process)
+            (setf (%process-status process) :running)
+            (progn
+              (setf (%process-status process) :crashed)
+              (error 'process-start-failed
+                     :name (process-name process)
+                     :cause "Process not alive after executor start"))))
+    (process-start-failed ()
+     ;; Re-signal start-failed conditions without double-wrapping.
+     (error 'process-start-failed
+            :name (process-name process)
+            :cause (getf (process-crash-info process) :condition)))
+    (error (c)
+      (setf (%process-status process) :crashed)
+      (setf (process-stopped-at process) (get-universal-time))
+      (error 'process-start-failed
+             :name (process-name process)
+             :cause (princ-to-string c)))))
+
 (defmethod stop-process ((process managed-process) &key (timeout 5))
   "Stop PROCESS gracefully, with fallback to forcible termination."
+  (ecase (process-execution-mode process)
+    (:thread
+     (%stop-process-thread process timeout))
+    (:cooperative
+     (%stop-process-cooperative process :timeout timeout)))
+  process)
+
+(defun %stop-process-thread (process timeout)
+  "Stop a :THREAD process gracefully, with fallback to thread termination."
   (let ((thread (process-thread process)))
     (cond
       ;; No thread or not alive -- just update status
@@ -263,15 +343,42 @@ and exits cleanly rather than entering the debugger."
          ;; Brief wait for termination to take effect
          (sleep 0.1))
        (setf (%process-status process) :stopped)
-       (setf (process-stopped-at process) (get-universal-time)))))
-  process)
+       (setf (process-stopped-at process) (get-universal-time))))))
+
+(defun %stop-process-cooperative (process &key (timeout 5))
+  "Stop a :COOPERATIVE process via the registered executor."
+  (cond
+    ;; Not alive -- just update status
+    ((not (process-alive-p process))
+     (unless (member (%process-status process) '(:stopped :crashed :gave-up))
+       (setf (%process-status process) :stopped))
+     (setf (process-stopped-at process) (get-universal-time)))
+    ;; Alive -- delegate to the stop hook
+    (t
+     (setf (%process-status process) :stopping)
+     (when *cooperative-stop-hook*
+       (handler-case
+           (funcall *cooperative-stop-hook* process :timeout timeout)
+         (error (c)
+           (declare (ignore c))
+           nil)))
+     (setf (%process-status process) :stopped)
+     (setf (process-stopped-at process) (get-universal-time)))))
 
 (defmethod kill-process ((process managed-process))
   "Forcibly terminate PROCESS immediately."
-  (let ((thread (process-thread process)))
-    (when (and thread (sb-thread:thread-alive-p thread))
-      (sb-thread:terminate-thread thread)
-      (sleep 0.1)))
+  (ecase (process-execution-mode process)
+    (:thread
+     (let ((thread (process-thread process)))
+       (when (and thread (sb-thread:thread-alive-p thread))
+         (sb-thread:terminate-thread thread)
+         (sleep 0.1))))
+    (:cooperative
+     ;; Cooperative kill = stop with no grace period
+     (when (and *cooperative-stop-hook* (process-alive-p process))
+       (handler-case
+           (funcall *cooperative-stop-hook* process :timeout 0)
+         (error () nil)))))
   (setf (%process-status process) :stopped)
   (setf (process-stopped-at process) (get-universal-time))
   process)

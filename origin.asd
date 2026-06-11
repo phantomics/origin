@@ -19,6 +19,8 @@
                              (:file "conditions")
                              (:file "system-class")
                              (:file "protocol")
+                             (:file "mailbox")
+                             (:file "external")
                              (:file "managed-process")
                              (:file "registry")
                              (:file "supervisor")

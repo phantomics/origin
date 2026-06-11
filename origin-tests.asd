@@ -13,6 +13,7 @@
                              (:file "test-managed-process")
                              (:file "test-registry")
                              (:file "test-supervisor")
+                             (:file "test-external")
                              (:file "test-asd-metadata")
                              (:file "test-api"))))
   :perform (test-op (o s)

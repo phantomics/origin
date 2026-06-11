@@ -39,12 +39,26 @@
    #:process-entry-point
    #:process-stop-function
    #:process-thread
+   #:process-execution-mode
+   #:process-liveness-fn
    #:process-restart-count
    #:process-started-at
    #:process-stopped-at
    #:process-crash-info
    #:process-workload-class
    #:process-priority
+
+   ;; Cooperative executor
+   #:register-cooperative-executor
+   #:unregister-cooperative-executor
+   #:cooperative-executor-active-p
+
+   ;; Executor mailbox
+   #:make-mailbox
+   #:mailbox-enqueue
+   #:mailbox-drain
+   #:run-on-executor
+   #:execute-pending
 
    ;; Registry
    #:register-process

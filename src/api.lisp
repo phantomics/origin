@@ -20,13 +20,16 @@
                             (backoff-base 1)
                             (backoff-cap 60)
                             (stability-threshold 60)
+                            (execution-mode :thread)
                             description
-                            entry-args)
+                            entry-args
+                            liveness-fn)
   "Define and register a managed process with the given NAME and properties.
 NAME can be a symbol or string.
 
 Required keyword arguments:
   :ENTRY-POINT - function designator for the process's main loop
+                 (required for :THREAD mode; optional for :COOPERATIVE)
 
 Optional keyword arguments:
   :STOP-FUNCTION       - function to call for graceful shutdown (default: NIL)
@@ -38,13 +41,16 @@ Optional keyword arguments:
   :BACKOFF-BASE        - seconds (default: 1)
   :BACKOFF-CAP         - seconds (default: 60)
   :STABILITY-THRESHOLD - seconds (default: 60)
+  :EXECUTION-MODE      - :THREAD or :COOPERATIVE (default: :THREAD)
   :DESCRIPTION         - string (default: NIL)
   :ENTRY-ARGS          - list of arguments to pass to entry-point
+  :LIVENESS-FN         - zero-arg predicate for :COOPERATIVE liveness checks
 
 Returns the managed-process instance."
   (declare (ignore entry-point stop-function restart-policy max-restarts
                    workload-class priority singleton backoff-base backoff-cap
-                   stability-threshold description entry-args))
+                   stability-threshold execution-mode description entry-args
+                   liveness-fn))
   (apply #'register-process name initargs))
 
 ;; DISCOVER is already defined in asd-metadata.lisp and exported.
@@ -147,6 +153,7 @@ Returns the process info plist."
     (format t "~&Process: ~A~%" (getf info :name))
     (format t "  Description:    ~A~%" (or (getf info :description) "(none)"))
     (format t "  Status:         ~A~%" (getf info :status))
+    (format t "  Execution mode: ~A~%" (getf info :execution-mode))
     (format t "  Alive:          ~A~%" (getf info :alive))
     (format t "  Uptime:         ~A~%" (%format-uptime (getf info :uptime)))
     (format t "  Started at:     ~A~%" (%format-timestamp (getf info :started-at)))
