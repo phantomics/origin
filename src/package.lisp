@@ -41,12 +41,20 @@
    #:process-thread
    #:process-execution-mode
    #:process-liveness-fn
+   #:process-image-command
+   #:process-os-process
+   #:process-image-output
+   #:process-image-error
    #:process-restart-count
    #:process-started-at
    #:process-stopped-at
    #:process-crash-info
    #:process-workload-class
    #:process-priority
+
+   ;; Orbital vocabulary
+   #:orbital
+   #:orbit
 
    ;; Cooperative executor
    #:register-cooperative-executor

@@ -25,4 +25,5 @@
                              (:file "registry")
                              (:file "supervisor")
                              (:file "asd-metadata")
-                             (:file "api")))))
+                             (:file "api")
+                             (:file "orbit")))))

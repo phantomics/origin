@@ -17,6 +17,7 @@
 (def-suite supervisor    :in origin :description "Supervisor tests")
 (def-suite supervisor-slow :in origin :description "Long-running supervisor tests")
 (def-suite external      :in origin :description "Cooperative execution mode tests")
+(def-suite image         :in origin :description "Image (subprocess) execution mode tests")
 (def-suite asd-metadata  :in origin :description "ASDF metadata discovery tests")
 (def-suite api           :in origin :description "Public API tests")
 
@@ -147,7 +148,7 @@
    Returns T if all tests pass."
   (if skip-slow
       (let ((suites '(conditions managed-process registry
-                      supervisor external asd-metadata api))
+                      supervisor external image asd-metadata api))
             (all-pass t))
         (dolist (suite suites)
           (unless (run! suite)

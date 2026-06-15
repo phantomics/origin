@@ -23,7 +23,10 @@
                             (execution-mode :thread)
                             description
                             entry-args
-                            liveness-fn)
+                            liveness-fn
+                            image-command
+                            image-output
+                            image-error)
   "Define and register a managed process with the given NAME and properties.
 NAME can be a symbol or string.
 
@@ -41,16 +44,19 @@ Optional keyword arguments:
   :BACKOFF-BASE        - seconds (default: 1)
   :BACKOFF-CAP         - seconds (default: 60)
   :STABILITY-THRESHOLD - seconds (default: 60)
-  :EXECUTION-MODE      - :THREAD or :COOPERATIVE (default: :THREAD)
+  :EXECUTION-MODE      - :THREAD, :COOPERATIVE, or :IMAGE (default: :THREAD)
   :DESCRIPTION         - string (default: NIL)
   :ENTRY-ARGS          - list of arguments to pass to entry-point
   :LIVENESS-FN         - zero-arg predicate for :COOPERATIVE liveness checks
+  :IMAGE-COMMAND       - argv list (program . args) for :IMAGE mode
+  :IMAGE-OUTPUT        - pathname for child stdout (:IMAGE mode)
+  :IMAGE-ERROR         - pathname for child stderr (:IMAGE mode)
 
 Returns the managed-process instance."
   (declare (ignore entry-point stop-function restart-policy max-restarts
                    workload-class priority singleton backoff-base backoff-cap
                    stability-threshold execution-mode description entry-args
-                   liveness-fn))
+                   liveness-fn image-command image-output image-error))
   (apply #'register-process name initargs))
 
 ;; DISCOVER is already defined in asd-metadata.lisp and exported.

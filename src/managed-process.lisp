@@ -54,9 +54,10 @@ If NIL, the process can only be stopped by thread termination.")
     :initarg :execution-mode
     :initform :thread
     :accessor process-execution-mode
-    :type (member :thread :cooperative)
+    :type (member :thread :cooperative :image)
     :documentation ":THREAD - Origin spawns a preemptive thread (default).
-:COOPERATIVE - An external executor drives this process.")
+:COOPERATIVE - An external executor drives this process.
+:IMAGE - The orbital is a separate OS process (SBCL image).")
    (liveness-fn
     :initarg :liveness-fn
     :initform nil
@@ -69,6 +70,28 @@ Used by :COOPERATIVE processes; ignored for :THREAD mode.")
     :initform nil
     :accessor process-thread
     :documentation "The sb-thread:thread object, or NIL if not running.")
+
+   ;; Image (subprocess) state
+   (image-command
+    :initarg :image-command
+    :initform nil
+    :accessor process-image-command
+    :type list
+    :documentation "For :IMAGE mode, the argv list (program . args) to spawn.")
+   (os-process
+    :initform nil
+    :accessor process-os-process
+    :documentation "For :IMAGE mode, the sb-ext:process object, or NIL.")
+   (image-output
+    :initarg :image-output
+    :initform nil
+    :accessor process-image-output
+    :documentation "For :IMAGE mode, a pathname for child stdout, or NIL to discard.")
+   (image-error
+    :initarg :image-error
+    :initform nil
+    :accessor process-image-error
+    :documentation "For :IMAGE mode, a pathname for child stderr, or NIL to discard.")
    (%status
     :initform :stopped
     :accessor %process-status
@@ -155,10 +178,11 @@ Used by :COOPERATIVE processes; ignored for :THREAD mode.")
     :accessor process-next-restart-time
     :documentation "Universal time at which the supervisor should attempt the next restart."))
   (:documentation
-   "A managed unit of execution within the Origin system.
-May run as a preemptive thread (:THREAD mode) or be driven by a
-cooperative executor (:COOPERATIVE mode).  In either mode, Origin
-provides lifecycle management, supervision, and crash recovery."))
+   "A managed unit of execution (an \"orbital\") within the Origin system.
+May run as a preemptive thread (:THREAD mode), be driven by a cooperative
+executor (:COOPERATIVE mode), or be a separate OS process / SBCL image
+(:IMAGE mode).  In all modes, Origin provides lifecycle management,
+supervision, and crash recovery."))
 
 (defmethod print-object ((process managed-process) stream)
   (print-unreadable-object (process stream :type t :identity nil)
@@ -176,14 +200,18 @@ Also synchronizes status with actual thread liveness."
 (defmethod process-alive-p ((process managed-process))
   "Return T if the process is alive.
 For :THREAD mode, checks the underlying sb-thread.
-For :COOPERATIVE mode, calls the registered liveness predicate."
+For :COOPERATIVE mode, calls the registered liveness predicate.
+For :IMAGE mode, checks the OS process."
   (ecase (process-execution-mode process)
     (:thread
      (let ((thread (process-thread process)))
        (and thread (sb-thread:thread-alive-p thread))))
     (:cooperative
      (let ((fn (process-liveness-fn process)))
-       (and fn (funcall fn) t)))))
+       (and fn (funcall fn) t)))
+    (:image
+     (let ((p (process-os-process process)))
+       (and p (sb-ext:process-alive-p p) t)))))
 
 (defmethod process-info ((process managed-process))
   "Return a plist describing PROCESS."
@@ -244,7 +272,9 @@ For :COOPERATIVE mode, delegates to the registered cooperative executor."
     (:thread
      (%start-process-thread process))
     (:cooperative
-     (%start-process-cooperative process)))
+     (%start-process-cooperative process))
+    (:image
+     (%start-process-image process)))
   process)
 
 (defun %start-process-thread (process)
@@ -301,13 +331,107 @@ For :COOPERATIVE mode, delegates to the registered cooperative executor."
              :name (process-name process)
              :cause (princ-to-string c)))))
 
+(defun %start-process-image (process)
+  "Start an :IMAGE process by spawning a separate OS process (SBCL image).
+Spawns the process from PROCESS-IMAGE-COMMAND (argv list), redirecting
+stdout/stderr to PROCESS-IMAGE-OUTPUT / PROCESS-IMAGE-ERROR if set
+(else discarded).  Runs on any thread -- no main-thread affinity."
+  (let ((command (process-image-command process)))
+    (unless command
+      (error 'process-start-failed
+             :name (process-name process)
+             :cause "No :IMAGE-COMMAND specified for image orbital"))
+    (handler-case
+        (let ((proc (sb-ext:run-program
+                     (first command) (rest command)
+                     :search t
+                     :wait nil
+                     :output (or (process-image-output process) nil)
+                     :error (or (process-image-error process) nil)
+                     :if-output-exists :append
+                     :if-error-exists :append)))
+          (setf (process-os-process process) proc)
+          ;; Brief check that it didn't fail to launch.
+          (sleep 0.05)
+          (cond
+            ((process-alive-p process)
+             (setf (%process-status process) :running))
+            (t
+             (let ((code (sb-ext:process-exit-code proc)))
+               ;; A non-zero immediate exit is a start failure; a clean
+               ;; immediate exit (rare) is treated as having run and exited.
+               (cond
+                 ((and code (/= code 0))
+                  (setf (%process-status process) :crashed)
+                  (setf (process-crash-info process)
+                        (list :condition (format nil "Image exited immediately with code ~D" code)
+                              :type :image-crash
+                              :time (get-universal-time)))
+                  (error 'process-start-failed
+                         :name (process-name process)
+                         :cause (format nil "Image exited with code ~D" code)))
+                 (t
+                  ;; Exited cleanly almost immediately; mark running so the
+                  ;; supervisor observes the normal exit on its next poll.
+                  (setf (%process-status process) :running)))))))
+      (process-start-failed ()
+       (error 'process-start-failed
+              :name (process-name process)
+              :cause (getf (process-crash-info process) :condition)))
+      (error (c)
+        (setf (%process-status process) :crashed)
+        (setf (process-stopped-at process) (get-universal-time))
+        (error 'process-start-failed
+               :name (process-name process)
+               :cause (princ-to-string c))))))
+
+(defun %default-crash-info (process)
+  "Produce crash-info for a PROCESS detected dead with no existing crash-info.
+For :IMAGE mode, inspects the OS process exit status so that :TRANSIENT
+restart policy can distinguish a clean exit (code 0, type THREAD-EXIT)
+from a crash (non-zero exit or signal, type :IMAGE-CRASH)."
+  (case (process-execution-mode process)
+    (:image
+     (let ((proc (process-os-process process)))
+       (if proc
+           (progn
+             (ignore-errors (sb-ext:process-wait proc))
+             (let ((pstatus (sb-ext:process-status proc))
+                   (code (sb-ext:process-exit-code proc)))
+               (cond
+                 ((and (eq pstatus :exited) (eql code 0))
+                  (list :condition "Image exited normally"
+                        :type 'thread-exit
+                        :time (get-universal-time)))
+                 ((eq pstatus :exited)
+                  (list :condition (format nil "Image exited with code ~A" code)
+                        :type :image-crash
+                        :time (get-universal-time)))
+                 ((eq pstatus :signaled)
+                  (list :condition (format nil "Image killed by signal ~A" code)
+                        :type :image-crash
+                        :time (get-universal-time)))
+                 (t
+                  (list :condition "Image exited unexpectedly"
+                        :type :image-crash
+                        :time (get-universal-time))))))
+           (list :condition "Image exited unexpectedly"
+                 :type 'thread-exit
+                 :time (get-universal-time)))))
+    (t
+     (list :condition "Process exited unexpectedly"
+           :type 'thread-exit
+           :time (get-universal-time)))))
+
 (defmethod stop-process ((process managed-process) &key (timeout 5))
   "Stop PROCESS gracefully, with fallback to forcible termination."
   (ecase (process-execution-mode process)
     (:thread
      (%stop-process-thread process timeout))
     (:cooperative
-     (%stop-process-cooperative process :timeout timeout)))
+     (%stop-process-cooperative process :timeout timeout))
+    (:image
+     (%stop-process-image process timeout)))
   process)
 
 (defun %stop-process-thread (process timeout)
@@ -365,6 +489,33 @@ For :COOPERATIVE mode, delegates to the registered cooperative executor."
      (setf (%process-status process) :stopped)
      (setf (process-stopped-at process) (get-universal-time)))))
 
+(defun %stop-process-image (process timeout)
+  "Stop an :IMAGE process: SIGTERM, wait up to TIMEOUT, then SIGKILL.
+Lisp-level graceful shutdown is deferred to the IPC layer."
+  (let ((proc (process-os-process process)))
+    (cond
+      ;; No process or already dead -- just reap and update status.
+      ((or (null proc) (not (sb-ext:process-alive-p proc)))
+       (when proc (sb-ext:process-wait proc))
+       (unless (member (%process-status process) '(:stopped :crashed :gave-up))
+         (setf (%process-status process) :stopped))
+       (setf (process-stopped-at process) (get-universal-time)))
+      ;; Alive -- SIGTERM, wait, SIGKILL fallback.
+      (t
+       (setf (%process-status process) :stopping)
+       (sb-ext:process-kill proc sb-unix:sigterm)
+       (let ((deadline (+ (get-internal-real-time)
+                          (* timeout internal-time-units-per-second))))
+         (loop while (and (sb-ext:process-alive-p proc)
+                          (< (get-internal-real-time) deadline))
+               do (sleep 0.1)))
+       (when (sb-ext:process-alive-p proc)
+         (sb-ext:process-kill proc sb-unix:sigkill)
+         (sleep 0.1))
+       (sb-ext:process-wait proc)
+       (setf (%process-status process) :stopped)
+       (setf (process-stopped-at process) (get-universal-time))))))
+
 (defmethod kill-process ((process managed-process))
   "Forcibly terminate PROCESS immediately."
   (ecase (process-execution-mode process)
@@ -378,7 +529,14 @@ For :COOPERATIVE mode, delegates to the registered cooperative executor."
      (when (and *cooperative-stop-hook* (process-alive-p process))
        (handler-case
            (funcall *cooperative-stop-hook* process :timeout 0)
-         (error () nil)))))
+         (error () nil))))
+    (:image
+     ;; Image kill = immediate SIGKILL
+     (let ((proc (process-os-process process)))
+       (when (and proc (sb-ext:process-alive-p proc))
+         (sb-ext:process-kill proc sb-unix:sigkill)
+         (sleep 0.1))
+       (when proc (sb-ext:process-wait proc)))))
   (setf (%process-status process) :stopped)
   (setf (process-stopped-at process) (get-universal-time))
   process)

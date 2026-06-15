@@ -81,16 +81,14 @@ Detects crashed threads, applies restart policy, manages backoff."
         (alive (process-alive-p process))
         (name (process-name process)))
 
-    ;; --- Detect crash: status is :running but thread is dead ---
+    ;; --- Detect crash: status is :running but the orbital is dead ---
     (when (and (eq status :running) (not alive))
       (setf (%process-status process) :crashed)
       (setf (process-stopped-at process) (get-universal-time))
       (unless (process-crash-info process)
-        ;; Thread exited without signaling a condition (normal exit)
+        ;; Exited without signaling a condition; classify by mode/exit status.
         (setf (process-crash-info process)
-              (list :condition "Thread exited unexpectedly"
-                    :type 'thread-exit
-                    :time (get-universal-time))))
+              (%default-crash-info process)))
       (%log-event :crashed name
                   (getf (process-crash-info process) :condition)))
 
