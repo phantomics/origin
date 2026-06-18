@@ -170,9 +170,9 @@ the dotted path `…lexter.windowTable.totalLines.2` -> `…2.2.2`.
 ```lisp
 ;; Q -- read window 2's total-lines and pwd (two var-binds, one GET)
 (snmp-get :term-host '((:lexter :window-table :total-lines 2)
-                       (:lexter :window-table :pwd          2)))
+                       (:lexter :window-table :pwd         2)))
 ;; => ((#oid(:lexter :window-table :total-lines 2) . 1843)
-;;     (#oid(:lexter :window-table :pwd          2) . "/home/sloane/src"))
+;;     (#oid(:lexter :window-table :pwd         2) . "/home/sloane/src"))
 
 ;; Q (fan-out) -- "all windows" is not a verb; it is a WALK of the column
 (snmp-walk :term-host '(:lexter :window-table :total-lines))

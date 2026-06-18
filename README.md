@@ -197,6 +197,103 @@ To stop everything -- all processes and the supervisor:
 (origin:shutdown)
 ```
 
+## Origin and System Init
+
+Origin is not a replacement for your operating system's init system --
+systemd, OpenRC, runit, or the BSD `rc` scripts. The two operate at
+different layers and are most effective used together: the init system
+manages the machine and its OS processes; Origin manages the Common Lisp
+orbitals living inside one of them. Understanding where the boundary
+falls is the most important thing for developers and administrators
+adopting Origin.
+
+### The recommended arrangement
+
+The natural division of labor is for the init system to **boot and keep
+alive a single Origin core image** as an ordinary system service, and for
+Origin to **orchestrate everything Common Lisp** from that point onward.
+The init system answers one question: *is the Origin core running, and
+should it be restarted if the host reboots or the whole image dies?*
+Origin answers the rest: *which CL applications are running inside and
+under this image, how are they supervised, and how do I inspect and
+control them?*
+
+A minimal systemd unit need do nothing more than launch the SBCL image
+that loads Origin and the orbit's configuration:
+
+```ini
+[Unit]
+Description=Origin core image
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/sbcl --non-interactive \
+          --eval "(asdf:load-system \"origin\")" \
+          --load /etc/origin/boot.lisp
+Restart=always
+User=origin
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Here `boot.lisp` loads the orbit's definitions, starts the supervisor,
+and keeps the image alive (for a GUI host, by entering the main loop; for
+a headless core, by blocking on a shutdown condition). From there
+Origin's supervisor takes over. **The init system supervises the core;
+the core supervises the orbit.** Two layers of supervision, each suited
+to its level: the init system is the floor that catches a total image
+death, and Origin is the fine-grained supervisor above it.
+
+### What differs, and why it matters
+
+| Dimension | System init | Origin |
+|-----------|-------------|--------|
+| Unit managed | OS process / service unit | Orbital -- a thread, cooperative unit, or image |
+| Knowledge of the software | External config files and scripts | Intent expressed in the application's own code |
+| Control & introspection | Signals plus unstructured log text | Structured messages over a homogeneous CL substrate |
+| Crash model | Process exit or signal | Catchable conditions (thread/cooperative), escalating to OS-level isolation (image) |
+| Startup cost | A new OS process per service | In-image threads (near-instant); images reserved for isolation |
+| Live change | Reload or restart | Redefinition of running code |
+
+An init system sees opaque processes whose meaning lives outside them, in
+unit files and shell scripts. Origin sees your application's structure
+and intent, because the manager and the managed share an image, a
+language, and a data notation. Supervision policy, workload class, and
+lifecycle are expressed in your orbital definitions rather than in
+external configuration.
+
+### Guidance for administrators
+
+- **Register the core, not each application.** Treat the Origin core as a
+  single service in your init system -- its liveness, restart on host
+  boot, resource limits (cgroups), user and privileges, and logging
+  destination are all the init system's job. Registering each CL
+  application as its own init service throws away Origin's advantages: a
+  shared image, near-instant spawn, structured control, and supervision
+  trees.
+- **Expect two layers of supervision.** This is a feature, not
+  redundancy. If the entire image is lost, the init system brings the
+  core back; everything finer-grained is Origin's responsibility.
+
+### Guidance for developers
+
+- **Express intent in code, not config.** Define an orbital's supervision
+  policy, workload class, and lifecycle where the application lives,
+  rather than mirroring it in external unit files that can drift out of
+  sync.
+- **Choose the execution mode for the isolation you need.** A `:thread`
+  or `:cooperative` orbital crash is caught and recoverable within the
+  image; a hard fault (from FFI or a GPU driver) in an `:image` orbital is
+  contained at the OS-process level. The init system offers only the
+  coarsest of these; Origin lets you pick per orbital.
+- **Use the structured control surface.** Rather than scraping logs and
+  sending signals, you inspect and command orbitals as data.
+
+The short version: **init systems manage the machine; Origin manages the
+Lisp.** Use the init system to plant the Origin core and keep it alive;
+use Origin for everything above that.
+
 ## API Reference
 
 ### Process Registration
