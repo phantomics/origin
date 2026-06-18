@@ -957,3 +957,143 @@ front:
    remaining declarative idea belongs to **Kubernetes** (desired-state
    controllers, liveness vs readiness probes), the natural subject of a third
    installment.
+
+
+---
+
+## Appendix II.A -- Workload Management and the Control Vocabulary
+
+Workload management (WLM) is one of Origin's marquee roadmap features and the
+most ambitious claim in the founding vision: a supervisor that reads each
+orbital's *declared* semantic intent (workload class, priority, preemptability,
+resource hints -- the `(declare (workload ...))` annotations and the existing
+`:workload-class` / `:priority` orbital slots) and continuously retunes real OS
+resources (cgroups v2 CPU / memory / IO shares) to meet goals, benchmarked
+explicitly against z/OS WLM. Structurally, WLM is a **MAPE-K loop** (Monitor,
+Analyze, Plan, Execute over a Knowledge model) -- and it is a *consumer* of the
+control vocabulary this document evaluates: it reads workload state and writes
+allocations through the same verbs. Several elements of the survey therefore bear
+directly on it, and the NETCONF auto-rollback model bears on it most of all.
+
+
+### Confirmed-commit as the safe Execute step of an autonomic loop
+
+The Execute step of a MAPE-K loop is the dangerous one: actually changing
+resource allocations. A bad retuning can starve a latency-sensitive orbital, and
+in the worst case it can starve *the supervisor or core itself* -- the
+generalization of the "a reconfigure can sever the core's own control link"
+hazard flagged in Rendition 6. Here the "control link" is CPU time: a supervisor
+that de-prioritizes itself into unresponsiveness cannot issue the corrective
+re-tuning, and the system is wedged.
+
+NETCONF's **confirmed-commit** is precisely the dead-man's switch for this. A
+retuning is applied but auto-reverts after a timeout unless the supervisor
+*reconfirms* -- and the reconfirmation predicate is itself a WLM goal evaluation:
+reconfirm only if observed goal attainment held or improved. If the change is so
+bad that it hobbles the very supervisor that must reconfirm, the timer fires and
+the allocation rolls back automatically. The loop is self-correcting even
+against its own mistakes.
+
+```lisp
+;; WLM retuning expressed through the NETCONF-derived mechanism: stage, validate,
+;; apply-with-dead-man's-switch. This is the MAPE-K Execute step made safe.
+
+;; Monitor -- one coherent snapshot: declared intent (config) AND observed
+;; consumption (state), heaviest consumers first (GraphQL-shaped selection).
+(nc-get :orbit
+        :filter '(:workload (:orbitals (:top 5 :by :cpu)
+                             :class :priority              ; declared  (get-config view)
+                             :cpu% :rss-mb :goal-index)))   ; observed  (get / state view)
+
+;; Plan -- stage a whole new allocation atomically in a candidate datastore,
+;; so the orbit never transits a bad intermediate (knob-by-knob) state.
+(nc-edit-config :orbit :candidate
+  '((:workload
+     (:orbital (:@operation :merge) (:name :etl-worker)
+               (:priority :background) (:cpu-weight 100))
+     (:orbital (:@operation :merge) (:name :term-host)
+               (:priority :foreground) (:cpu-weight 800)))))
+
+;; Validate -- the plan must preserve invariants: the core's CPU reserve, each
+;; orbital's floor, and share feasibility. Rejects a plan that would starve the
+;; supervisor before it is ever applied.
+(nc-validate :orbit :candidate)
+
+;; Execute with a dead-man's switch -- apply now, auto-revert in 20 s unless the
+;; supervisor reconfirms, and it reconfirms ONLY if goals did not regress.
+(nc-commit :orbit :confirmed t :timeout 20)
+;; ... supervisor observes the effect over the confirmation window ...
+(when (wlm-goal-index-not-worse-p) (nc-commit :orbit :confirm t))   ; make it stick
+```
+
+The candidate datastore maps cleanly onto z/OS WLM's notion of activating a whole
+**service policy** atomically rather than poking individual goals; `validate`
+encodes the feasibility and reserve invariants z/OS achieves through its own
+conservatism; and confirmed-commit supplies an explicit safety rail that z/OS
+WLM largely substitutes caution for. This is the autonomic-computing "safe
+self-tuning" pattern, and it sits squarely under Origin's *Reflective* /
+organic-computing framing.
+
+
+### Declared intent versus observed consumption (config-vs-state)
+
+The DevPlan describes the workload sub-vocabulary as "`status :workload` --
+declared intent versus observed consumption." That phrase *is* NETCONF's
+config-vs-state distinction, exactly: `get-config` returns the declared targets
+(class, priority, resource hints), `get` returns observed reality (CPU%, RSS,
+queue depth, goal attainment). The gap between the two strata is the control
+signal -- a *performance index* in z/OS WLM terms (observed relative to goal) --
+and it is what Analyze consumes to decide whether to Plan a change at all. So
+`status :workload` should return both strata side by side, and the vocabulary
+should keep "what I asked for" and "what is happening" as distinct, separately
+queryable views rather than a single merged report.
+
+
+### Other intersections across the survey
+
+Beyond NETCONF, several survey elements have a sharper WLM bearing than their
+original context suggested, ranked by how load-bearing they are:
+
+1. **HTTP's idempotency axis -> convergence and arbitration.** A *continuous*
+   reconciliation loop must Execute with **idempotent** (declarative, PUT-like)
+   verbs, or it drifts instead of converging -- re-applying the desired
+   allocation must be a no-op when already satisfied. Non-idempotent `delta`
+   would be wrong for the loop. Separately, **conditional requests**
+   (ETag/If-Match) arbitrate the human-versus-autonomic conflict: the WLM loop
+   should set priority only `:if-match` the version it last observed, so it never
+   silently clobbers a manual operator override made in the interim.
+
+2. **GraphQL selection + arguments -> the Monitor step.** WLM monitoring wants a
+   *coherent single-snapshot* of the whole orbit (many separate polls skew
+   against each other), and it wants ranking -- "the top N consumers by CPU."
+   GraphQL's nested selection in one round trip and its field arguments
+   (`:top 5 :by :cpu`) are exactly that query shape; the Lexter window model
+   never demanded it, but the WLM monitor does.
+
+3. **SNMP's Counter32 vs Gauge32 -> metric typology.** WLM's observed metrics are
+   of two kinds: monotonic **counters** (CPU-seconds consumed, requests served --
+   diffed over time to yield rates) and **gauges** (current RSS, current queue
+   depth -- read directly). Typing each `status :workload` leaf as counter or
+   gauge tells the core which to rate-difference and which to read as a level --
+   a small, concrete borrowing that prevents a whole class of metric errors.
+
+4. **watch / subscribe -> push-driven Monitor.** Polling is not the only path
+   into Analyze. SNMP traps and GraphQL subscriptions model a push channel for
+   threshold-crossing events (`goal-missed`, `queue-saturated`), letting WLM
+   react promptly to a breach between polls rather than waiting for the next
+   sweep.
+
+5. **JMX `describe` -> workload schema as live Knowledge.** A *generic* WLM loop
+   must operate over heterogeneous orbitals without hardcoding their knobs.
+   `describe` reporting each orbital's workload schema -- is it preemptable? is it
+   checkpoint-safe? what is its resource-hint shape? -- is how the founding
+   vision's per-function `(declare (workload ...))` annotations become the live
+   *Knowledge* (the K in MAPE-K) the loop reasons over, rather than static
+   configuration the operator must maintain.
+
+Taken together, WLM is the application that exercises nearly every borrowing in
+this document at once -- and it is also why Installment III matters: NETCONF's
+commit is transactional but one-shot, whereas WLM is a loop that must keep
+re-converging. The **continuous** reconciliation Origin needs for autonomic
+retuning is the Kubernetes controller pattern, and the confirmed-commit safety
+rail described here is what makes such a loop safe to let run unattended.
