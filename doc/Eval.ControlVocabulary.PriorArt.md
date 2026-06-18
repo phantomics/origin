@@ -1097,3 +1097,364 @@ commit is transactional but one-shot, whereas WLM is a loop that must keep
 re-converging. The **continuous** reconciliation Origin needs for autonomic
 retuning is the Kubernetes controller pattern, and the confirmed-commit safety
 rail described here is what makes such a loop safe to let run unattended.
+
+
+---
+
+# Installment III -- Erlang/OTP, LSP, Plan 9 / 9P
+
+The first two installments were about the *vocabulary*: verbs, selectors,
+schema, the declarative tier. This installment is mostly about the *envelope and
+the session* -- how a message is delivered (synchronously or not), how a
+connection is opened and its capabilities agreed, how an orbital is introspected
+for free, how state crosses a restart, and -- in Plan 9's case -- whether the
+envelope should be an RPC datum at all or a synthetic filesystem. These three
+references bear on roadmap milestone 1 (envelope and transport) and open
+questions Q2 (response envelope), Q3 (streaming), Q4 (state handoff), and Q7
+(versioning) more than on the verb set.
+
+One caveat up front: Origin's supervisor *already* descends from OTP -- restart
+strategies, restart intensity, child specs, supervised respawn are existing
+heritage (see the README). So the fresh lessons from Erlang here are not
+supervision but the **control channel**: `call`/`cast`, the `sys` debug
+interface, and `code_change`. The shared Lexter scenario and the `:web` contrast
+orbital carry over unchanged; the archetypes these three stress hardest are the
+*long/cancellable operation* (an expensive `:window :all` or a connection drain)
+and *restart with state handoff* (milestone 7).
+
+
+## Rendition 7 -- Erlang/OTP (`gen_server` `call`/`cast` + `sys` + `code_change`)
+
+A `gen_server` is a process with a behaviour: clients send it messages two ways.
+**`call`** is synchronous -- it blocks for a reply, with a timeout.
+**`cast`** is asynchronous -- fire-and-forget, no reply. The server's
+`handle_call/3` returns a tagged tuple (`{reply, R, S}` / `{noreply, S}` /
+`{stop, Reason, R, S}`) that doubles as a response-and-lifecycle envelope.
+Orthogonally, the **`sys`** module gives *every* gen_server a free, uniform
+introspection channel -- `sys:get_state`, `sys:get_status` -- with no
+server-specific code, and **`code_change/3`** transforms live state across a code
+version, the OTP hot-upgrade hook.
+
+```lisp
+;; call -- synchronous, awaits a reply. This is a DELIVERY axis (sync vs async),
+;; NOT a read/write axis: a call may read or mutate.
+(orbital-call :term-host '(:status :window 2 :query (:total-lines :pwd)) :timeout 5)
+;; => (:reply (:total-lines 1843 :pwd "/home/sloane/src"))
+(orbital-call :web '(:status :metrics :query (:request-rate :p99-latency)))
+
+;; cast -- asynchronous, no reply (the `signal` shape)
+(orbital-cast :web '(:drain :grace 30))            ; returns immediately
+(orbital-cast :term-host '(:signal :redraw))
+
+;; A control handler returns a structured tuple -- response + lifecycle in one:
+;;   (:reply VALUE STATE) | (:noreply STATE) | (:stop REASON [REPLY] STATE)
+(defun handle-control (msg state)
+  (case (car msg)
+    (:status (values :reply (query-window state (getf (cdr msg) :window)) state))
+    (:drain  (values :noreply (begin-drain state)))
+    (:quit   (values :stop :normal state))))
+
+;; sys -- a UNIVERSAL read-only channel every orbital answers for FREE, no handler
+(orbital-get-state  :web)       ; internal state, like sys:get_state
+(orbital-get-status :web)       ; state + metadata, like sys:get_status
+
+;; code_change -- live state handoff keyed by version (the restart-with-state model)
+(defun code-change (old-vsn state extra)
+  (declare (ignore extra))
+  (migrate-state old-vsn state))  ; transform application state across a code upgrade
+```
+
+### Ergonomics
+
+- **G1 Structured: strong.** Messages are tagged terms; replies are tagged
+  tuples pattern-matched at the receiver. Erlang terms are essentially
+  S-expressions, so the fit with Origin is native.
+- **G2 Data-not-code: strong, with the familiar caveat.** `handle_call`
+  dispatches on the message term by pattern; the surface is closed to the
+  clauses it matches. (Erlang *can* ship an `{M,F,A}` and `apply` it -- the
+  same code-like temptation as JMX `invoke`; idiomatic gen_servers don't, and
+  Origin shouldn't.)
+- **G3 CQS: present, but on a different axis -- the key insight.** `call`/`cast`
+  is **synchronous vs asynchronous**, which is *orthogonal* to safe vs mutating:
+  a `call` can mutate, a `cast` can mutate. CQS proper lives elsewhere -- in the
+  read-only `sys` channel versus the do-anything `handle_call`. Origin must
+  carry *two* axes and not conflate them: safe/mutating (CQS) and sync/async
+  (delivery).
+- **G4 Two-tier: moderate.** The universal layer is the behaviour itself
+  (`call`/`cast`/`info` + `sys` + supervision); the per-server sub-vocabulary is
+  the set of message tags each `handle_call` matches.
+- **G5 Self-describing: weak for the vocabulary, but `sys` is the gem.** A
+  gen_server cannot enumerate which messages it accepts (they are just pattern
+  clauses, not introspectable) -- OTP has no `describe`. But `sys:get_state` /
+  `get_status` mean state observability costs the server *nothing*. That free
+  introspection is the lesson, not schema discovery.
+- **G6 Declarative/Δ: weak, except `code_change`, which is outstanding.**
+  Messages are imperative. But `code_change` is the deepest *state-handoff*
+  model in the survey: version-keyed, in-place transformation of live state
+  across a code change -- a different and complementary mechanism to NETCONF's
+  staged-config commit.
+- **Q5 Addressing: coarse.** The target is a pid or registered name; there is no
+  sub-selector grammar -- any sub-addressing rides inside the message term.
+
+**Steal:** the `call`/`cast` **sync/async delivery axis** as a second
+classification alongside CQS (status/describe are safe+sync; signal is
+mutating+async); `sys:get_state`/`get_status` as the model for *free* universal
+introspection -- Origin's default universal-verb handlers derived from
+`managed-process` *are* the "`sys` for free" pattern, the concrete realization of
+goal 7; `code_change` as the version-keyed state-handoff model for milestone 7;
+the `{reply|noreply|stop}` tuple as a unified response/lifecycle envelope (Q2).
+**Reject:** conflating sync/async with safe/mutating; a message vocabulary that
+is pattern clauses rather than an enumerable, describable schema (Origin needs
+`describe`, which OTP lacks); `{M,F,A}`-style apply as a control message.
+
+
+## Rendition 8 -- LSP (capability negotiation + request/notification + cancel/progress)
+
+LSP is JSON-RPC with three message kinds: **requests** (carry an id, expect a
+response), **notifications** (no id, no response), and responses. Its defining
+moves are a **capability negotiation** at connect (the `initialize` request
+exchanges client and server capabilities, after which features are *gated* on
+what was agreed -- "if the client didn't announce it, the server can't rely on
+sending it"), **dynamic (un)registration** of capabilities after connect
+(`client/registerCapability`, "without a restart"), and first-class
+**long-operation lifecycle**: `$/cancelRequest` cancels an in-flight request
+(which must still return a response, possibly partial), and `$/progress` streams
+progress against a token.
+
+```lisp
+;; initialize -- capability + version negotiation at connect; features gated on it
+(lsp-initialize :web
+  :client-capabilities '(:control-version "1.1"
+                         :sub-vocabularies (:http-server)
+                         :supports (:progress :cancel :watch)))
+;; => (:server-capabilities
+;;     (:control-version "1.1"
+;;      :sub-vocabularies ((:http-server "1.2") (:metrics "1.0"))
+;;      :supports (:progress :cancel)))            ; no :watch -> client must not rely on it
+
+;; request -- has an id, expects a response (sync; correlated by id)
+(lsp-request 42 :web '(:metrics/status :query (:request-rate :p99-latency)))
+;; notification -- no id, no response (async; the watch/signal direction)
+(lsp-notify :web '(:lifecycle/drain :grace 30))
+
+;; long operations: cancel an in-flight request; stream progress against its token
+(lsp-request 43 :web '(:status/all-routes))        ; expensive fan-out
+(lsp-cancel 43)                                     ; $/cancelRequest -- still gets a (partial) reply
+;; server -> client progress, keyed to the request:  (:progress 43 (:done 120 :total 4000))
+
+;; dynamic capability (re)registration after connect, no reconnect
+(lsp-register :web '(:capability :metrics/histogram :version "1.0"))
+
+;; namespaced methods: category/action == sub-vocabulary/verb (two-tier shape)
+;;   :term-host/window-status   :http-server/route-add   :workspace/describe
+```
+
+### Ergonomics
+
+- **G1 Structured: strong.** Structured request/response/notification with
+  structured error objects (code + message + data).
+- **G2 Data-not-code: strong.** Named methods plus structured params, dispatched
+  against a closed, negotiated set.
+- **G3 CQS: weak -- the same orthogonality as Erlang.** request vs notification
+  is sync/async, not safe/mutating. LSP has no formal safe-method concept
+  (unlike HTTP); reads vs writes are by convention. So LSP reinforces the
+  delivery axis but contributes nothing to CQS -- a gap Origin must fill from
+  HTTP/JMX.
+- **G4 Two-tier: strong.** Namespaced methods (`category/action`) are exactly the
+  universal-verb-plus-sub-vocabulary shape, cut by feature area.
+- **G5 Self-describing: strong, and differently from JMX/GraphQL.** Capability
+  negotiation at `initialize` plus dynamic registration is a *connect-time and
+  runtime capability set* rather than a queryable parameter schema. It is the
+  canonical model for open Q7 (versioning/negotiation) and adds **feature-gating**
+  ("only send X if it was negotiated") that a pure `describe` lacks. Origin wants
+  both: a handshake for gross capabilities/versions and a queryable `describe`
+  for fine schema.
+- **G6 Declarative/Δ: weak.** Imperative requests/notifications; no desired-state.
+- **Q5 Addressing: namespaced verb + payload selectors.** The method namespaces
+  the sub-vocabulary; the params carry the fine selector (a URI + position in
+  LSP; an orbital selector in Origin).
+- **Long-operation lifecycle: the standout.** `$/cancelRequest` and `$/progress`
+  give cancellation and per-operation progress that none of the prior six had
+  cleanly -- distinct from event subscription, and exactly what an expensive
+  fan-out or a slow drain needs.
+
+**Steal:** capability + version negotiation at connect (`initialize`) with
+feature-gating, plus dynamic re-registration without reconnect -> open Q7, and a
+connect-time complement to `describe`; request/notification reinforcing the
+sync/async axis with id-correlation (Q2); `$/cancelRequest` as cancellable long
+operations (with a still-mandatory, possibly-partial reply); `$/progress` as
+*operation-scoped* progress streaming, to be distinguished from
+*subscription-scoped* event streams (open Q3); namespaced methods for the
+two-tier cut. **Reject:** JSON-RPC wire; the single-long-lived-client assumption
+(the core multiplexes many orbitals); LSP's ad hoc CQS -- Origin should add the
+safe/mutating tag LSP never formalized.
+
+
+## Rendition 9 -- Plan 9 / 9P (`ctl` and status files; read = query, write = command)
+
+Plan 9 represents every resource as a synthetic filesystem and controls it with
+ordinary file operations -- "no use for peculiar `ioctl`." A TCP connection is a
+directory `/net/tcp/N/` holding `ctl` (write text commands like `connect
+1.2.3.4!80`), `status`/`local`/`remote` (read state), and `data` (the stream).
+Killing a process is `echo kill > /proc/PID/ctl`. The 9P protocol underneath is
+~17 file operations (`Tversion`, `Twalk`, `Topen`, `Tread`, `Twrite`, `Tcreate`,
+`Tremove`, `Tstat`, ...), with `Tversion` first to negotiate version and message
+size. The radical idea: **CQS is enforced by the medium** -- reading a file is
+inherently the safe query, writing the `ctl` file is the mutation -- and the
+**path separates target from aspect**.
+
+```lisp
+;; The orbit is a synthetic filesystem. The PATH names target + aspect; READING
+;; a file is the safe query, WRITING the ctl file is the mutating command.
+
+;; Q -- read a status file (safe by the nature of the operation)
+(9p-read '(:orbit :term-host :window 2 :status))  ; => "lines 1843\npwd /home/sloane/src\n"
+(9p-read '(:orbit :web :metrics))                 ; => "rate 920\np99 14ms\nconns 311\n"
+
+;; C-set / C-delta -- write the ctl file (mutating by the nature of the operation)
+(9p-write '(:orbit :term-host :window 2 :ctl) "set poll 250")
+(9p-write '(:orbit :term-host :ctl) "open 2")     ; open two windows
+
+;; routes as a DIRECTORY: create = add, remove = delete (delta as filesystem ops;
+;; directories aren't written, their entries are created/removed)
+(9p-create '(:orbit :web :routes "v2-orders") "path /v2/orders handler orders-v2")
+(9p-remove '(:orbit :web :routes "v1-orders"))
+
+;; D -- a directory listing discovers which aspects/controls exist (structural describe)
+(9p-walk '(:orbit :web))          ; => (ctl status metrics routes/ conn/ health)
+(9p-stat '(:orbit :web :ctl))     ; mode bits reveal writable (mutating) vs read-only
+
+;; Tversion -- negotiate version + msize at attach (the third independent instance)
+(9p-version :web :msize 8192 :version "9P-origin.1")
+```
+
+### Ergonomics
+
+- **G1 Structured: split, the inverse of GraphQL.** The *envelope* (path +
+  read/write) is maximally uniform, but `ctl` and `status` file *contents* are
+  typically unstructured text to be parsed -- the MODIFY problem again. Structure
+  lives in the namespace, not the payload.
+- **G2 Data-not-code: strongest in the survey.** There is no eval surface at all:
+  writing bytes to a file is never code, reading is just reading. The control
+  plane is viscerally data-only.
+- **G3 CQS: the cleanest of all nine, because the medium enforces it.** read =
+  safe, write = mutating -- not a tag (SNMP), not a contract (HTTP), but the
+  nature of the operation. Per-aspect files (`ctl` writable, `status` read-only)
+  put the safe/mutating split into the structure itself.
+- **G4 Two-tier: strong, differently cut.** Universal verbs are the file ops
+  (`read`/`write`/`walk`/`create`/`remove`); the per-orbital sub-vocabulary is the
+  *shape of the synthetic filesystem* each orbital exposes plus its `ctl` command
+  grammar.
+- **G5 Self-describing: moderate, structural.** A directory listing
+  (`walk`/`stat`) discovers which controls and status aspects exist, and mode
+  bits reveal read vs write -- a filesystem-shaped `describe`. But the `ctl`
+  command grammar inside a file is not self-describing (prose docs, like MODIFY):
+  describe-of-structure yes, describe-of-parameters no.
+- **G6 Declarative/Δ: moderate, afforded by the shape.** `ctl` writes are
+  imperative, but the filesystem affords idioms: read/write a whole config file
+  (PUT-like, declarative), and `create`/`remove` directory entries (delta) -- the
+  routes-as-directory case shows delta falling out naturally.
+- **Q5 Addressing: the best structural separation.** The path cleanly separates
+  *target* (the directory: `/orbit/web`, `/orbit/web/routes/v2-orders`) from
+  *aspect* (the file: `ctl` vs `status` vs `data` vs `health`). Fan-out is a
+  directory listing. The decomposition into per-aspect files is a distinctive
+  alternative to one overloaded verb carrying many selectors.
+
+**Steal:** read-is-query / write-is-command as CQS *enforced by the medium* (the
+strongest structural CQS, worth emulating even in an RPC envelope by making safe
+verbs dispatch only to a read protocol -- open Q1); the path as a
+**target + aspect** addressing grammar, and the **per-aspect decomposition**
+(separate `ctl`/`status`/`data`/`health` surfaces rather than one verb overloaded
+with selectors); directory-listing-as-`describe`; `create`/`remove` as delta;
+`Tversion` as a third confirmation of connect-time negotiation. **Reject:**
+unstructured text in `ctl`/`status` contents (keep payloads S-expression data);
+the full mount/namespace machinery as mandatory (it is an envelope *alternative*,
+intriguing but heavy); representing high-cardinality ephemeral populations (every
+connection a directory) -- enumerating thousands of `conn/N/` entries is where
+the metaphor strains, the same high-cardinality lesson seen from the envelope
+side.
+
+
+---
+
+## Comparison -- Installment III
+
+| Axis | Erlang/OTP | LSP | Plan 9 / 9P |
+|------|------------|-----|-------------|
+| **G1 Structured** | Strong (tagged terms/tuples) | Strong (JSON-RPC + error objects) | Split -- uniform envelope, textual file contents |
+| **G2 Data-not-code** | Strong (`{M,F,A}` caveat) | Strong (negotiated method set) | Strongest -- no eval surface at all |
+| **G3 CQS** | Orthogonal -- sync/async, not read/write | Weak -- by convention only | Cleanest -- enforced by the medium |
+| **G4 Two-tier** | Behaviour + message tags | Namespaced methods (`category/action`) | File ops + per-orbital filesystem |
+| **G5 Self-describing** | Weak vocab; `sys` state for free | Strong -- connect-time capability negotiation + dynamic registration | Moderate -- directory listing as describe |
+| **G6 Declarative/Δ** | Weak; `code_change` for state handoff | Weak | Moderate -- whole-file PUT; create/remove delta |
+| **Q5 Addressing** | Coarse -- pid/name; rest in payload | Namespaced verb + payload selector | Best -- path = target + aspect; listing = fan-out |
+| **One-line** | The sync/async axis, free `sys` introspection, and `code_change` handoff | Connect-time capability negotiation + cancel/progress | Medium-enforced CQS and the filesystem envelope alternative |
+
+
+## Synthesis for Origin -- Installment III
+
+Where the first two installments fixed the vocabulary, this trio fixes the
+envelope and the session -- and several findings converge so strongly across
+independent systems that they should be treated as settled:
+
+1. **A second delivery axis: sync vs async.** Erlang (`call`/`cast`) and LSP
+   (request/notification) independently invent the same distinction, and it is
+   *orthogonal* to CQS. Origin's envelope needs both axes at once: every verb is
+   classified safe-vs-mutating (from HTTP/JMX) *and* sync-vs-async (from
+   Erlang/LSP). `status`/`describe` are safe + sync (await a reply); `signal` is
+   mutating + async (fire-and-forget); `watch` is safe + async-stream. Conflating
+   the two axes -- the easy mistake -- must be avoided.
+
+2. **Connect-time capability/version negotiation is settled (Q7).** Three more
+   independent inventions -- NETCONF `<hello>`, LSP `initialize`, 9P `Tversion`
+   -- agree that a session opens with a version-and-capability handshake. Origin
+   should negotiate at connect, with LSP's refinements: feature-gating ("don't
+   rely on what wasn't announced") and dynamic re-registration without a
+   reconnect. This *complements* the queryable `describe` (JMX/GraphQL): the
+   handshake settles gross capabilities and versions; `describe` answers fine
+   schema on demand.
+
+3. **Free compliance is a real mechanism, not an aspiration (goal 7).** Erlang's
+   `sys` gives every gen_server `get_state`/`get_status` with zero
+   server-specific code. This is precisely Origin's plan to derive default
+   universal-verb handlers from `managed-process`: the bare orbital is compliant
+   because the *core already knows* its lifecycle state. "Free `sys`" is the
+   concrete proof the low-compliance-cost goal is achievable.
+
+4. **State handoff now has two complementary models (milestone 7).** Erlang
+   `code_change` (version-keyed, in-place transformation of live application
+   state) sits alongside NETCONF candidate/commit (staged, validated config
+   transactions). They are not competitors: `code_change` is the model for
+   migrating *application/session* strata across a code version; candidate/commit
+   is the model for staging *configuration*. The deepest milestone should draw on
+   both.
+
+5. **Operation lifecycle is distinct from subscription (Q3).** LSP separates
+   *operation-scoped* `$/progress` and `$/cancelRequest` (one expensive request,
+   streamed and cancellable, still owing a reply) from the *subscription-scoped*
+   event stream that `watch` provides. Origin needs both and should not collapse
+   them: a slow `:window :all` fan-out wants progress + cancel; a live log tail
+   wants subscription.
+
+6. **The envelope shape itself is a live design fork (9P).** Plan 9 shows the
+   whole two-tier CQS structure realized *without* an RPC datum: control by
+   writing, status by reading, over a synthetic filesystem, with CQS enforced by
+   the medium rather than declared. Even if Origin keeps an S-expression RPC
+   envelope, two 9P ideas transfer directly: **per-aspect decomposition**
+   (distinct `ctl`/`status`/`health`/`data` surfaces per target instead of one
+   verb overloaded with selectors) and **listing-as-describe**. The contrast pass
+   sharpens the limit: routes-as-a-directory (`create`/`remove` = delta) is
+   elegant, but thousands of ephemeral connections as directory entries is where
+   the filesystem metaphor strains -- the high-cardinality lesson again, now from
+   the envelope side, and an argument that Origin's RPC envelope (with
+   GraphQL-style filtered queries) is the better default with 9P's per-aspect
+   structure borrowed on top.
+
+7. **What remains.** Across all three installments, Origin's vocabulary (verbs,
+   selectors, schema, declarative tier) and its envelope (two delivery axes,
+   connect-time negotiation, free introspection, dual state-handoff models,
+   operation-vs-subscription streaming) are now well-sourced. The one piece still
+   outstanding is the one the WLM appendix and Installment II both pointed to:
+   **continuous reconciliation** -- a control loop that turns NETCONF's one-shot
+   commit into perpetual convergence, with liveness distinguished from readiness.
+   That is the Kubernetes pattern, and it is the subject of the next installment.
