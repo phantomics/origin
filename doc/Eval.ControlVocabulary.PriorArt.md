@@ -1,14 +1,21 @@
-# Control Vocabulary: Prior-Art Evaluation (I) -- SNMP, z/OS MODIFY, JMX
+# Control Vocabulary: Prior-Art Evaluation
 
-This document evaluates the control vocabularies of the first three prior-art
-technologies named in `DevPlan.ControlVocabulary.md`: **SNMP** (GET/SET over
-MIBs), the **z/OS `MODIFY` (`F`)** operator command, and **JMX MBeans**. For
-each, it renders a small subset of the technology's grammar as Common Lisp
-forms, grounds the rendition in one shared Origin scenario, and scores the
-ergonomics against a rubric drawn from the DevPlan's design goals. The aim is
-not to specify Origin's vocabulary but to learn from each ancestor what to
-borrow and what to avoid when designing the control surface for Origin's
-orbitals.
+This document evaluates the control vocabularies of the prior-art technologies
+named in `DevPlan.ControlVocabulary.md`. For each, it renders a small subset of
+the technology's grammar as Common Lisp forms, grounds the rendition in a shared
+Origin scenario, and scores the ergonomics against a rubric drawn from the
+DevPlan's design goals. The aim is not to specify Origin's vocabulary but to
+learn from each ancestor what to borrow and what to avoid when designing the
+control surface for Origin's orbitals.
+
+The evaluation proceeds in installments. **Installment I** covers **SNMP**
+(GET/SET over MIBs), the **z/OS `MODIFY` (`F`)** operator command, and **JMX
+MBeans**. **Installment II** covers **HTTP safe methods** (RFC 9110),
+**GraphQL**, and **NETCONF/YANG** -- the references with declarative and
+capability-negotiation ancestry that Installment I's synthesis flagged as the
+missing tier. The Method, shared scenario, representativeness caveat, and rubric
+below are shared by all installments; each installment then contributes its own
+renditions, comparison, and synthesis.
 
 **Date:** 2026-06-17
 
@@ -126,6 +133,13 @@ Each rendition is scored on:
 
 
 ---
+
+# Installment I -- SNMP, z/OS MODIFY, JMX
+
+The first three references share a two-tier, command/query-separated shape and
+predate the declarative-reconciliation idea; they are evaluated below against
+the shared Lexter scenario.
+
 
 ## Rendition 1 -- SNMP (GET / GETNEXT / GETBULK / SET over a MIB)
 
@@ -497,7 +511,7 @@ substrate anyway).
 
 ---
 
-## Comparison
+## Comparison -- Installment I
 
 | Axis | SNMP | z/OS MODIFY | JMX MBeans |
 |------|------|-------------|------------|
@@ -511,7 +525,7 @@ substrate anyway).
 | **One-line** | The two-tier + typed-CQS schema model, minus the digits and the out-of-band MIB | The universal-verb envelope, minus the text | The `describe` and selector model, plus protocol CQS |
 
 
-## Synthesis for Origin
+## Synthesis for Origin -- Installment I
 
 The three ancestors are strikingly complementary -- each is strongest exactly
 where the others are weak, and Origin can take the best axis from each:
@@ -566,3 +580,380 @@ declarative tier must come from elsewhere.** The next evaluation installment
 should take up the references that *do* have declarative ancestry (Kubernetes,
 NETCONF/YANG) together with the CQS-at-the-protocol references already partly
 seen here (GraphQL, HTTP safe methods).
+
+
+---
+
+# Installment II -- HTTP Safe Methods, GraphQL, NETCONF/YANG
+
+Installment I closed on a gap: its three ancestors were imperative, with no
+declarative desired-state and no version negotiation. This installment takes up
+the three references that supply exactly those missing pieces. It reuses the
+rubric and the shared Lexter scenario unchanged, and -- following the
+*contrast pass* adopted in "Representativeness" above -- adds a second,
+deliberately un-Lexter-like target: an HTTP-server orbital. These three
+technologies are precisely the ones that Lexter's terminal model under-exercises
+(aggregate metrics, configuration trees, high-cardinality collections,
+declarative convergence), so the contrast pass does real work here rather than
+merely restating the Lexter result.
+
+
+## The contrast scenario: an HTTP-server orbital
+
+`:web` is an `:image` orbital running an HTTP server. Where `:term-host` has a
+small set of durable, enumerable windows, `:web` has the opposite shape along
+every axis from the representativeness table: a churning population of ephemeral
+connections, metrics that are rates and percentiles rather than discrete reads,
+a configuration *tree* (listen ports, a route table, a worker pool, TLS) rather
+than a collection of UI objects, and -- crucially -- routes that are
+configuration data, **not** managed orbitals. The same four archetypes, plus the
+two the web case forces into view:
+
+| Tag | Archetype | Lexter (`:term-host`) | Web (`:web`) |
+|-----|-----------|-----------------------|--------------|
+| **Q** | query (read) | window 2's lines + pwd | request-rate, p99 latency, live connections (aggregates) |
+| **C-set** | configure | window 2 poll interval | worker-pool size; a route's rate limit |
+| **C-delta** | delta | open/close windows | add/remove a route (config collection, not orbitals) |
+| **D** | discovery | supported verbs/queries | supported queries/config keys |
+| **A** | declarative apply | (Lexter had none) | the whole desired config: ports + routes + pool + TLS |
+| **R** | readiness/drain | (n/a) | drain connections; ready != alive |
+
+Archetypes **A** and **R** are the ones Lexter could not surface; they are where
+this installment's three references earn their place.
+
+
+## Rendition 4 -- HTTP Safe Methods (RFC 9110)
+
+HTTP is not a control vocabulary so much as a *method taxonomy*, and that
+taxonomy is the borrowable part. RFC 9110 (which obsoletes the RFC 7231 the
+DevPlan cites) classifies methods on **two orthogonal axes**: *safe* (GET, HEAD,
+OPTIONS, TRACE -- no observable mutation) and *idempotent* (GET, HEAD, PUT,
+DELETE, OPTIONS, TRACE -- repeating yields the same effect). POST is neither.
+PUT and DELETE are idempotent but not safe. Two axes, not one -- and the spec is
+explicit that safety is *a promise to the client, not something the server
+enforces*: "a client can expect the resource to avoid actions that are unsafe."
+That is exactly the DevPlan's open-question Q1 stance ("safe by construction and
+by contract"), with HTTP as decades-long proof the contract is workable.
+
+```lisp
+;; Methods as verbs over a resource path. Lexter and web, same tiny verb set:
+;; Q (safe, idempotent) -- GET. The resource differs; the verb does not.
+(http-get '(:term-host :window 2) :select '(:total-lines :pwd))
+(http-get '(:web :metrics)        :select '(:request-rate :p99-latency :connections))
+
+;; HEAD (safe) -- liveness/existence without the body (a cheap readiness probe)
+(http-head '(:web :health))                       ; 200 ready / 503 not-ready
+
+;; C-set / A -- PUT is idempotent: PUT the full desired state of a resource.
+;; Re-issuing changes nothing further -- this is declarative-by-method.
+(http-put '(:web :config :worker-pool) '(:size 16))
+(http-put '(:web :config) '(:listen (8080 8443) :pool (:size 16) :tls :on))  ; whole-config apply
+
+;; C-delta -- POST is NOT idempotent: each call appends another route.
+(http-post '(:web :routes) '(:path "/v2/orders" :handler :orders-v2))
+;; DELETE is idempotent: deleting an absent route still ends "absent".
+(http-delete '(:web :routes "/v1/orders"))
+
+;; Optimistic concurrency: only mutate if unchanged since I last observed it.
+(http-get '(:web :config :worker-pool))           ; => 200, ETag "etag-3f2a"
+(http-put '(:web :config :worker-pool) '(:size 16) :if-match "etag-3f2a")
+;; => 412 Precondition Failed if it moved underneath me
+
+;; D -- OPTIONS reports which methods a resource allows (a thin describe)
+(http-options '(:web :routes "/v2/orders"))        ; => (:allow (:get :put :delete))
+```
+
+### Ergonomics
+
+- **G1 Structured: the taxonomy yes, the wire no.** HTTP's headers are textual,
+  but what Origin steals is the *classification*, not the encoding. Responses
+  carry status classes (2xx/4xx/5xx) and, notably, **206 Partial Content** -- a
+  ready model for the partial result of a `:window :all` / multi-route fan-out
+  (open Q2), and **304 Not Modified** for cheap revalidation.
+- **G2 Data-not-code: strong.** A handful of methods over data-shaped resource
+  paths; nothing is evaluated.
+- **G3 CQS: the canonical source, and richer than the DevPlan's current binary.**
+  HTTP separates *two* axes -- safe-vs-unsafe and idempotent-vs-not -- where the
+  DevPlan currently has one (safe-vs-mutating). The second axis is not
+  decoration: it is precisely what distinguishes a declarative idempotent
+  `apply`/`configure` (PUT-like) from a non-idempotent `delta` (POST-like).
+  Origin should classify each verb on both axes.
+- **G4 Two-tier: yes.** Universal methods; per-resource representation and
+  allowed-method set.
+- **G5 Self-describing: weak-to-moderate.** OPTIONS + the `Allow` header is a
+  per-resource capability probe, but it lists only *which* methods are allowed,
+  not the *schema* of their parameters -- weaker than `MBeanInfo`. `Accept` /
+  `Vary` content negotiation is, however, a seed for representation/version
+  negotiation.
+- **G6 Declarative/Δ: the first in the whole survey to carry it natively.** PUT
+  (idempotent, declarative "make it be this") versus POST (non-idempotent,
+  additive "do this") *is* the DevPlan's "declarative default + imperative
+  delta," expressed as method semantics rather than two bespoke verbs. This is
+  the key find: the distinction Origin wants already has a crisp, battle-tested
+  formalization.
+- **Q5 Addressing: path hierarchy + conditional preconditions.** The URI path is
+  a selector path; **ETag + If-Match** adds an addressing dimension the first
+  trio lacked -- "this *version* of this resource" -- giving optimistic
+  concurrency for `configure`/`apply` and a concrete seed for vocabulary
+  versioning (open Q7).
+- **Contrast-pass note.** GET serving `(:web :metrics)` shows the same safe verb
+  answering a *rate/aggregate* query, not an object read -- the metric-nature
+  axis Lexter hid. HEAD on `(:web :health)` and 503 surface the
+  **readiness != liveness** distinction (archetype R) that the terminal model
+  never raised.
+
+**Steal:** the two-axis classification (safe? x idempotent?) as the model for
+tagging every Origin verb, directly grounding declarative (idempotent) vs delta
+(non-idempotent); the "safe = contract, not enforcement" stance (Q1);
+ETag/If-Match conditional requests for optimistic-concurrency `configure` and as
+a versioning seed (Q7); 206/partial + status classes for the response envelope
+(Q2); OPTIONS as a cheap capability probe. **Reject:** textual headers and the
+wire format; literal REST resource-orientation (Origin is verb + selector, not
+pure resources); statelessness as dogma (Origin's connections are deliberately
+stateful sessions).
+
+
+## Rendition 5 -- GraphQL (query / mutation / subscription + introspection)
+
+GraphQL's contribution is the idea that **the client declares the exact shape of
+the data it wants** and the response mirrors that shape -- eliminating both
+over- and under-fetching -- over a strongly typed, *introspectable* schema, with
+a hard split between `query` (read), `mutation` (write), and `subscription`
+(stream).
+
+```lisp
+;; Q -- a selection set: ask for exactly these fields; response mirrors the request
+(gql-query '(:term-host
+             (:window (:id 2)
+                      :total-lines :pwd
+                      (:cursor :line :col))))
+;; => (:window (:id 2 :total-lines 1843 :pwd "/home/sloane/src"
+;;              :cursor (:line 40 :col 3)))
+
+;; Web -- a nested aggregate selection retrieved in ONE round trip (no N+1),
+;; with field ARGUMENTS doing filtering / top-N -- the high-cardinality answer
+(gql-query '(:web
+             (:metrics :request-rate :p99-latency)
+             (:routes (:top 3 :by :latency) :path :p99 :hits)))
+
+;; "all windows" is a list-returning field; the client still picks the columns
+(gql-query '(:term-host (:windows :all :id :total-lines)))
+
+;; C-set / C-delta -- mutations are the write half; they run serially
+(gql-mutation '(:web (:set-worker-pool (:size 16) :size)))         ; returns new size
+(gql-mutation '(:web (:add-route (:path "/v2/orders" :handler :orders-v2) :path)))
+
+;; watch -- subscription streams events
+(gql-subscribe '(:web (:events :on (:route-saturated) :path :rate)))
+
+;; D -- introspection is itself a query, in the same language
+(gql-query '(:term-host (:__schema (:queries :name :args :type)
+                                   (:mutations :name :args))))
+```
+
+### Ergonomics
+
+- **G1 Structured: strong on both ends.** Request and response are both
+  structured, and the response shape is the request shape -- no scraping, no
+  guessing which fields come back.
+- **G2 Data-not-code: strong, with one caution.** A query is a selection-set
+  datum dispatched against a schema; it is bounded to declared fields. The
+  caution is depth: arbitrary nesting and aliasing can be abused, so Origin
+  should bound query depth/cost (a real GraphQL operational lesson).
+- **G3 CQS: strong, at the protocol level.** query / mutation / subscription is a
+  three-way split -- safe / mutating / watch -- with queries parallelizable and
+  mutations serialized. It is JMX's attribute/operation split generalized and
+  given a streaming third arm.
+- **G4 Two-tier: yes, cleanly.** The three operation kinds are universal; the
+  fields and types are the per-orbital sub-vocabulary -- and the field selection
+  *is* the DevPlan's typed `:query` selector list, realized exactly.
+- **G5 Self-describing: the strongest model seen.** Introspection (`__schema`,
+  `__type`) is reachable *through the same query language* as everything else --
+  not a side API like `MBeanInfo` or a separate `<hello>`. A client discovers
+  capabilities with the very mechanism it uses for data. This is the cleanest
+  possible realization of `describe`.
+- **G6 Declarative/Δ: partial, and in a different sense.** GraphQL is
+  request/response, not desired-state reconciliation; its mutations are
+  imperative. It *is* declarative about the **shape of data requested**, but it
+  offers no `apply`/converge. So it strengthens the query tier, not the
+  lifecycle tier.
+- **Q5 Addressing: best for high cardinality.** Field arguments
+  (`(:window (:id 2))`, `(:routes (:top 3 :by :latency))`) are selectors that
+  also filter, paginate, and rank -- which is exactly what the web orbital's
+  ephemeral, high-cardinality populations need and what SNMP's walk and JMX's
+  pattern could not express. The contrast pass makes this visible: Lexter's
+  handful of windows never needed `:top 3 :by :latency`.
+
+**Steal:** the selection set as the realized `:query` model (client picks the
+fields; response mirrors the request -- the DevPlan's "request exactly the
+fields you want"); introspection-through-the-query-language as the cleanest
+`describe`; query/mutation/subscription as safe/mutating/watch; field arguments
+for filtering / top-N / pagination (the high-cardinality answer); the
+data-plus-errors response (partial success, open Q2). **Reject:** the full SDL
+type-system ceremony for a CL-native substrate; unbounded query depth/cost
+without limits; HTTP-transport assumptions baked into the model.
+
+
+## Rendition 6 -- NETCONF/YANG (datastores, edit-config, commit, capabilities)
+
+NETCONF is the declarative-tier ancestor the DevPlan explicitly cites for
+"candidate versus running datastores -- a model for restart-with-staged-state."
+Its model: separate **datastores** (`<running>` -- the live config; `<candidate>`
+-- an editable scratch copy; `<startup>` -- boot config), an `<edit-config>`
+whose nodes carry a per-node **operation** (`merge` (default), `replace`,
+`create`, `delete`, `remove`), an atomic **`<commit>`** (optionally a
+*confirmed-commit* that auto-rolls-back unless reconfirmed), `<validate>`,
+`<discard-changes>`, a config-vs-state-data distinction (`<get-config>` reads
+only configuration; `<get>` reads configuration plus observed state), and a
+**capability exchange** via `<hello>` at session start.
+
+```lisp
+;; config vs state -- two different reads. get-config: what I declared.
+;; get: what is actually happening (read-only operational state).
+(nc-get-config :web :running :filter '(:routes))      ; declared route table
+(nc-get        :web          :filter '(:metrics))     ; observed rates (state data)
+
+;; Declarative apply against a CANDIDATE, validated, then committed atomically.
+(nc-edit-config :web :candidate
+  '((:config (:worker-pool (:size 16)))
+    (:routes (:route (:@operation :replace)           ; replace this subtree
+                     (:path "/v2/orders") (:handler :orders-v2)))))
+(nc-validate :web :candidate)                         ; check before it goes live
+(nc-commit   :web)                                    ; running <- candidate, atomic
+;; ...or abandon the staged edit entirely:
+(nc-discard-changes :web)
+
+;; Per-node operations express DELTA inside a declarative edit -- one mechanism
+;; spanning both: :merge / :replace (declarative) and :create / :delete / :remove (delta).
+(nc-edit-config :web :candidate
+  '((:routes (:route (:@operation :delete) (:path "/v1/orders")))))
+
+;; Confirmed commit: apply now, but auto-revert in 30s unless reconfirmed --
+;; the safety net for a reconfigure that might sever the core's own control link.
+(nc-commit :web :confirmed t :timeout 30)
+(nc-commit :web :confirm t)                           ; make it permanent
+
+;; Capability + version negotiation at connect (LSP-like; open Q7)
+(nc-hello :web)
+;; => (:base "1.1" :capabilities (:candidate :confirmed-commit :validate)
+;;     :sub-vocabularies ((:http-server "1.2")))
+
+;; Lexter parallel: stage an orbit edit, validate, commit atomically with rollback
+(nc-edit-config :term-host :candidate
+  '((:windows (:window (:@operation :create) (:id 8) (:font "Iosevka")))))
+(nc-commit :term-host :confirmed t :timeout 15)
+```
+
+### Ergonomics
+
+- **G1 Structured: strong.** Fully structured payloads (XML natively, S-exprs
+  here) and structured `rpc-error`s carrying type, severity, and a path to the
+  offending node -- a richer error envelope than even SNMP's index (open Q2).
+- **G2 Data-not-code: strong.** Edit payloads are data trees the server
+  dispatches, bounded by the YANG schema.
+- **G3 CQS: strong, with a second read axis.** get/get-config (read) vs
+  edit-config/commit (write) is the basic split; but the **config-vs-state**
+  distinction is a refinement none of the others had -- "configuration I set"
+  vs "operational state I observe" -- which maps directly onto Origin's state
+  taxonomy (configuration vs application/session) and onto `status` (observed)
+  vs a future `get-config` (declared).
+- **G4 Two-tier: yes.** Base operations are universal; YANG models are the
+  per-target sub-vocabulary, and `<hello>` advertises which models a target
+  speaks.
+- **G5 Self-describing: strong, and uniquely version-aware.** `<hello>`
+  capability exchange at connect is the model for the DevPlan's open Q7
+  (versioning / negotiation) and its LSP comparison; YANG modules are the
+  retrievable schema. Where JMX/GraphQL describe *shape*, NETCONF also
+  negotiates *version*.
+- **G6 Declarative/Δ: the model, and the best of the entire survey.** The
+  candidate datastore *is* "stage the desired state, validate it, commit it
+  atomically or discard it" -- the DevPlan's declarative `apply` and the
+  restart-with-staged-state milestone in one mechanism. Confirmed-commit adds an
+  auto-rollback safety net. And the per-node operation attribute unifies
+  declarative (`replace`/`merge`) and delta (`create`/`delete`/`remove`) in a
+  *single* edit, rather than as two separate verbs -- a cleaner answer to
+  goal 6 than treating `apply` and `delta` as wholly distinct.
+- **Q5 Addressing: subtree/xpath filters + per-node targeting.** Filters select
+  what to read; the per-node operation attribute targets edits within a tree.
+
+**Steal:** candidate/running datastores -> declarative `apply` *and* the
+restart-with-staged-state milestone (stage -> validate -> commit/discard);
+confirmed-commit auto-rollback -> the safety net for a `configure`/`apply` that
+could cut the core's own control link (a genuine meta-OS hazard); per-node
+operation attributes -> declarative and delta unified in one edit;
+config-vs-state distinction -> refines `status` and maps to the state taxonomy;
+`<hello>` capability/version negotiation -> open Q7. **Reject:** XML and the
+heavyweight tooling; full YANG modeling-language ceremony (Origin derives its
+data model from CLOS and the reader); mandatory datastore separation for trivial
+in-image `:thread` orbitals where it would be overkill.
+
+
+---
+
+## Comparison -- Installment II
+
+| Axis | HTTP safe methods | GraphQL | NETCONF/YANG |
+|------|-------------------|---------|--------------|
+| **G1 Structured** | Taxonomy yes, wire textual; 206/304 envelope | Strong both ways; response mirrors request | Strong; rpc-error with type/path |
+| **G2 Data-not-code** | Strong (methods over paths) | Strong; bound query depth | Strong (edit trees over schema) |
+| **G3 CQS** | Two axes: safe x idempotent | query / mutation / subscription | read/write + config-vs-state |
+| **G4 Two-tier** | Methods + per-resource representation | Operation kinds + schema fields | Base ops + YANG models |
+| **G5 Self-describing** | Weak-moderate (OPTIONS/Allow) | Strongest -- introspection in the query language | Strong + version negotiation (`<hello>`) |
+| **G6 Declarative/Δ** | PUT (idempotent) vs POST (delta) -- native | Partial -- declarative *shape*, imperative writes | The model -- candidate/commit + per-node ops |
+| **Q5 Addressing** | Path + ETag/If-Match (versioned) | Field arguments: filter / top-N / paginate | Subtree/xpath filter + per-node target |
+| **One-line** | The verb classification (safe x idempotent) and conditional concurrency | The selection-set query and introspection-as-query | The declarative datastore + commit + capability negotiation |
+
+
+## Synthesis for Origin -- Installment II
+
+Where Installment I's trio was uniformly imperative, this trio supplies the
+declarative tier and the negotiation tier -- and each does so on a different
+front:
+
+1. **HTTP gives Origin its verb classification (G3, G6).** Tag every universal
+   verb on *two* axes -- safe? and idempotent? -- not one. Safe-vs-mutating
+   gives the read-only connection guarantee (Q1, held "by contract" exactly as
+   HTTP holds it); idempotent-vs-not gives the principled line between a
+   declarative `apply`/`configure` (idempotent, PUT-like) and an imperative
+   `delta` (non-idempotent, POST-like). Add ETag/If-Match conditional requests
+   for optimistic-concurrency `configure` and as a concrete versioning seed, and
+   206/status classes for the partial-result envelope.
+
+2. **GraphQL gives Origin its query and discovery surface (G1, G5, Q5).** The
+   selection set realizes the DevPlan's `:query` selectors literally -- the
+   client names the fields, the response mirrors them -- and field arguments
+   bring filtering, top-N, and pagination, which the high-cardinality web
+   orbital needs and Lexter never demanded. Introspection through the same query
+   language is the cleanest `describe` of any reference: discovery is just
+   another query.
+
+3. **NETCONF gives Origin the declarative lifecycle the first trio lacked (G6,
+   and the state-handoff milestone).** Candidate -> validate -> commit/discard is
+   `apply` and restart-with-staged-state in one mechanism; confirmed-commit is
+   the auto-rollback safety net for self-modifying control changes; per-node
+   operations unify declarative and delta in a single edit; the config-vs-state
+   split refines reads and maps onto Origin's state taxonomy; and `<hello>`
+   answers the versioning question (Q7).
+
+4. **The contrast pass earned its place.** The `:web` orbital surfaced four
+   things Lexter structurally could not: *aggregate/rate queries* (GET on
+   `:metrics`; GraphQL `:top n :by`), *configuration-tree declarative state*
+   (NETCONF candidate/commit over ports + routes + pool), *readiness != liveness*
+   (HTTP HEAD/503, archetype R), and *config collections that are not orbitals*
+   (routes edited as data, never confused with managed orbitals) -- which
+   sharpens the sub-orbital-vs-domain-object hazard flagged in
+   "Representativeness": NETCONF edits routes as configuration, with no
+   temptation to treat them as supervised children.
+
+5. **Across both installments, Origin's shape is now legible.** A plausible
+   synthesis: JMX/GraphQL-style `describe` (introspection as a query);
+   verbs classified on HTTP's two axes and carried in MODIFY's universal
+   envelope; SNMP-typed, JMX/GraphQL-selected queries with GraphQL field
+   arguments for fan-out; NETCONF datastores for declarative `apply` and state
+   handoff; SNMP/GraphQL/NETCONF structured partial-error envelopes; and
+   OPTIONS/`<hello>`/`Accept` for capability and version negotiation. The one
+   piece still outstanding is *continuous* reconciliation -- NETCONF's commit is
+   transactional but one-shot, not a control loop that keeps re-converging. That
+   remaining declarative idea belongs to **Kubernetes** (desired-state
+   controllers, liveness vs readiness probes), the natural subject of a third
+   installment.
