@@ -1458,3 +1458,298 @@ independent systems that they should be treated as settled:
    **continuous reconciliation** -- a control loop that turns NETCONF's one-shot
    commit into perpetual convergence, with liveness distinguished from readiness.
    That is the Kubernetes pattern, and it is the subject of the next installment.
+
+
+---
+
+# Installment IV -- Kubernetes, D-Bus / systemd
+
+The final pair of references is the most pointed of the survey, because it sets
+the aspiration directly against the baseline. **Kubernetes** is the model Origin
+most wants to emulate -- the continuous, declarative, self-healing
+reconciliation loop that every prior installment pointed toward but none
+supplied. **D-Bus / systemd** is, in the DevPlan's own words, "a structured
+control plane bolted onto an unstructured substrate -- the baseline Origin
+improves upon." Studying them together yields the installment's sharpest finding:
+both are "structured control planes," but they differ in their *substrate*, and
+that difference is exactly Origin's thesis.
+
+Two technologies rather than three; the shared Lexter scenario and the `:web`
+contrast orbital carry over unchanged. The archetypes these two stress hardest
+are *declarative apply* (archetype A, which Lexter could not surface in
+Installment I) and *readiness versus liveness* (archetype R).
+
+
+## Rendition 10 -- Kubernetes (declarative reconciliation, probes, selectors)
+
+Every Kubernetes object splits into a `spec` (the desired state, owned by the
+user) and a `status` (the observed state, owned by a controller). A controller
+runs a **reconciliation loop** forever, reading the latest `spec`, observing
+actual state, and issuing whatever create/update/delete operations close the gap.
+The defining property is that the loop is **level-triggered, not edge-triggered**:
+it acts on the *current state*, not on an event stream, which is why it survives
+missed events, partitions, and controller restarts. Every reconcile is
+**idempotent**. Health is split three ways (liveness / readiness / startup
+probes), and sets of objects are addressed by **labels and label selectors**.
+
+```lisp
+;; A desired-orbit manifest: declare the orbit you WANT, not the steps to reach it.
+;; spec = desired (you own it); status = observed (the reconciler owns it).
+(apply-orbit
+ '(:orbit
+   (:orbital (:name :term-host :kind :lexter-host)
+    :labels (:layer :presentation :workload :interactive)
+    :spec   (:windows 3 :font "Iosevka" :restart-policy :always)
+    :probes (:liveness  (:every 10 :verb (:status :health))   ; fails -> restart
+             :readiness (:verb (:status :ready))))             ; fails -> stop serving, keep running
+   (:orbital (:name :web :kind :http-server)
+    :labels (:layer :presentation :workload :latency-sensitive)
+    :spec   (:replicas 1 :listen (8080 8443) :pool (:size 16))
+    :probes (:startup   (:verb (:status :booted))              ; gates the others
+             :readiness (:verb (:status :ready :query (:accepting-connections)))))))
+;; Idempotent + level-triggered: re-applying the same manifest is a no-op; the
+;; reconciler acts only on the GAP between spec and status, and self-heals after
+;; a missed event or a supervisor restart by re-reading current state.
+
+;; Desired vs observed are two separate lanes (status is its own subresource):
+(orbit-get :term-host :spec)     ; => (:windows 3 :font "Iosevka" ...)        what I want
+(orbit-get :term-host :status)   ; => (:windows 3 :ready t :uptime 4210 ...)  what is
+
+;; Set-addressing by label selector across the whole orbit -- not one target:
+(orbit-select '(:and (:layer :presentation) (:workload :latency-sensitive)))
+;; => (:web)
+
+;; Server-side apply: each writer owns the fields it sets; disjoint writers do
+;; not clobber, same-field writers get a surfaced conflict (not last-write-wins).
+(apply-orbital :web :field-manager :wlm-loop '(:spec (:pool (:size 24))))
+```
+
+### Ergonomics
+
+- **G1 Structured: strong.** `spec` and `status` are typed structured objects;
+  conditions are structured records. Status is genuinely *data* -- the deliberate
+  opposite of `systemctl status`'s log text.
+- **G2 Data-not-code: the strongest declarative form in the survey.** A manifest
+  is pure desired-state data the reconciler dispatches on; there is no imperative
+  step and no eval. The discipline that `spec` must describe desired state and
+  *never* an imperative action ("upgrade now") -- because the loop re-reads it
+  forever -- is one Origin should adopt wholesale.
+- **G3 CQS: moderate-strong.** Read verbs (`get`/`list`/`watch`) versus write
+  verbs (`create`/`update`/`patch`/`delete`), each with its own RBAC; and
+  `spec`/`status` are separate write lanes with separate verbs and separate
+  optimistic-concurrency lanes. CQS by verb classification plus the
+  subresource split.
+- **G4 Two-tier: strong.** Universal API machinery (typed verbs +
+  `apiVersion`/`kind`) over per-type schemas, with **CRDs** extending the type
+  set at runtime -- the direct model for Origin's handler-registration of typed
+  sub-vocabularies (goals 4 and 5).
+- **G5 Self-describing: strong.** API discovery plus OpenAPI/CRD validation
+  schemas make the type set and its fields introspectable.
+- **G6 Declarative/Δ: the model, and the missing tier finally found.**
+  Declarative desired-state plus continuous, level-triggered, idempotent
+  reconciliation gives self-healing and drift correction -- precisely the
+  DevPlan's `apply` and "desired-orbit reconciler" (milestone 4). Delta is
+  available too, via strategic-merge / JSON patch.
+- **Q5 Addressing: the richest in the survey.** Namespaced names *plus* labels
+  *plus* set-based label selectors (`in`/`notin`/`exists`) *plus* field
+  selectors. This extends Origin's selector grammar from "one orbital + a
+  sub-selector" to "any *set* of orbitals matching a predicate" -- fleet
+  addressing.
+- **Health and resources.** Liveness / readiness / startup probes resolve the
+  Health sub-vocabulary directly; QoS classes and resource requests/limits feed
+  straight into the WLM appendix's model.
+
+**Steal:** declarative desired-state + continuous **level-triggered idempotent**
+reconciliation (completes goal 6, *is* milestone 4's reconciler; level-triggered
+= self-healing and robust to missed events -- and Origin's poll-based supervisor
+is already proto-this, so the upgrade is evolutionary); **spec/status
+separation** (the decisive third independent invention of declared-vs-observed);
+**liveness vs readiness vs startup** (resolves `status :health` -- restart vs
+stop-serving vs wait); **labels + set-based selectors** as fleet addressing (Q5),
+essential for the layered service mesh and for WLM ("all `:latency-sensitive`
+orbitals"); CRD-style typed extension as the sub-vocabulary registration model;
+server-side **field ownership** as multi-writer arbitration (finer than HTTP's
+`If-Match` -- the clean answer to the human-operator-versus-WLM-loop conflict).
+**Reject:** YAML, etcd, and the network-distributed/eventual-consistency
+assumptions; the operational weight (admission webhooks, full RBAC) as mandatory
+for a single-host nexus that mostly reconciles co-located images.
+
+
+## Rendition 11 -- D-Bus / systemd (typed bus + fixed verbs over an opaque substrate)
+
+D-Bus is a structured, typed, introspectable message bus with **four-level
+addressing** -- *bus name* (`org.freedesktop.systemd1`) / *object path*
+(`/org/freedesktop/systemd1`) / *interface* (`...systemd1.Manager`) / *member* --
+and three kinds of member: **methods** (call/return), **signals** (broadcast
+events), and **properties** (`Get`/`Set`/`GetAll`, with a `PropertiesChanged`
+signal). systemd is built on top: a small **fixed verb set**
+(`Start`/`Stop`/`Restart`/`Reload`/`Kill`/...) over D-Bus, with unit files as
+declarative config carrying **dependency ordering** (`Requires`, `Wants`,
+`After`, `Before`, `Conflicts`). It is a genuinely structured protocol -- and the
+cautionary baseline at the same time.
+
+```lisp
+;; Four-level addressing: service / object-path / interface / member.
+;; method call (call/return) -- like a JMX operation or a gen_server call
+(dbus-call :term-host '(:path (:window 2)) :iface :lexter.window
+           :method :clear-scrollback)
+
+;; properties: Get / Set / GetAll, plus a PropertiesChanged signal (watch)
+(dbus-get     :term-host '(:path (:window 2)) :iface :lexter.window :prop :total-lines)
+(dbus-set     :web '(:path :pool) :iface :http.pool :prop :size 16)
+(dbus-get-all :web '(:path :metrics) :iface :http.metrics)
+
+;; signals: broadcast events (the watch direction)
+(dbus-subscribe :web :iface :http.routes :signal :route-saturated)
+;; <- (:route-saturated :path "/v2/orders" :rate 9000)
+
+;; Introspectable: a real describe -- interfaces, methods (typed args), signals, props
+(dbus-introspect :web '(:path :root))
+;; => (:interfaces ((:http.metrics (:properties ((:request-rate :type :u)
+;;                                                (:p99-latency  :type :u))))
+;;                  (:http.pool    (:methods ((:drain (:grace :u)))
+;;                                  (:properties ((:size :type :u :writable t)))))))
+
+;; systemd layer: a small FIXED universal verb set + a declarative unit with
+;; dependency ordering -- but the service itself is an OPAQUE process.
+(systemctl :start  :web)
+(systemctl :reload :web)                 ; re-read config without a restart
+(systemctl :status :web)
+;; => (:active-state :active :sub-state :running :main-pid 4821 :result :success)
+;;    ... but the rich, service-specific detail is journal LOG TEXT, not data.
+(define-unit :web :requires (:db) :after (:db :network) :wanted-by :presentation.target)
+```
+
+### Ergonomics
+
+- **G1 Structured: split.** D-Bus is strongly structured (typed marshalling,
+  typed arguments); systemd's properties are structured (`ActiveState`,
+  `SubState`), but `systemctl status`'s rich content degrades to journal log text
+  -- the structure thins exactly where service-specific state lives.
+- **G2 Data-not-code: strong.** Typed messages dispatched against interfaces; no
+  eval surface.
+- **G3 CQS: moderate.** Property `Get` (read) versus `Set` (write); methods may be
+  either, with no inherent safe tag; systemd verbs classified only by convention
+  (`status` reads; `start`/`stop` write). JMX-like, but weaker.
+- **G4 Two-tier: strong, and notably structured in its addressing.** Universal:
+  the D-Bus method/property/signal machinery plus systemd's fixed verbs.
+  Per-target: the interfaces each object exposes. The four-level name is the most
+  explicitly layered address in the survey.
+- **G5 Self-describing: strong protocol, thin ecosystem.** D-Bus `Introspectable`
+  returns interfaces, methods (with typed argument directions), signals, and
+  properties -- a real `describe`, on par with `MBeanInfo`. But systemd-managed
+  *services* usually expose no rich D-Bus interface of their own; introspection
+  covers systemd's objects, not the opaque daemons. The describe stops at the
+  manager boundary.
+- **G6 Declarative/Δ: weak-moderate.** Unit files are declarative static config
+  with genuinely useful dependency ordering (`After`/`Requires`/`Conflicts`), but
+  this is startup configuration plus event-driven transitions -- *not* a
+  continuously reconciled desired-state (closer to NETCONF `<startup>` than to a
+  Kubernetes loop). `reload` (re-read config without restart) is, however, a
+  clean precedent for Origin's no-restart `configure`.
+- **Q5 Addressing: strong four-level, but per-target.** Structured
+  service/path/interface/member, with no set-based selector like Kubernetes
+  labels.
+- **The cautionary core.** D-Bus is a fine protocol, but on Linux every program
+  is a byte pipe that *need not* speak it; systemd treats services as opaque
+  (start/stop/signal/exit-code/journal), and service-specific state is whatever
+  each unit chose to expose. The structure is **opt-in and stops at the process
+  boundary**. This is the baseline Origin structurally beats: its orbitals are
+  homogeneous CL images already sharing a reader, printer, and condition system,
+  so a structured vocabulary is the *default* substrate, not something bolted on.
+
+**Steal:** D-Bus's typed `Introspectable` as another `describe` confirmation; the
+**methods / properties / signals** split (= operations / attributes /
+notifications -- convergent with JMX, strong evidence for that tripartite
+structure); the four-level structured address; `PropertiesChanged` as
+change-notification `watch`; systemd's small fixed universal verb set (the direct
+cousin of Origin's universal verbs) and its **dependency ordering**
+(`After`/`Requires`/`Conflicts`) as the model for the Topology sub-vocabulary and
+start-up ordering of the orbit; `reload` as the no-restart `configure` precedent.
+**Reject (the cautionary baseline):** structure that is opt-in and stops at the
+process boundary (Origin's homogeneity makes it default); status that degrades to
+log text -- the scrape-the-log failure G1 exists to reject; unit files as static
+startup config rather than a live reconciled desired-state (Kubernetes does this
+better); the object/path/interface ceremony, heavier than a CL S-expression
+envelope needs.
+
+
+---
+
+## Comparison -- Installment IV
+
+| Axis | Kubernetes | D-Bus / systemd |
+|------|------------|-----------------|
+| **G1 Structured** | Strong -- typed spec/status, structured conditions | Split -- typed bus, but `systemctl status` degrades to log text |
+| **G2 Data-not-code** | Strongest declarative -- desired-state data, no steps | Strong -- typed messages, no eval |
+| **G3 CQS** | Read vs write verbs + spec/status lanes | Property Get/Set; methods either; systemd verbs by convention |
+| **G4 Two-tier** | Typed verbs over schemas; CRDs extend | D-Bus machinery + fixed verbs; four-level address |
+| **G5 Self-describing** | Strong -- API discovery + OpenAPI/CRD schemas | Strong protocol (`Introspectable`), thin ecosystem |
+| **G6 Declarative/Δ** | The model -- continuous level-triggered reconciliation | Static unit config + ordering; no live reconcile |
+| **Q5 Addressing** | Richest -- names + labels + set-based selectors | Structured four-level, but per-target only |
+| **One-line** | The continuous declarative reconciler -- the missing tier | A good protocol on an opaque substrate -- the baseline to beat |
+
+
+## Synthesis for Origin -- Installment IV
+
+This pairing closes the survey by setting the destination beside the
+starting line:
+
+1. **Kubernetes supplies the missing tier.** Continuous, level-triggered,
+   idempotent reconciliation is the `apply` / desired-orbit reconciler
+   (milestone 4) that completes goal 6. NETCONF gave a one-shot transactional
+   commit; Kubernetes gives the loop that keeps re-converging. **Level-triggered**
+   is the property to internalize: reconcile to the *current observed* state, not
+   to an event stream, so the system self-heals after missed events or a
+   supervisor restart -- and since Origin's supervisor already polls
+   `process-alive-p` and acts on current state, it is *already* a proto-reconciler;
+   the declarative `apply` is its natural completion.
+
+2. **Declared-versus-observed is now decisively settled.** `spec`/`status` is the
+   third independent invention of the same split (after NETCONF config-vs-state
+   and the WLM declared-vs-observed). Origin should make it a first-class envelope
+   distinction: `status` returns observed reality; a `get-spec` returns declared
+   intent; the gap is what the reconciler and the WLM loop both consume.
+
+3. **Health is resolved.** Liveness versus readiness versus startup answers the
+   Health/readiness candidate sub-vocabulary precisely: `status :health` must
+   distinguish *alive* (else restart), *ready* (else stop routing work to it but
+   keep it running), and *started* (gate the other two) -- three states with
+   three different consequences, not one boolean.
+
+4. **Addressing reaches fleets.** Kubernetes labels and set-based selectors
+   extend the selector grammar (Q5) from "one orbital plus a sub-selector" to "any
+   set of orbitals matching a predicate" -- exactly what the founding vision's
+   layered service mesh (data / processing / presentation) and the WLM loop
+   ("select all `:latency-sensitive` orbitals") require.
+
+5. **The baseline, sharpened -- and the survey's punchline.** D-Bus is a good
+   structured protocol worth borrowing from (introspection, the
+   methods/properties/signals split, typed addressing, dependency ordering), but
+   systemd-over-D-Bus is the cautionary tale the DevPlan names: structure bolted
+   onto a heterogeneous, opaque-process substrate, opt-in and boundary-limited,
+   with status degrading to log text. The two technologies of this installment
+   are both "structured control planes," yet they differ in their *substrate*:
+   Kubernetes' is homogeneous and declarative by construction, so structure is the
+   default; systemd's is heterogeneous byte-pipe processes, so structure is bolted
+   on. **Origin resembles systemd on the surface -- an init/process manager -- but
+   resembles Kubernetes underneath**, because its orbitals are homogeneous CL
+   images that already share a reader, printer, and condition system. It should be
+   engineered as the former pretending to be the latter no longer: a homogeneous
+   declarative object model wearing a process-manager's face.
+
+6. **Convergences the full survey confirms.** The methods/properties/signals
+   (operations/attributes/notifications) tripartite recurs in JMX and D-Bus;
+   `describe` in JMX, GraphQL, D-Bus, and Kubernetes; declared-vs-observed in
+   NETCONF, WLM, and Kubernetes; connect-time negotiation in NETCONF, LSP, and
+   9P; the universal-verbs-plus-typed-sub-vocabulary two-tier in every single
+   reference. Independent invention on this scale is the strongest possible signal
+   for what Origin's design should keep.
+
+With this installment the field is surveyed end to end: the universal verbs and
+their two-axis classification, the selector grammar from single target to fleet,
+`describe` and capability negotiation, the declarative reconciliation tier, the
+envelope-and-session layer, and the baseline to surpass. The **final piece** will
+draw these eleven renditions together into a single set of conclusions and
+concrete recommendations to inform the engineering of Origin's IPC and control
+system.
