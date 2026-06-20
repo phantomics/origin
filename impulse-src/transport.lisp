@@ -440,3 +440,29 @@ seconds. Returns NIL on timeout or if the session has closed with none left."
   `(let ((,var (connect ,path ,@args)))
      (unwind-protect (progn ,@body)
        (disconnect ,var))))
+
+;;; -----------------------------------------------------------------------
+;;; Readiness probe for image orbitals
+;;; -----------------------------------------------------------------------
+;;;
+;;; The dependency engine gates dependents on a requirement's *readiness*, not
+;;; merely its liveness. For an :IMAGE orbital, "ready" means its control plane
+;;; is actually up -- so the probe is a cheap connect+handshake to its socket.
+;;; Origin core stays dependency-free: this Impulse-layer function is installed
+;;; into the orbital's ORIGIN:PROCESS-READINESS-FN slot by the control plane.
+
+(defun socket-ready-p (path &key (timeout 1) (tier +tier-read-only+))
+  "True if an Impulse listener at PATH accepts a connection and completes the
+handshake within TIMEOUT seconds. A lightweight readiness probe."
+  (handler-case
+      (let ((session (connect path :tier tier :timeout timeout
+                                   :label "readiness-probe")))
+        (disconnect session)
+        t)
+    (error () nil)))
+
+(defun make-socket-readiness-fn (path &key (timeout 1) (tier +tier-read-only+))
+  "Return a zero-arg readiness predicate that pings the Impulse listener at PATH.
+Install it as an orbital's ORIGIN:PROCESS-READINESS-FN so the dependency engine
+gates dependents on the image's control plane being up."
+  (lambda () (socket-ready-p path :timeout timeout :tier tier)))

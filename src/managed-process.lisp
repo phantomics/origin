@@ -138,6 +138,67 @@ Used by :COOPERATIVE processes; ignored for :THREAD mode.")
     :type (real 0)
     :documentation "Seconds of continuous running after which restart-count resets to 0.")
 
+   ;; Readiness (liveness vs ready-to-serve)
+   (readiness-fn
+    :initarg :readiness-fn
+    :initform nil
+    :accessor process-readiness-fn
+    :documentation "Optional zero-arg predicate: T when the orbital is not merely
+alive but ready to serve. When NIL, readiness defaults to liveness. The
+dependency engine gates dependents' startup on requirements' readiness. An
+IPC-based probe (e.g. ping an image's control socket) is installed here by the
+control-plane layer, keeping Origin core dependency-free.")
+
+   ;; Dependency edges (declared; normalized into %EDGES at initialization).
+   ;; Each is a list of orbital names (symbol/string). Their *semantics* are
+   ;; derived from the edge-type property table in topology.lisp, not hard-coded.
+   (requires
+    :initarg :requires
+    :initform nil
+    :accessor process-requires
+    :type list
+    :documentation "Hard requirements: must be ready before this orbital starts;
+this orbital starts after them. (systemd Requires + After.)")
+   (wants
+    :initarg :wants
+    :initform nil
+    :accessor process-wants
+    :type list
+    :documentation "Weak requirements: started/ordered before this orbital, but
+their failure does not block this orbital. (systemd Wants + After.)")
+   (after
+    :initarg :after
+    :initform nil
+    :accessor process-after
+    :type list
+    :documentation "Pure ordering: this orbital starts after these. (systemd After.)")
+   (before
+    :initarg :before
+    :initform nil
+    :accessor process-before
+    :type list
+    :documentation "Pure ordering: this orbital starts before these. (systemd Before.)")
+   (conflicts
+    :initarg :conflicts
+    :initform nil
+    :accessor process-conflicts
+    :type list
+    :documentation "Mutual exclusion: this orbital may not run while these run. (systemd Conflicts.)")
+   (propagate-restart
+    :initarg :propagate-restart
+    :initform nil
+    :accessor process-propagate-restart
+    :type boolean
+    :documentation "Opt-in cascade: when a hard requirement becomes not-ready,
+the supervisor stops this orbital, and restarts it once the requirement is
+ready again (if it was running). Default NIL: independent supervision.")
+   (%cascade-stopped
+    :initform nil
+    :accessor process-cascade-stopped-p
+    :type boolean
+    :documentation "Internal: T when the supervisor stopped this orbital because
+a hard requirement went not-ready, so it can be brought back when ready.")
+
    ;; Metadata / classification
    (workload-class
     :initarg :workload-class
@@ -213,6 +274,15 @@ For :IMAGE mode, checks the OS process."
      (let ((p (process-os-process process)))
        (and p (sb-ext:process-alive-p p) t)))))
 
+(defmethod process-ready-p ((process managed-process))
+  "Return T if PROCESS is ready to serve.
+Readiness implies liveness: a dead orbital is never ready. When a readiness
+probe (PROCESS-READINESS-FN) is installed, the orbital is ready only when alive
+AND the probe passes; with no probe, readiness defaults to liveness."
+  (and (process-alive-p process)
+       (let ((fn (process-readiness-fn process)))
+         (or (null fn) (and (funcall fn) t)))))
+
 (defmethod process-info ((process managed-process))
   "Return a plist describing PROCESS."
   (let ((now (get-universal-time)))
@@ -221,6 +291,13 @@ For :IMAGE mode, checks the OS process."
           :status (%process-status process)
           :execution-mode (process-execution-mode process)
           :alive (process-alive-p process)
+          :ready (process-ready-p process)
+          :dependencies (append
+                         (when (process-requires process)  (list :requires (process-requires process)))
+                         (when (process-wants process)     (list :wants (process-wants process)))
+                         (when (process-after process)     (list :after (process-after process)))
+                         (when (process-before process)    (list :before (process-before process)))
+                         (when (process-conflicts process) (list :conflicts (process-conflicts process))))
           :uptime (if (and (process-started-at process)
                            (member (%process-status process)
                                    '(:running :stopping)))

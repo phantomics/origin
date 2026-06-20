@@ -19,6 +19,15 @@
    #:process-restart-limit-name
    #:process-restart-limit-count
    #:process-restart-limit-max
+   #:dependency-cycle
+   #:dependency-cycle-path
+   #:dependency-not-ready
+   #:dependency-not-ready-name
+   #:dependency-not-ready-requirement
+   #:dependency-not-ready-timeout
+   #:dependency-conflict
+   #:dependency-conflict-name
+   #:dependency-conflict-conflictor
 
    ;; Protocol (generic functions)
    #:start-process
@@ -28,6 +37,7 @@
    #:process-status
    #:process-info
    #:process-alive-p
+   #:process-ready-p
 
    ;; ASDF system subclass
    #:origin-system
@@ -51,10 +61,25 @@
    #:process-crash-info
    #:process-workload-class
    #:process-priority
+   #:process-readiness-fn
+   #:process-requires
+   #:process-wants
+   #:process-after
+   #:process-before
+   #:process-conflicts
+   #:process-propagate-restart
+   #:process-dependencies
 
    ;; Orbital vocabulary
    #:orbital
    #:orbit
+
+   ;; Dependency graph / ordered lifecycle
+   #:start-orbit
+   #:stop-orbit
+   #:orbit-order
+   #:wait-until-ready
+   #:*edge-types*
 
    ;; Cooperative executor
    #:register-cooperative-executor

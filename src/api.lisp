@@ -207,10 +207,12 @@ Returns the list of event plists."
 Stops all managed processes gracefully, then stops the supervisor.
 Returns T if everything shut down cleanly."
   (%log-event :shutdown "origin" "System shutdown initiated")
-  ;; Stop all managed processes
-  (let ((processes (all-processes))
+  ;; Stop all managed processes in reverse dependency order (dependents before
+  ;; dependencies). A dependency cycle falls back to unordered teardown.
+  (let ((order (handler-case (reverse (orbit-order (all-processes)))
+                 (error () (all-processes))))
         (all-clean t))
-    (dolist (process processes)
+    (dolist (process order)
       (when (process-alive-p process)
         (handler-case
             (stop-process process :timeout timeout)

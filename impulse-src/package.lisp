@@ -106,7 +106,14 @@
    #:commit-spec
    #:orbital-ready-p
    #:orbital-health
+   #:orbital-topology
    #:status-view
+
+   ;; Ordered orbit lifecycle (passthrough) + readiness probe
+   #:start-orbit
+   #:stop-orbit
+   #:socket-ready-p
+   #:make-socket-readiness-fn
 
    ;; Streaming tier (watch + operation progress/cancel)
    #:make-connection

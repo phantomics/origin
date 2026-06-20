@@ -54,3 +54,12 @@ crash information if applicable."))
   (:documentation
    "Return T if the underlying thread of PROCESS is alive, NIL otherwise.
 Returns NIL if no thread has been spawned."))
+
+(defgeneric process-ready-p (process)
+  (:documentation
+   "Return T if PROCESS is not merely alive but *ready to serve*.
+Readiness is the Kubernetes liveness/readiness distinction: an orbital may be
+alive yet not yet (or no longer) ready to accept work. The default is to
+delegate to PROCESS-ALIVE-P, refined by a per-orbital readiness probe; the
+dependency engine gates a dependent's startup on its requirements' readiness,
+not merely their liveness."))

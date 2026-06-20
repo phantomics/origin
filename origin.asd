@@ -24,6 +24,7 @@
                              (:file "managed-process")
                              (:file "registry")
                              (:file "supervisor")
+                             (:file "topology")
                              (:file "asd-metadata")
                              (:file "api")
                              (:file "orbit")))))

@@ -30,6 +30,8 @@
     (:workload-class  :type :keyword            :access :read-only)
     (:priority        :type :keyword            :access :read-only)
     (:crash-info      :type (:or :plist :null)   :access :read-only)
+    (:ready           :type :boolean            :access :read-only)
+    (:dependencies    :type :plist              :access :read-only)
     (:health          :type :plist              :access :read-only))
   "Schema of the query leaves available under the generic :STATUS verb.")
 
@@ -38,12 +40,20 @@
 ;;; -----------------------------------------------------------------------
 
 (defparameter *generic-config-schema*
-  '((:workload-class :type :keyword :access :read-write)
-    (:priority       :type :keyword :access :read-write)
-    (:restart-policy :type :keyword :access :read-write)
-    (:max-restarts   :type :integer :access :read-write)
-    (:running-state  :type :keyword :access :read-write))
-  "Schema of the parameters CONFIGURE / APPLY may set on a generic orbital.")
+  '((:workload-class    :type :keyword :access :read-write)
+    (:priority          :type :keyword :access :read-write)
+    (:restart-policy    :type :keyword :access :read-write)
+    (:max-restarts      :type :integer :access :read-write)
+    (:running-state     :type :keyword :access :read-write)
+    ;; Dependency topology (declared edges; lists of orbital names).
+    (:requires          :type (:list :name) :access :read-write)
+    (:wants             :type (:list :name) :access :read-write)
+    (:after             :type (:list :name) :access :read-write)
+    (:before            :type (:list :name) :access :read-write)
+    (:conflicts         :type (:list :name) :access :read-write)
+    (:propagate-restart :type :boolean      :access :read-write))
+  "Schema of the parameters CONFIGURE / APPLY may set on a generic orbital,
+including the dependency-topology edges and the restart-cascade opt-in.")
 
 (defvar *config-schemas* (make-hash-table :test 'eq)
   "Map control-type -> configurable-parameter schema.")

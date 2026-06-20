@@ -225,3 +225,63 @@
       (is-true (member :configure verbs))
       (is-true (member :apply verbs))
       (is-true (getf d :config-schema)))))
+
+;;; -----------------------------------------------------------------------
+;;; Dependency topology (declared through apply; surfaced through status)
+;;; -----------------------------------------------------------------------
+
+(def-test apply-declares-dependency-edges ()
+  "apply commits dependency edges onto the core orbital; status :view :topology
+surfaces them as data."
+  (with-clean-orbit
+    (register-thread-orbital "base")
+    (let ((app (register-thread-orbital "web")))
+      (is-true (impulse:ok-p
+                (impulse:request "web" :apply
+                                 :args '(:spec (:requires ("base")
+                                                :propagate-restart t)))))
+      ;; Core slots were set by commit.
+      (is (equal '("base") (origin:process-requires app)))
+      (is-true (origin:process-propagate-restart app))
+      ;; Topology view reflects them.
+      (let ((topo (impulse:response-result
+                   (impulse:request "web" :status :args '(:view :topology)))))
+        (is (equal '("base") (getf (getf topo :dependencies) :requires)))
+        (is-true (getf topo :propagate-restart))))))
+
+(def-test apply-rejects-bad-edge ()
+  "A dependency edge that is not a list of orbital names is an invalid-spec."
+  (with-clean-orbit
+    (register-thread-orbital "bad-dep")
+    (let ((r (impulse:request "bad-dep" :apply :args '(:spec (:requires (42))))))
+      (is-true (impulse:error-p r))
+      (assert-that (impulse:response-condition r)
+        (has-plist-entries :type :invalid-spec)))))
+
+(def-test status-health-ready-reflects-liveness ()
+  "status :query (:health) :ready follows readiness, which for a generic orbital
+defaults to liveness: false when stopped, true once running."
+  (with-clean-orbit
+    (register-thread-orbital "h-ready")
+    (flet ((ready-now ()
+             (getf (getf (impulse:response-result
+                          (impulse:request "h-ready" :status :query '(:health)))
+                         :health)
+                   :ready)))
+      (is-false (ready-now))
+      (impulse:request "h-ready" :start)
+      (is-true (wait-until #'ready-now)))))
+
+(def-test impulse-start-stop-orbit-passthrough ()
+  "The Impulse passthrough drives Origin's ordered orbit lifecycle: an edge
+declared via apply orders the bring-up and teardown."
+  (with-clean-orbit
+    (register-thread-orbital "p-base")
+    (register-thread-orbital "p-web")
+    (impulse:request "p-web" :apply :args '(:spec (:requires ("p-base"))))
+    (impulse:start-orbit)
+    (is-true (origin:process-alive-p (origin:find-process "p-base")))
+    (is-true (origin:process-alive-p (origin:find-process "p-web")))
+    (impulse:stop-orbit)
+    (is-false (origin:process-alive-p (origin:find-process "p-web")))
+    (is-false (origin:process-alive-p (origin:find-process "p-base")))))

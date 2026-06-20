@@ -58,6 +58,18 @@ COUNT limits the number of events returned."
 (defvar *supervisor-poll-interval* 1
   "Seconds between supervisor polling cycles.")
 
+;;; Hooks installed by the dependency engine (topology.lisp). Kept here, with
+;;; inert defaults, so the supervisor needs no forward reference to that layer
+;;; and behaves exactly as before when it is absent.
+(defvar *restart-gate-hook* nil
+  "Optional predicate (PROCESS) -> boolean. When set and it returns NIL for a
+process whose scheduled restart is due, the supervisor defers the restart to a
+later tick (used to hold a restart until hard requirements are ready).")
+
+(defvar *reconcile-hook* nil
+  "Optional thunk run once per supervisor tick after the per-process checks,
+for cross-orbital reconciliation (the dependency cascade).")
+
 ;;; -----------------------------------------------------------------------
 ;;; Backoff computation
 ;;; -----------------------------------------------------------------------
@@ -126,7 +138,16 @@ Detects crashed threads, applies restart policy, manages backoff."
     (when (eq (%process-status process) :restart-pending)
       (let ((restart-time (process-next-restart-time process)))
         (when (and restart-time (>= (get-universal-time) restart-time))
-          (%attempt-restart process))))))
+          (if (and *restart-gate-hook*
+                   (not (funcall *restart-gate-hook* process)))
+              ;; A hard requirement is not ready: defer to a later tick rather
+              ;; than crash-loop the dependent against its downed dependency.
+              (progn
+                (setf (process-next-restart-time process)
+                      (+ (get-universal-time) (ceiling *supervisor-poll-interval*)))
+                (%log-event :restart-deferred name
+                            "Hard requirement not ready; restart deferred"))
+              (%attempt-restart process)))))))
 
 (defun %schedule-restart (process)
   "Schedule a restart for PROCESS with exponential backoff.
@@ -181,8 +202,11 @@ If restart limit is reached, move to :gave-up status."
   (%log-event :supervisor-started "supervisor" "Supervisor loop started")
   (loop while *supervisor-running*
         do (handler-case
-               (dolist (process (all-processes))
-                 (%check-process process))
+               (progn
+                 (dolist (process (all-processes))
+                   (%check-process process))
+                 ;; Cross-orbital reconciliation (dependency cascade), if installed.
+                 (when *reconcile-hook* (funcall *reconcile-hook*)))
              ;; The supervisor must not crash. Catch and log everything.
              (serious-condition (c)
                (%log-event :supervisor-error "supervisor"

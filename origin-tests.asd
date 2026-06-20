@@ -13,6 +13,7 @@
                              (:file "test-managed-process")
                              (:file "test-registry")
                              (:file "test-supervisor")
+                             (:file "test-topology")
                              (:file "test-external")
                              (:file "test-image")
                              (:file "test-asd-metadata")

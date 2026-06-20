@@ -49,6 +49,12 @@ running-state -- the default declared spec before anything is applied."
         :priority (origin:process-priority orbital)
         :restart-policy (origin::process-restart-policy orbital)
         :max-restarts (origin::process-max-restarts orbital)
+        :requires (origin:process-requires orbital)
+        :wants (origin:process-wants orbital)
+        :after (origin:process-after orbital)
+        :before (origin:process-before orbital)
+        :conflicts (origin:process-conflicts orbital)
+        :propagate-restart (origin:process-propagate-restart orbital)
         :running-state (if (origin:process-alive-p orbital) :running :stopped)))
 
 (defun orbital-spec (orbital)
@@ -71,6 +77,11 @@ CONTROL-TYPE; return NIL on success. Pure: must not mutate the orbital."))
    "Apply the (already validated) SPEC to ORBITAL: set its knobs and reconcile
 its running-state. Return the committed SPEC."))
 
+(defun %valid-name-list-p (val)
+  "True if VAL is a list of orbital name references (keywords or strings)."
+  (and (listp val)
+       (every (lambda (n) (or (keywordp n) (stringp n))) val)))
+
 (defmethod validate-spec ((type (eql :generic)) orbital spec)
   (declare (ignore orbital))
   (loop for (key val) on spec by #'cddr do
@@ -85,6 +96,12 @@ its running-state. Return the committed SPEC."))
                          (bad "must be a non-negative integer")))
         (:running-state (unless (member val '(:running :stopped))
                           (bad "must be :running or :stopped")))
+        ;; Dependency edges: each is a list of orbital name references.
+        ((:requires :wants :after :before :conflicts)
+         (unless (%valid-name-list-p val)
+           (bad "must be a list of orbital names (keywords or strings)")))
+        (:propagate-restart (unless (member val '(t nil))
+                              (bad "must be T or NIL")))
         (t (bad "unknown spec key")))))
   nil)
 
@@ -104,6 +121,13 @@ idempotently -- a no-op if already there."
       (:priority (setf (origin:process-priority orbital) val))
       (:restart-policy (setf (origin::process-restart-policy orbital) val))
       (:max-restarts (setf (origin::process-max-restarts orbital) val))
+      (:requires (setf (origin:process-requires orbital) val))
+      (:wants (setf (origin:process-wants orbital) val))
+      (:after (setf (origin:process-after orbital) val))
+      (:before (setf (origin:process-before orbital) val))
+      (:conflicts (setf (origin:process-conflicts orbital) val))
+      (:propagate-restart (setf (origin:process-propagate-restart orbital) val))
+      ;; Running-state is reconciled last (see APPLY-SPEC ordering note).
       (:running-state (reconcile-running-state orbital val))))
   spec)
 
@@ -190,11 +214,12 @@ orbital's current spec, so partial specs are idempotent."
 (defgeneric orbital-ready-p (orbital)
   (:documentation
    "Generalized readiness: is ORBITAL not merely alive but ready to serve?
-Generic orbitals default readiness to liveness; the dependencies-and-readiness
-phase adds real per-orbital probes."))
+Delegates to Origin core's PROCESS-READY-P, which defaults readiness to liveness
+and honors any installed per-orbital readiness probe (e.g. a control-socket
+ping for image orbitals). A typed sub-vocabulary may specialize this further."))
 
 (defmethod orbital-ready-p ((orbital origin:managed-process))
-  (origin:process-alive-p orbital))
+  (origin:process-ready-p orbital))
 
 (defun orbital-health (orbital)
   "The health triple -- alive / ready / started -- distinguishing liveness from
@@ -212,11 +237,19 @@ QUERY fields when QUERY is non-nil (GraphQL-style selection)."
         (loop for field in query append (list field (getf info field)))
         info)))
 
+(defun orbital-topology (orbital)
+  "ORBITAL's dependency topology as data: its declared edges and its readiness."
+  (list :orbital (process-name orbital)
+        :dependencies (origin:process-dependencies orbital)
+        :propagate-restart (origin:process-propagate-restart orbital)
+        :ready (and (orbital-ready-p orbital) t)))
+
 (defun status-view (orbital view query)
   "Return ORBITAL's status under VIEW: :STATUS (observed, default), :SPEC
-(declared), or :BOTH."
+(declared), :BOTH, or :TOPOLOGY (its dependency edges + readiness)."
   (ecase view
     (:status (status-fields orbital query))
     (:spec (orbital-spec orbital))
     (:both (list :spec (orbital-spec orbital)
-                 :status (status-fields orbital query)))))
+                 :status (status-fields orbital query)))
+    (:topology (orbital-topology orbital))))
