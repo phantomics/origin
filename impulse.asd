@@ -24,4 +24,6 @@
                              (:file "dispatch")
                              (:file "describe")
                              (:file "handlers")
-                             (:file "api")))))
+                             (:file "api")
+                             (:file "codec")
+                             (:file "transport")))))

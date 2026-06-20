@@ -14,6 +14,8 @@
 (def-suite verbs    :in impulse :description "Verb model / effect ladder / tiers")
 (def-suite dispatch :in impulse :description "In-image dispatch tests")
 (def-suite describe :in impulse :description "Capability discovery tests")
+(def-suite codec    :in impulse :description "Wire codec / hardening tests")
+(def-suite transport :in impulse :description "Unix-socket transport tests")
 
 ;;; -----------------------------------------------------------------------
 ;;; Orbit cleanup
@@ -89,6 +91,49 @@ current (test) thread."
             (progn ,@body)
          (origin:unregister-cooperative-executor)
          (setf *fake-windows* nil *fake-mailbox* nil)))))
+
+;;; -----------------------------------------------------------------------
+;;; Child image with an Impulse listener (transport tests)
+;;; -----------------------------------------------------------------------
+
+(defun call-with-impulse-child (fn &key (tier impulse:+tier-read-write+))
+  "Spawn a bare Origin+Impulse child image that registers an orbital
+\"child-orb\" and starts an Impulse listener on a fresh socket, then call FN
+with the socket path. Kills the child and removes the socket on exit."
+  (let* ((sock (format nil "/tmp/impulse-test-~D-~D.sock"
+                       (get-universal-time) (random 1000000)))
+         (log  (format nil "/tmp/impulse-test-child-~D.log" (random 1000000)))
+         (repo (namestring (asdf:system-source-directory "impulse")))
+         (sbcl (namestring sb-ext:*runtime-pathname*))
+         (ql   (namestring (merge-pathnames "quicklisp/setup.lisp"
+                                            (user-homedir-pathname))))
+         (boot (format nil
+                       "(let ((run (list t))) ~
+                          (origin:register-process \"child-orb\" ~
+                            :entry-point (lambda () (setf (car run) t) ~
+                                           (loop while (car run) do (sleep 0.05))) ~
+                            :stop-function (lambda () (setf (car run) nil))) ~
+                          (impulse:start-listener :path ~S :tier ~D) ~
+                          (loop (sleep 1)))"
+                       sock tier))
+         (argv (list "--no-userinit" "--no-sysinit" "--non-interactive"
+                     "--eval" "(require :asdf)"
+                     "--eval" (format nil "(load ~S)" ql)
+                     "--eval" (format nil "(push #P~S asdf:*central-registry*)" repo)
+                     "--eval" "(funcall (read-from-string \"ql:quickload\") \"impulse\")"
+                     "--eval" boot))
+         (proc nil))
+    (unwind-protect
+         (progn
+           (setf proc (sb-ext:run-program sbcl argv :wait nil :search nil
+                                          :output log :error log
+                                          :if-output-exists :supersede
+                                          :if-error-exists :supersede))
+           (funcall fn sock))
+      (when proc
+        (ignore-errors (sb-ext:process-kill proc sb-unix:sigkill))
+        (ignore-errors (sb-ext:process-wait proc)))
+      (ignore-errors (delete-file sock)))))
 
 ;;; -----------------------------------------------------------------------
 ;;; Runners

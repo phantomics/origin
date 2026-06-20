@@ -89,5 +89,30 @@
    ;; Describe
    #:describe-orbital
 
+   ;; Codec
+   #:validate-datum
+   #:sanitize-datum
+   #:parse-impulse-datum
+   #:print-impulse-datum
+   #:read-frame
+   #:write-frame
+   #:*max-frame-bytes*
+
+   ;; Transport
+   #:*impulse-version*
+   #:start-listener
+   #:stop-listener
+   #:listener
+   #:listenerp
+   #:connect
+   #:disconnect
+   #:session
+   #:sessionp
+   #:session-request
+   #:session-tier
+   #:session-version
+   #:session-capabilities
+   #:with-connection
+
    ;; Client sugar
    #:request))

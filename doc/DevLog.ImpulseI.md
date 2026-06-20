@@ -391,17 +391,164 @@ check: **244 checks, 100%** (Phase 2 touched no Origin code).
 - New error-envelope slots surfaced: 6 condition types enriched
 
 
-## Outstanding Work (Part I)
+## Phase 3 -- The hardened codec and the Unix-socket transport
 
-- **Phase 3 -- the hardened codec and Unix-socket transport.** A data-only
-  reader (`*read-eval*` nil, keyword-only validation, depth/length/size
-  bounds) and a symmetric serializer; a per-image Unix-domain-socket
-  listener and a client, with a connect-time capability/version handshake;
-  launcher integration so spawned `:image` orbitals expose an Impulse
-  socket alongside Slynk.
+**Date:** 2026-06-19 (Phase 3)
 
-These complete the MVP: a structured, secure, keyword-only control plane
-working both in-image and across image boundaries. The committed roadmap
-beyond Part I (declarative `apply`, fleet selectors, `watch` and operation
-progress/cancel, the Lexter and nginx sub-vocabularies, and state handoff)
-is recorded in `DevPlan.ControlVocabulary.md`.
+### Goal
+
+Carry the Phase-1/2 envelope across image boundaries without weakening the
+"data, not code" guarantee. Two pieces: a wire **codec** that is the
+security boundary, and a **Unix-domain-socket transport** -- a listener an
+image runs to expose its control plane and a client the core uses to reach
+it -- opened by a capability/version handshake. Plus launcher integration so
+a spawned `:image` orbital exposes an Impulse socket alongside Slynk.
+
+### The codec (`codec.lisp`) -- defense in depth
+
+The codec is where untrusted bytes become Lisp data, so it is hardened in
+five layers, with a deep validation pass as the real guarantee:
+
+1. **`*read-eval*` bound NIL** -- `#.` cannot evaluate.
+2. **A hardened readtable** (`*impulse-readtable*`) disables the dangerous
+   `#` dispatch sub-characters (`#S` structure, `#A` array, `#P` pathname,
+   `#(` vector, `#=`/`##` circular, `#'` function, `#+`/`#-` feature exprs,
+   `#:` uninterned) and the quote / quasiquote / comma reader macros, so
+   they cannot even be read.
+3. **A throwaway package** (`impulse-wire`, which `:use`s CL only so that
+   `T`/`NIL` read as the CL booleans) receives stray symbols harmlessly.
+4. **`validate-datum`** -- the backstop and the real guarantee: it walks the
+   result and refuses anything outside the grammar (keywords, `T`/`NIL`,
+   strings, characters, real numbers, and proper lists thereof), with depth
+   and list-length bounds. A non-keyword symbol, vector, struct, or
+   hash-table is rejected even if some reader macro slipped it through.
+5. **Length-prefixed framing** (`read-frame` / `write-frame`) bounds frame
+   size and yields clean message boundaries on a character stream.
+
+The sender is the mirror: `sanitize-datum` down-converts any outbound value
+into the grammar -- a non-keyword symbol becomes a keyword of its name, a
+CLOS object or anything else becomes a string -- so the control plane is
+liberal in what it emits (it never fails to answer, and never emits code or
+a non-readable object) and strict in what it accepts. This is what lets a
+response carry, say, a crash-info `:type sb-kernel::foo` as `:foo` rather
+than failing to serialize.
+
+### The transport (`transport.lisp`)
+
+A `start-listener (&key path tier)` binds a `sb-bsd-sockets:local-socket` at
+`path` (owner-only permissions via `sb-posix:chmod`), and an accept loop on
+its own thread spawns a per-connection thread. Each connection: a handshake,
+then a read-frame -> `dispatch` -> write-frame loop until EOF. A malformed
+frame gets a structured `:error` reply and the connection closes. The
+client side -- `connect` (with connect-retry, since a freshly spawned
+listener may still be coming up), `disconnect`, `session-request`, and a
+`with-connection` macro -- mirrors it.
+
+**Authorization is by socket-file permission plus a pinned tier.** The
+listener is created at a maximum tier; the handshake grants
+`min(client-requested, listener-tier)`, so a client may voluntarily drop
+privilege but never exceed what the socket offers. The granted tier becomes
+the dispatch context's tier for every request on that connection -- so the
+Phase-1 CQS gate now governs remote callers transparently.
+
+**The handshake** (`(:op :hello ...)` / `(:op :hello-ack ...)`) is the
+connect-time capability/version negotiation the prior art converged on
+(NETCONF `<hello>`, LSP `initialize`, 9P `Tversion`): the server reports its
+version and verb set, and the client records them on the session. Version
+*enforcement* is minimal in this MVP (the fields are exchanged and
+recorded); feature-gating is a later refinement.
+
+### Launcher integration (`lexter/origin`)
+
+`%child-boot` now starts an Impulse listener (`impulse:start-listener` at
+read-write) alongside Slynk before entering the cooperative main loop;
+`define-image` allocates and records a per-image socket path
+(`<log-dir>/<name>.impulse.sock`) and threads it through `%build-child-argv`
+to the child; `impulse-socket-path` exposes it. So a deployed Lexter image
+is reachable two ways: Slynk for a human at a REPL, Impulse for structured
+machine control. `lexter/origin` gained `impulse` as a dependency.
+
+### Design Decisions
+
+1. **Validation is the guarantee; the readtable is defense in depth.** Even
+   if a future SBCL or a missed reader macro produced a non-data object,
+   `validate-datum` refuses it. The hardened readtable and `*read-eval*` nil
+   shrink the attack surface, but the post-read grammar check is the line
+   that cannot be crossed.
+2. **Keyword-only, enforced symmetrically.** The receiver rejects
+   non-keyword symbols; the sender down-converts them. Neither side ever
+   needs a package allowlist, and no `origin`/`impulse` internal symbol can
+   be named on the wire -- the policy settled in planning, now mechanical.
+3. **Length-prefixed framing over character streams.** Counting characters
+   on both ends (with a fixed external format) sidesteps byte/character
+   mismatch and gives bounded, unambiguous message boundaries -- simpler and
+   safer than relying on the reader to find a form's end in a socket stream.
+4. **Tier pinned by the listener, negotiated down by the client.** Socket
+   file permissions are the coarse auth (who can open it at all); the
+   listener tier is the ceiling; the handshake lets a client self-limit.
+   This is enough for a single-host nexus without per-user identity (Q6).
+5. **Transport reuses dispatch unchanged.** The socket handler calls the
+   same `dispatch` as the in-image path, with a context whose tier is the
+   granted tier. The envelope, the verb model, and the error/partial
+   responses are all carrier-agnostic, exactly as goal G8 intended.
+
+### Tests (Phase 3)
+
+- `codec` (in-process, fast): validation accepts data and rejects
+  non-keyword symbols, vectors, hash-tables, and over-deep nesting; parsing
+  rejects `#.`, `#S`, `#(`, quote, and bare symbols, and trailing data;
+  sanitization down-converts symbols and stringifies objects, and its output
+  always validates; framing round-trips, reports `:eof`, and rejects
+  oversized and malformed length lines.
+- `transport` (end-to-end, spawns a real child SBCL image): the parent
+  connects over the Unix socket, the handshake negotiates version and tier,
+  and `describe`/`status`/`start`/`stop` drive the child's orbital with
+  structured responses; an unknown target returns a structured error across
+  the wire; and a read-only session has its mutation denied with
+  `permission-denied` -- tier pinning proven over the socket.
+
+Result: **181 checks, 100% pass** (up from 131). Origin core regression
+check: **244 checks, 100%**; `lexter/origin` loads cleanly with the new
+`impulse` dependency. The full child boot through `run-main-loop` needs a
+display, so the on-screen path remains manually verified (per prior DevLog
+caveats); the transport itself is fully exercised headlessly by the
+bare-Origin child.
+
+### Files (Phase 3)
+
+| File | Action | Description |
+|------|--------|-------------|
+| `impulse-src/codec.lisp` | **New** | Hardened readtable, `validate-datum`, `sanitize-datum`, parse/print, length-prefixed framing |
+| `impulse-src/transport.lisp` | **New** | Unix-socket listener + client, handshake, tier pinning, `with-connection` |
+| `impulse.asd` | Modified | Added `codec` and `transport` |
+| `impulse-src/package.lisp` | Modified | Exported the codec and transport API |
+| `impulse-tests/test-codec.lisp`, `test-transport.lisp` | **New** | +50 checks |
+| `impulse-tests.asd`, `impulse-tests/helpers.lisp` | Modified | New suites; child-image spawn helper |
+| `lexter/lexter.asd` | Modified | `lexter/origin` depends on `impulse` |
+| `lexter/src/origin-image.lisp` | Modified | `%child-boot` starts a listener; `define-image` allocates/records the socket; `impulse-socket-path` accessor |
+| `lexter/src/packages-origin.lisp` | Modified | Export `impulse-socket-path` |
+
+### Metrics (Phase 3)
+
+- Origin core changes: 0
+- Test checks: 181 (Impulse), 100% pass; 244 (Origin), 100%
+- New dependency: `sb-bsd-sockets` + `sb-posix` (SBCL contribs, already used
+  by the launcher); no third-party libraries
+
+
+## Part I Complete
+
+Phases 1-3 deliver the Impulse MVP: a structured, secure, keyword-only
+control plane working both in-image and across image boundaries. Any orbital
+answers `describe`/`status`/lifecycle for free; every verb is classified on
+the effect ladder and gated by a permission tier; errors and fan-out results
+are structured data; and the same envelope rides a hardened Unix-socket
+transport to a separate image, opened by a capability handshake. A deployed
+Lexter image now exposes both Slynk (human eval) and Impulse (machine
+control).
+
+The committed roadmap beyond Part I -- declarative `apply` with staged
+validation, fleet selectors, `watch` and operation progress/cancel, the
+Lexter and nginx sub-vocabularies, and state handoff -- is recorded in
+`DevPlan.ControlVocabulary.md` and `DevPlan.ForeignOrbitals.md`, and will be
+chronicled in a Part II log.
