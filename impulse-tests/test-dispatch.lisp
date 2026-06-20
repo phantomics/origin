@@ -149,3 +149,78 @@
         (is-true (impulse:ok-p r))
         (assert-that (impulse:response-result r)
           (has-plist-entries :name "d-obj"))))))
+
+;;; -----------------------------------------------------------------------
+;;; Fan-out (:partial) -- Phase 2
+;;; -----------------------------------------------------------------------
+
+(def-test dispatch-fan-out-all ()
+  ":all fans out to every orbital, returning a :partial with per-orbital :ok."
+  (with-clean-orbit
+    (register-thread-orbital "fo-a")
+    (register-thread-orbital "fo-b")
+    (let ((r (impulse:request :all :status)))
+      (is (eq :partial (impulse:response-status r)))
+      (let ((results (impulse:response-results r)))
+        (assert-that results (has-length 2))
+        ;; Every per-target outcome is an :ok response.
+        (is-true (every (lambda (pair) (impulse:ok-p (cdr pair))) results))))))
+
+(def-test dispatch-fan-out-explicit-set ()
+  "(:orbitals ...) fans out to the named set."
+  (with-clean-orbit
+    (register-thread-orbital "fo-1")
+    (register-thread-orbital "fo-2")
+    (let ((r (impulse:request '(:orbitals "fo-1" "fo-2") :status)))
+      (is (eq :partial (impulse:response-status r)))
+      (assert-that (impulse:response-results r) (has-length 2)))))
+
+(def-test dispatch-fan-out-missing-target ()
+  "A missing name in the set gets its own :error; others still succeed."
+  (with-clean-orbit
+    (register-thread-orbital "fo-real")
+    (let* ((r (impulse:request '(:orbitals "fo-real" "fo-ghost") :status))
+           (results (impulse:response-results r)))
+      (is (eq :partial (impulse:response-status r)))
+      (is-true (impulse:ok-p (cdr (assoc "fo-real" results :test #'equal))))
+      (let ((ghost (cdr (assoc "fo-ghost" results :test #'equal))))
+        (is-true (impulse:error-p ghost))
+        (assert-that (impulse:response-condition ghost)
+          (has-plist-entries :type :unknown-target))))))
+
+(def-test dispatch-fan-out-mixed-handler-error ()
+  "One target's handler error is isolated to its slot; the batch survives."
+  (with-clean-orbit
+    (register-thread-orbital "fo-ok")
+    (register-thread-orbital "fo-bad")
+    ;; :configure has no generic handler -> handler-error for each, but the
+    ;; batch still returns :partial with both slots populated.
+    (let* ((r (impulse:request '(:orbitals "fo-ok" "fo-bad") :configure :args '(:x 1)))
+           (results (impulse:response-results r)))
+      (is (eq :partial (impulse:response-status r)))
+      (assert-that results (has-length 2))
+      (is-true (every (lambda (pair) (impulse:error-p (cdr pair))) results)))))
+
+(def-test dispatch-fan-out-tier-denied ()
+  "A tier failure on a fan-out is a single :error, not a :partial."
+  (with-clean-orbit
+    (register-thread-orbital "fo-t")
+    (let ((r (impulse:request :all :start :tier impulse:+tier-read-only+)))
+      (is-true (impulse:error-p r))
+      (assert-that (impulse:response-condition r)
+        (has-plist-entries :type :permission-denied)))))
+
+;;; -----------------------------------------------------------------------
+;;; Audit label -- Phase 2
+;;; -----------------------------------------------------------------------
+
+(def-test dispatch-audit-records-label ()
+  "A mutating verb's audit entry records the connection label."
+  (with-clean-orbit
+    (register-thread-orbital "d-lbl")
+    (impulse:request "d-lbl" :start :label "operator-1")
+    (let ((events (origin:event-log :name "d-lbl")))
+      (is-true (some (lambda (e)
+                       (and (eq :control (getf e :event))
+                            (search "operator-1" (or (getf e :detail) ""))))
+                     events)))))

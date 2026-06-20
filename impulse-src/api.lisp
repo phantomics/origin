@@ -7,17 +7,22 @@
 (in-package #:impulse)
 
 (defun request (target verb &key args query (delivery :sync)
-                              (tier +tier-read-write+) id)
+                              (tier +tier-read-write+) label id)
   "Issue an Impulse control request in the current image and return the
 response datum (:OK / :ERROR / :PARTIAL).
 
-TARGET is an orbital name (keyword/string) or object. VERB is a verb keyword.
-ARGS is a plist of verb parameters; QUERY a list of field keywords for reads.
-TIER is the permission tier to dispatch under (default read-write).
+TARGET is an orbital name (keyword/string) or object for a single orbital, or
+a fan-out form -- :ALL, or (:ORBITALS name ...) -- for a set, which yields a
+:PARTIAL response. VERB is a verb keyword. ARGS is a plist of verb parameters;
+QUERY a list of field keywords for reads. TIER is the permission tier to
+dispatch under (default read-write); LABEL names the issuing connection in
+audit entries.
 
-Example:
+Examples:
   (impulse:request :counter :status :query '(:status :uptime))
-  (impulse:request :counter :start)"
+  (impulse:request :counter :start)
+  (impulse:request :all :status)
+  (impulse:request '(:orbitals :a :b) :stop)"
   (dispatch (make-request verb target :args args :query query
                           :id id :delivery delivery)
-            :context (make-context :tier tier)))
+            :context (make-context :tier tier :label label)))

@@ -60,15 +60,10 @@ DELIVERY is :SYNC (await a reply) or :ASYNC (fire / stream)."
 ;;; Condition -> data
 ;;; -----------------------------------------------------------------------
 
-(defun %class-keyword (object)
-  "Return a keyword naming OBJECT's class, e.g. :UNKNOWN-VERB."
-  (intern (symbol-name (class-name (class-of object))) :keyword))
-
 (defun condition->plist (condition)
-  "Down-convert a CONDITION to a keyword-tagged plist datum.
-This is the Phase-1 form; the Phase-3 codec extends it for richer slots."
-  (list :type (%class-keyword condition)
-        :message (princ-to-string condition)))
+  "Down-convert a CONDITION to a keyword-tagged plist datum, dispatching to
+the extensible SERIALIZE-CONDITION protocol (see conditions.lisp)."
+  (serialize-condition condition))
 
 ;;; -----------------------------------------------------------------------
 ;;; Response

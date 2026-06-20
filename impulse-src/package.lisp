@@ -62,6 +62,8 @@
    #:response-id
    #:ok-p
    #:error-p
+   #:serialize-condition
+   #:condition->plist
 
    ;; Verbs
    #:register-verb
@@ -81,6 +83,8 @@
    #:*context*
    #:make-context
    #:context-tier
+   #:context-label
+   #:fan-out-target-p
 
    ;; Describe
    #:describe-orbital

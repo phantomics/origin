@@ -267,13 +267,132 @@ checks, 100%** (the only core change was the additive
 - Universal verbs registered: 10; default generic handlers: 6
 
 
+## Phase 2 -- Structured serialization, fan-out, and per-connection context
+
+**Date:** 2026-06-19 (Phase 2)
+
+### Goal
+
+Three refinements over the Phase-1 dispatcher: make error reporting
+*structured and extensible* (not just type + message), let a single request
+address a *set* of orbitals and return a `:partial` response collecting each
+one's outcome, and enrich the per-connection context so audit records who
+issued a mutation. The core CQS gate already existed from Phase 1, so this
+phase widened the envelope rather than adding enforcement.
+
+### Structured serialization (`conditions.lisp`, `envelope.lisp`)
+
+The Phase-1 `condition->plist` returned a flat `(:type :message)` pair. That
+is now the *default* of an extensible generic, `serialize-condition`, which
+each condition class refines with its own structured slots via
+`(append (call-next-method) (list ...))`:
+
+- `unknown-verb` adds `:verb`; `unknown-target` adds `:target`;
+  `permission-denied` adds `:verb`/`:effect`/`:tier`; `handler-error` adds
+  `:verb`/`:target`/`:cause`; `malformed-message` and `transport-error` add
+  `:detail`.
+- Origin conditions that surface through Impulse (`process-not-found`,
+  `process-already-running`, `process-start-failed`) get methods adding
+  their own slots (`:name`, `:cause`), so a lifecycle failure crosses the
+  control plane as data, not a stringified message.
+
+`condition->plist` is now a thin call to `serialize-condition`, and `err`
+routes through it, so every error response -- in-image or (later) over the
+wire -- carries machine-readable detail. The `call-next-method` + `append`
+idiom means a new condition (or a foreign adapter's validator, e.g. nginx
+`-t` returning file/line/message) extends the envelope by defining one
+method, with the base `:type`/`:message` always present.
+
+### Fan-out and the `:partial` envelope (`dispatch.lisp`)
+
+`dispatch` now distinguishes a single target from a fan-out form.
+`fan-out-target-p` recognizes `:all` (every orbital) and `(:orbitals name
+...)` (an explicit set); `resolve-target-set` returns `(key . orbital)`
+pairs, with `orbital` NIL for an unknown name. The dispatcher was refactored
+into three pieces:
+
+- `run-verb` -- handler lookup, mutation audit, and invocation for one
+  orbital (assuming the verb is known and the tier already passed).
+- `dispatch-single` -- the Phase-1 path: resolve one orbital or signal
+  `unknown-target`.
+- `dispatch-fan-out` -- run `run-verb` against each resolved orbital,
+  capturing each outcome (`:ok` or `:error`, including a missing target's
+  `unknown-target`) into the results alist, and return a `:partial`. A
+  failing or missing target never aborts the batch.
+
+The verb-known and tier checks happen **once, up front**, before any
+fan-out -- so a tier denial on `(:all :start)` at read-only is a single
+`:error`, not a partial full of identical denials. This is the SNMP
+`error-status`/`error-index` and HTTP 206-partial lesson realized: an
+operation over many targets returns a structured per-target outcome that
+survives partial failure.
+
+The minimal `:all` / `(:orbitals ...)` forms are deliberately just enough
+to exercise the partial mechanism; the full label / set-based selector
+grammar is Phase 5.
+
+### Per-connection context (`dispatch.lisp`, `api.lisp`)
+
+The `context` struct gained a `label` slot alongside its tier;
+`make-context` and `impulse:request` accept `:label`, and `audit-control`
+records it in the event-log detail (`"Impulse START [operator-1]"`). This is
+the seed of per-connection identity that the Phase-3 socket transport will
+populate from the handshake.
+
+### Design Decisions
+
+1. **Serialization by `call-next-method`, not a registry or `:around`.** An
+   initial `:around` design double-counted the base keys; the clean form is
+   a default primary method returning `(:type :message)` and each subclass
+   appending its slots onto `(call-next-method)`. It is idiomatic CLOS,
+   needs no central table, and a new condition participates by defining one
+   method.
+2. **Check verb and tier once; capture per-target outcomes.** Effect and
+   tier are properties of the verb and the connection, not of the target, so
+   they are validated before fan-out. Only target resolution and handler
+   execution vary per orbital, and those are exactly the failures the
+   `:partial` envelope is for.
+3. **Fan-out reuses single-target dispatch.** `run-verb` is the shared core;
+   single and fan-out dispatch differ only in target resolution and how
+   outcomes are aggregated. No verb logic is duplicated.
+
+### Tests (Phase 2)
+
+Added to the existing suites (no new files):
+
+- `envelope`: six serialization tests -- base `:type`/`:message`, the
+  per-condition slot additions (`unknown-verb`, `permission-denied`,
+  `handler-error`), an Origin condition's slots, and that `err` routes
+  through `serialize-condition`.
+- `dispatch`: fan-out over `:all` (all `:ok`); fan-out over an explicit set;
+  a missing name isolated to its own `:error` slot; a mixed batch where each
+  target's handler error stays in its slot; a tier denial returning a single
+  `:error` not a `:partial`; and an audit entry recording the connection
+  label.
+
+Result: **131 checks, 100% pass** (up from 110). Origin core regression
+check: **244 checks, 100%** (Phase 2 touched no Origin code).
+
+### Files (Phase 2)
+
+| File | Action | Description |
+|------|--------|-------------|
+| `impulse-src/conditions.lisp` | Modified | `serialize-condition` generic + per-condition and Origin-condition methods; `%class-keyword` moved here |
+| `impulse-src/envelope.lisp` | Modified | `condition->plist` now calls `serialize-condition` |
+| `impulse-src/dispatch.lisp` | Modified | `context` gains `label`; fan-out detection/resolution; `run-verb`/`dispatch-single`/`dispatch-fan-out`; audit records label |
+| `impulse-src/api.lisp` | Modified | `request` accepts `:label` and fan-out targets |
+| `impulse-src/package.lisp` | Modified | Export `serialize-condition`, `condition->plist`, `context-label`, `fan-out-target-p` |
+| `impulse-tests/test-envelope.lisp`, `test-dispatch.lisp` | Modified | +21 checks |
+
+### Metrics (Phase 2)
+
+- Origin core changes: 0
+- Test checks: 131 (Impulse), 100% pass; 244 (Origin), 100%
+- New error-envelope slots surfaced: 6 condition types enriched
+
+
 ## Outstanding Work (Part I)
 
-- **Phase 2 -- effect enforcement refinements, per-connection contexts, and
-  the structured response/error/partial envelope.** The CQS gate already
-  exists; Phase 2 adds per-connection tier contexts, fan-out partial
-  results, and richer condition serialization (file/line/path detail) for
-  validators that return structured diagnostics.
 - **Phase 3 -- the hardened codec and Unix-socket transport.** A data-only
   reader (`*read-eval*` nil, keyword-only validation, depth/length/size
   bounds) and a symmetric serializer; a per-image Unix-domain-socket

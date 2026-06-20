@@ -16,10 +16,13 @@
 ;;; -----------------------------------------------------------------------
 
 (defstruct (context (:constructor %make-context))
-  (tier +tier-read-write+ :type integer))
+  (tier +tier-read-write+ :type integer)
+  (label nil))
 
-(defun make-context (&key (tier +tier-read-write+))
-  (%make-context :tier tier))
+(defun make-context (&key (tier +tier-read-write+) label)
+  "Create a control context. TIER is the permission tier; LABEL is an optional
+identifier for the connection (recorded in audit entries)."
+  (%make-context :tier tier :label label))
 
 (defvar *context* (make-context :tier +tier-read-write+)
   "The control context in effect for the current dispatch (carries the tier).
@@ -79,22 +82,44 @@ data); DISPATCH wraps it in an :OK response (or :ERROR if it signals)."
 ;;; -----------------------------------------------------------------------
 
 (defun resolve-target (target)
-  "Resolve a TARGET selector to an orbital, or NIL.
-Phase 1: TARGET is an orbital object, or a name (keyword/string) looked up in
-the registry. Richer selectors (sets, predicates) arrive in Phase 5."
+  "Resolve a single-orbital TARGET to an orbital, or NIL.
+TARGET is an orbital object, or a name (keyword/string) looked up in the
+registry. Note: :ALL and (:ORBITALS ...) are fan-out forms handled
+separately (see FAN-OUT-TARGET-P / RESOLVE-TARGET-SET)."
   (typecase target
     (origin:managed-process target)
-    ((or string symbol) (find-process target :error-p nil))
+    (keyword (find-process target :error-p nil))   ; a verb-less name keyword
+    (string (find-process target :error-p nil))
+    (t nil)))
+
+(defun fan-out-target-p (target)
+  "True if TARGET addresses a set of orbitals rather than one.
+Phase 2 forms: :ALL (every orbital) and (:ORBITALS name ...) (an explicit
+set). The full label / predicate selector grammar arrives in Phase 5."
+  (or (eq target :all)
+      (and (consp target) (eq (car target) :orbitals))))
+
+(defun resolve-target-set (target)
+  "Resolve a fan-out TARGET to a list of (KEY . ORBITAL-OR-NIL) pairs.
+For :ALL, KEY is each orbital's name. For (:ORBITALS n ...), KEY is each
+requested name and ORBITAL is NIL if that name is unknown."
+  (cond
+    ((eq target :all)
+     (mapcar (lambda (o) (cons (process-name o) o)) (orbit)))
+    ((and (consp target) (eq (car target) :orbitals))
+     (mapcar (lambda (n) (cons n (find-process n :error-p nil))) (cdr target)))
     (t nil)))
 
 ;;; -----------------------------------------------------------------------
 ;;; Audit
 ;;; -----------------------------------------------------------------------
 
-(defun audit-control (verb orbital)
-  "Record a mutating control action in Origin's event log."
+(defun audit-control (verb orbital context)
+  "Record a mutating control action in Origin's event log, noting the issuing
+connection's label when present."
   (origin::%log-event :control (process-name orbital)
-                      (format nil "Impulse ~A" verb)))
+                      (format nil "Impulse ~A~@[ [~A]~]"
+                              verb (context-label context))))
 
 ;;; -----------------------------------------------------------------------
 ;;; Handler invocation (with main-thread marshaling)
@@ -118,10 +143,46 @@ safe against re-entrancy."
 ;;; Dispatch
 ;;; -----------------------------------------------------------------------
 
+(defun run-verb (op orbital req context)
+  "Find and run the handler for OP on ORBITAL, auditing mutations, and return
+the raw handler result. Assumes the verb is known and the tier already passed."
+  (let ((handler (find-handler (orbital-control-type orbital) op)))
+    (unless handler
+      (error 'handler-error :verb op :target (process-name orbital)
+                            :cause "verb not implemented for this orbital"))
+    (unless (eq (verb-effect op) :safe)
+      (audit-control op orbital context))
+    (run-handler handler orbital req context)))
+
+(defun dispatch-single (op req id context)
+  "Dispatch OP against a single resolved target; return an :OK or signal."
+  (let ((orbital (resolve-target (request-target req))))
+    (unless orbital
+      (error 'unknown-target :target (request-target req)))
+    (ok (run-verb op orbital req context) :id id)))
+
+(defun dispatch-fan-out (op req id context)
+  "Dispatch OP against a set of targets, returning a :PARTIAL response whose
+results alist pairs each target key with its own :OK or :ERROR response. A
+failing or missing target does not abort the batch."
+  (let ((results
+          (loop for (key . orbital) in (resolve-target-set (request-target req))
+                collect (cons key
+                              (if orbital
+                                  (handler-case (ok (run-verb op orbital req context))
+                                    (impulse-error (c) (err c))
+                                    (origin-error (c) (err c))
+                                    (error (c)
+                                      (err (make-condition 'handler-error
+                                                           :verb op :cause (princ-to-string c)))))
+                                  (err (make-condition 'unknown-target :target key)))))))
+    (partial results :id id)))
+
 (defun dispatch (request &key (context *context*))
   "Dispatch a control REQUEST (a REQUEST struct or a wire plist) and return a
 response datum (:OK / :ERROR / :PARTIAL). Never signals: all failures are
-captured into an :ERROR response."
+captured into a response. The verb and tier are checked once; for fan-out
+targets each orbital's outcome is captured individually."
   (let* ((req (if (requestp request) request (plist-request request)))
          (op (request-op req))
          (id (request-id req)))
@@ -130,25 +191,15 @@ captured into an :ERROR response."
           ;; Known verb?
           (unless (verb-known-p op)
             (error 'unknown-verb :verb op))
-          ;; Tier check (effect ladder vs connection tier).
+          ;; Tier check (effect ladder vs connection tier) -- once, up front.
           (let ((effect (verb-effect op)))
             (unless (verb-allowed-under-tier-p effect (context-tier context))
               (error 'permission-denied :verb op :effect effect
                                         :tier (context-tier context))))
-          ;; Resolve the target.
-          (let ((orbital (resolve-target (request-target req))))
-            (unless orbital
-              (error 'unknown-target :target (request-target req)))
-            ;; Find a handler.
-            (let ((handler (find-handler (orbital-control-type orbital) op)))
-              (unless handler
-                (error 'handler-error :verb op :target (request-target req)
-                                      :cause "verb not implemented for this orbital"))
-              ;; Audit mutating verbs.
-              (unless (eq (verb-effect op) :safe)
-                (audit-control op orbital))
-              ;; Run and wrap.
-              (ok (run-handler handler orbital req context) :id id))))
+          ;; Single vs fan-out.
+          (if (fan-out-target-p (request-target req))
+              (dispatch-fan-out op req id context)
+              (dispatch-single op req id context)))
       (impulse-error (c) (err c :id id))
       (origin-error (c) (err c :id id))
       (error (c)

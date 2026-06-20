@@ -65,3 +65,51 @@
   (let ((r (impulse:partial '((:a . (:ok :result 1)) (:b . (:error))) :id 1)))
     (is (eq :partial (impulse:response-status r)))
     (assert-that (impulse:response-results r) (has-length 2))))
+
+;;; -----------------------------------------------------------------------
+;;; Structured condition serialization (Phase 2)
+;;; -----------------------------------------------------------------------
+
+(def-test serialize-base ()
+  "The default serialization carries :type and :message."
+  (let ((pl (impulse:serialize-condition
+             (make-condition 'impulse:malformed-message :detail "bad"))))
+    (assert-that pl (has-plist-entries :type :malformed-message
+                                       :message (has-type 'string)
+                                       :detail "bad"))))
+
+(def-test serialize-unknown-verb ()
+  "unknown-verb adds its :verb slot."
+  (assert-that (impulse:serialize-condition
+                (make-condition 'impulse:unknown-verb :verb :frobnicate))
+    (has-plist-entries :type :unknown-verb :verb :frobnicate)))
+
+(def-test serialize-permission-denied ()
+  "permission-denied carries verb, effect, and tier."
+  (assert-that (impulse:serialize-condition
+                (make-condition 'impulse:permission-denied
+                                :verb :start :effect :idempotent
+                                :tier impulse:+tier-read-only+))
+    (has-plist-entries :type :permission-denied
+                       :verb :start :effect :idempotent
+                       :tier impulse:+tier-read-only+)))
+
+(def-test serialize-handler-error ()
+  "handler-error carries verb, target, and cause."
+  (assert-that (impulse:serialize-condition
+                (make-condition 'impulse:handler-error
+                                :verb :configure :target "web" :cause "boom"))
+    (has-plist-entries :type :handler-error
+                       :verb :configure :target "web" :cause "boom")))
+
+(def-test serialize-origin-condition ()
+  "An Origin condition surfaced through Impulse carries its structured slots."
+  (assert-that (impulse:serialize-condition
+                (make-condition 'origin:process-not-found :name "ghost"))
+    (has-plist-entries :type :process-not-found :name "ghost")))
+
+(def-test err-uses-serialization ()
+  "err down-converts through serialize-condition, preserving extra slots."
+  (let ((r (impulse:err (make-condition 'impulse:unknown-verb :verb :zap) :id 2)))
+    (assert-that (impulse:response-condition r)
+      (has-plist-entries :type :unknown-verb :verb :zap))))

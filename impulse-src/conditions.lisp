@@ -56,3 +56,62 @@
   (:report (lambda (c stream)
              (format stream "Impulse transport error~@[: ~A~]"
                      (transport-error-detail c)))))
+
+;;; -----------------------------------------------------------------------
+;;; Structured serialization
+;;; -----------------------------------------------------------------------
+;;;
+;;; A failed control operation must return a structured datum, not a string.
+;;; SERIALIZE-CONDITION is the extensible hook: the default reports type and
+;;; message; each condition class adds its own structured slots. New
+;;; conditions (and adapters' validators -- nginx -t file/line/message, etc.)
+;;; specialize it to surface their detail as keyword-tagged data.
+
+(defun %class-keyword (object)
+  "Return a keyword naming OBJECT's class, e.g. :UNKNOWN-VERB."
+  (intern (symbol-name (class-name (class-of object))) :keyword))
+
+(defgeneric serialize-condition (condition)
+  (:documentation
+   "Down-convert CONDITION to a keyword-tagged plist datum: at minimum
+(:TYPE <keyword> :MESSAGE <string>), plus any condition-specific slots.
+Subclass methods extend the base via (APPEND (CALL-NEXT-METHOD) ...)."))
+
+(defmethod serialize-condition ((c condition))
+  (list :type (%class-keyword c) :message (princ-to-string c)))
+
+(defmethod serialize-condition ((c unknown-verb))
+  (append (call-next-method) (list :verb (unknown-verb-verb c))))
+
+(defmethod serialize-condition ((c unknown-target))
+  (append (call-next-method) (list :target (unknown-target-target c))))
+
+(defmethod serialize-condition ((c permission-denied))
+  (append (call-next-method)
+          (list :verb (permission-denied-verb c)
+                :effect (permission-denied-effect c)
+                :tier (permission-denied-tier c))))
+
+(defmethod serialize-condition ((c malformed-message))
+  (append (call-next-method) (list :detail (malformed-message-detail c))))
+
+(defmethod serialize-condition ((c handler-error))
+  (append (call-next-method)
+          (list :verb (handler-error-verb c)
+                :target (handler-error-target c)
+                :cause (handler-error-cause c))))
+
+(defmethod serialize-condition ((c transport-error))
+  (append (call-next-method) (list :detail (transport-error-detail c))))
+
+;; A few Origin conditions surface through Impulse when a lifecycle call fails.
+(defmethod serialize-condition ((c origin:process-not-found))
+  (append (call-next-method) (list :name (origin:process-not-found-name c))))
+
+(defmethod serialize-condition ((c origin:process-already-running))
+  (append (call-next-method) (list :name (origin:process-already-running-name c))))
+
+(defmethod serialize-condition ((c origin:process-start-failed))
+  (append (call-next-method)
+          (list :name (origin:process-start-failed-name c)
+                :cause (origin:process-start-failed-cause c))))
