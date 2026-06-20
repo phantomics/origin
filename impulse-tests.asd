@@ -16,6 +16,7 @@
                              (:file "test-describe")
                              (:file "test-codec")
                              (:file "test-transport")
+                             (:file "test-streams")
                              (:file "test-spec")
                              (:file "test-selectors"))))
   :perform (test-op (o s)

@@ -16,6 +16,7 @@
 (def-suite describe :in impulse :description "Capability discovery tests")
 (def-suite codec    :in impulse :description "Wire codec / hardening tests")
 (def-suite transport :in impulse :description "Unix-socket transport tests")
+(def-suite streams  :in impulse :description "Streaming tier: watch + operation progress/cancel")
 (def-suite spec     :in impulse :description "Declared-vs-observed / apply tests")
 (def-suite selectors :in impulse :description "Selector grammar / fleet addressing tests")
 
@@ -111,6 +112,8 @@ with the socket path. Kills the child and removes the socket on exit."
                        (get-universal-time) (random 1000000)))
          (log  (format nil "/tmp/impulse-test-child-~D.log" (random 1000000)))
          (repo (namestring (asdf:system-source-directory "impulse")))
+         (vocab (namestring (merge-pathnames "impulse-tests/child-vocab.lisp"
+                                             (asdf:system-source-directory "impulse"))))
          (sbcl (namestring sb-ext:*runtime-pathname*))
          (ql   (namestring (merge-pathnames "quicklisp/setup.lisp"
                                             (user-homedir-pathname))))
@@ -128,6 +131,7 @@ with the socket path. Kills the child and removes the socket on exit."
                      "--eval" (format nil "(load ~S)" ql)
                      "--eval" (format nil "(push #P~S asdf:*central-registry*)" repo)
                      "--eval" "(funcall (read-from-string \"ql:quickload\") \"impulse\")"
+                     "--eval" (format nil "(load ~S)" vocab)
                      "--eval" boot))
          (proc nil))
     (unwind-protect

@@ -108,6 +108,17 @@
    #:orbital-health
    #:status-view
 
+   ;; Streaming tier (watch + operation progress/cancel)
+   #:make-connection
+   #:connection
+   #:connectionp
+   #:send-frame
+   #:report-progress
+   #:operation-cancelled-p
+   #:*current-operation*
+   #:start-subscription
+   #:stop-subscription
+
    ;; Codec
    #:validate-datum
    #:sanitize-datum
@@ -128,9 +139,19 @@
    #:session
    #:sessionp
    #:session-request
+   #:session-send
+   #:session-await
+   #:session-watch
+   #:session-unwatch
+   #:session-cancel
+   #:session-next-notification
    #:session-tier
    #:session-version
    #:session-capabilities
+   #:notification-kind
+   #:notification-id
+   #:notification-event
+   #:notification-progress
    #:with-connection
 
    ;; Client sugar

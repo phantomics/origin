@@ -16,10 +16,11 @@
       ;; configure and apply gained generic handlers in Phase 4.
       (is-true (member :configure verbs))
       (is-true (member :apply verbs))
-      ;; delta / signal / watch still have no generic handler.
+      ;; watch gained a generic handler in Phase 6 (the streaming tier).
+      (is-true (member :watch verbs))
+      ;; delta / signal still have no generic handler.
       (is-false (member :delta verbs))
-      (is-false (member :signal verbs))
-      (is-false (member :watch verbs)))))
+      (is-false (member :signal verbs)))))
 
 (def-test describe-verb-metadata ()
   "Each advertised verb carries effect class and delivery modes."

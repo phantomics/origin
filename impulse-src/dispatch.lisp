@@ -17,12 +17,14 @@
 
 (defstruct (context (:constructor %make-context))
   (tier +tier-read-write+ :type integer)
-  (label nil))
+  (label nil)
+  (connection nil))
 
-(defun make-context (&key (tier +tier-read-write+) label)
+(defun make-context (&key (tier +tier-read-write+) label connection)
   "Create a control context. TIER is the permission tier; LABEL is an optional
-identifier for the connection (recorded in audit entries)."
-  (%make-context :tier tier :label label))
+identifier for the connection (recorded in audit entries); CONNECTION is the
+server-side socket connection (NIL in-image), used by streaming verbs."
+  (%make-context :tier tier :label label :connection connection))
 
 (defvar *context* (make-context :tier +tier-read-write+)
   "The control context in effect for the current dispatch (carries the tier).

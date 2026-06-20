@@ -55,3 +55,43 @@ universal verbs; verify both a read-write and a read-only session."
          (is-true (impulse:error-p r))
          (assert-that (impulse:response-condition r)
            (has-plist-entries :type :permission-denied)))))))
+
+(def-test transport-watch-streams-events ()
+  "A WATCH subscription over the socket streams an orbital's events as :EVENT
+notifications addressed to the subscription id; UNWATCH ends it."
+  (call-with-impulse-child
+   (lambda (sock)
+     (impulse:with-connection (s sock :tier impulse:+tier-read-write+ :timeout 25)
+       (multiple-value-bind (sub-id ack) (impulse:session-watch s "child-orb")
+         (is-true (impulse:ok-p ack))
+         (is (eql sub-id (getf (impulse:response-result ack) :subscription)))
+         ;; trigger events on the watched orbital
+         (is-true (impulse:ok-p (impulse:session-request s "child-orb" :start)))
+         ;; an event notification arrives, addressed to our subscription
+         (let ((n (impulse:session-next-notification s :timeout 10)))
+           (is-true n)
+           (is (eq :event (impulse:notification-kind n)))
+           (is (eql sub-id (impulse:notification-id n)))
+           (is (string= "child-orb"
+                        (getf (impulse:notification-event n) :process))))
+         (impulse:session-unwatch s sub-id))))))
+
+(def-test transport-operation-progress-and-cancel ()
+  "A long operation streams :PROGRESS notifications and stops when its token is
+cancelled; the final response reports the cancellation."
+  (call-with-impulse-child
+   (lambda (sock)
+     (impulse:with-connection (s sock :tier impulse:+tier-read-write+ :timeout 25)
+       (multiple-value-bind (op-id waiter)
+           (impulse:session-send s "child-orb" :slow-op
+                                 :args '(:steps 100 :delay 0.05))
+         ;; progress notifications stream in, addressed to the operation
+         (let ((p (impulse:session-next-notification s :timeout 10)))
+           (is-true p)
+           (is (eq :progress (impulse:notification-kind p)))
+           (is (eql op-id (impulse:notification-id p))))
+         ;; cancel; the final response reflects it
+         (impulse:session-cancel s op-id)
+         (let ((final (impulse:session-await s waiter :timeout 10)))
+           (is-true (impulse:ok-p final))
+           (is (eq :cancelled (getf (impulse:response-result final) :status)))))))))

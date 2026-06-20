@@ -26,6 +26,7 @@
                              (:file "describe")
                              (:file "spec")
                              (:file "handlers")
+                             (:file "streams")
                              (:file "api")
                              (:file "codec")
                              (:file "transport")))))

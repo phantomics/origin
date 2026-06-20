@@ -252,9 +252,158 @@ filtering it; and `describe` surfacing an orbital's labels. Full suite:
 | Target selection vs intra-orbital addressing kept distinct | the survey's "sub-orbital vs domain-object" hazard (Lexter) | one grammar for *which orbitals*, another (`:args`/`:query`) for *within one* |
 
 
-## Outstanding Work (Part II)
+## Phase 6 -- The streaming tier (watch + operation progress/cancel)
 
-- **Phase 6 -- the streaming tier.** A demultiplexing transport client (a
-  per-session reader thread routing correlated responses and async
-  notifications), subscription-scoped `watch` (poll-based over the event log
-  for v1), and operation-scoped progress/cancel kept distinct from it.
+**Date:** 2026-06-20 (Phase 6)
+
+### Goal
+
+Add the two *asynchronous* affordances the request/response envelope cannot
+express on its own, and make the socket transport carry them: a
+subscription-scoped **`watch`** (an orbital's events streamed as they happen)
+and operation-scoped **progress/cancel** (a long-running call that reports
+progress and can be cancelled mid-flight). Keep the two kinds distinct, and do
+it without a single line of push machinery in Origin core.
+
+### One abstraction, two streams (`streams.lisp`)
+
+Both rest on a `connection`: a server-side per-client object owning an output
+**sink** (a function of one frame), an id-keyed table of live subscriptions,
+and an id-keyed table of in-flight operations. The sink is the *only* coupling
+to the transport -- the real transport hands in a stream-writing,
+lock-serialized sink; a test hands in one that appends to a list -- so the
+whole tier is exercisable in-process with no socket at all.
+
+Notifications are a third frame kind, out-of-band from request/response:
+
+```
+(:notify :event    :id <sub-id> :event <event-plist>)   ; a watch tick
+(:notify :progress :id <op-id>  :progress <datum>)       ; operation progress
+```
+
+The `:id` is always the *originating request's id* -- the same token the
+client later uses to `unwatch` a subscription or `cancel` an operation. That is
+the LSP `$/cancelRequest` model: the request id doubles as the control token,
+so no separate handle registry is needed.
+
+**Operations.** A `register-operation` keyed by the request id creates a small
+record with a shared `cancelled` cell; `*current-operation*` is dynamically
+bound to it for the duration of the handler. A handler calls
+`(report-progress datum)` (emits a `:progress` frame) and polls
+`(operation-cancelled-p)` at safe points, returning early when it goes true --
+cooperative cancellation, never a forced unwind. Both default to
+`*current-operation*`, so a handler reached in-image (no operation) calls them
+harmlessly as no-ops.
+
+**Subscriptions (`watch`).** There is deliberately *no* push hook in Origin
+core, so a subscription is poll-based: `start-subscription` captures the
+current tail of the target's `origin:event-log` as an **eq cursor**, then a
+per-subscription thread polls and diffs against it. Because event-log entries
+are shared, eq-comparable plists, `%events-since` walks the most-recent-first
+log until it hits the cursor -- emitting exactly what is new since the
+subscription began, oldest-first, with backlog skipped and never replayed. The
+cursor is captured *before* the ack is sent, so a client that issues a
+mutating verb right after `watch` returns is guaranteed not to miss its events.
+
+The `:watch` verb is the one universal handler that reaches into `*context*`:
+it needs the connection (somewhere to stream onto) and the request id (the
+subscription token), and refuses with a structured `handler-error` in-image,
+where there is nowhere to stream.
+
+### A demultiplexing transport (`transport.lisp`)
+
+The socket carrier was rebuilt around two ideas so the streaming frames can
+share one connection with ordinary traffic:
+
+- **Server: a read loop + worker threads.** After the handshake, a single read
+  loop pulls frames. Control frames -- `(:op :cancel ...)` / `(:op :unwatch
+  ...)` -- are handled *inline* at the transport level (never dispatched as
+  verbs); every other request is dispatched on a fresh worker thread, so the
+  read loop stays free to receive a cancel *while the operation it targets is
+  still running*. The operation is registered synchronously in the read-loop
+  thread before the worker is spawned, so a cancel that races in is never lost.
+  All outbound frames (responses and notifications) funnel through one
+  per-connection output lock.
+
+- **Client: a reader thread that demultiplexes by id.** `connect` performs the
+  handshake synchronously, then starts a background reader. Each request
+  registers a *waiter* under its id; the reader routes a response to its
+  waiter's condition variable and a `(:notify ...)` frame onto a FIFO queue
+  read by `session-next-notification`. So many in-flight requests, plus a
+  stream of notifications, share the one socket without confusion.
+  `session-send`/`session-await` split issue from collect (for operations you
+  want to stream or cancel before the final reply); `session-request` is the
+  sync convenience over them.
+
+### Design Decisions
+
+1. **The connection's sink is the only transport coupling.** The entire
+   streaming tier is unit-tested in-process against a list-collecting sink; the
+   socket is just one sink implementation. This is what let `streams` ship with
+   a 22-check suite that needs no child image.
+2. **`watch` is poll-based over the event log, by choice.** No push hook is
+   added to Origin core: the supervisor's event log is already the system's
+   ground truth, and an eq-cursor diff over it is exact and allocation-free.
+   The poll interval is the only latency knob, and v1 trades a little latency
+   for zero core surface. A push hook can replace the poll later behind the
+   same `subscription` API.
+3. **The request id is the cancellation/unwatch token (LSP model).** Cancel and
+   unwatch are *transport control frames*, not verbs -- they must be readable
+   and actionable while a worker is mid-dispatch, which a dispatched verb (also
+   queued behind the read loop's frame) could not guarantee.
+4. **One worker thread per non-control request.** Uniform, and the only way the
+   read loop can stay responsive to a cancel during a long operation. Writes
+   are serialized by the output lock, so concurrent workers and subscription
+   threads never interleave a frame.
+5. **`streams.lisp` loads before `api`/`codec`/`transport`.** Its sink-based
+   core depends only on dispatch (for the `:watch` handler and `*context*`) and
+   the event log -- not on the codec or socket -- so it sits cleanly between the
+   handlers and the carrier.
+
+### Tests (Phase 6)
+
+A new `streams` suite (22 checks) drives the tier in-process against a mock
+connection: an operation reporting progress and flipping to cancelled (and
+`report-progress` as a no-op with no current operation); cancelling an unknown
+token harmlessly; a subscription streaming only post-subscription events in
+order while skipping backlog; `stop-subscription` and `close-connection` both
+ending the stream; and `:watch` refusing in-image. Two end-to-end socket tests
+extend the `transport` suite: a real child image's events streamed over a
+`watch` subscription (addressed to the right subscription id), and a `:slow-op`
+(a child-only test sub-vocabulary) streaming progress and then reporting
+`:cancelled` in its final response after a `cancel` frame. Full suite: **285
+checks, 100% pass** (up from 251), stable across repeated runs. Origin core:
+untouched (**244, 100%**).
+
+### Prior-art lineage (Phase 6)
+
+| Implemented feature | Reference lineage | Note |
+|---|---|---|
+| Request id doubles as cancel/unwatch token; cancel is a control frame, not a verb | LSP `$/cancelRequest` (and `$/progress`) | out-of-band cancellation keyed by the in-flight request's id |
+| `(:notify ...)` frames demultiplexed from responses on one connection | JSON-RPC 2.0 notifications vs. id-correlated responses | a single bidirectional channel carrying both |
+| Subscription-scoped `watch` streaming an event log | `kubectl get --watch` / the Kubernetes watch API (resourceVersion cursor) | here the eq cursor over Origin's event log is the resourceVersion |
+| Poll-and-diff with an exact cursor instead of a core push hook | `journalctl -f` / `tail -f` (follow by position) | follow the log from a captured position; no producer-side change |
+| Per-connection worker dispatch so control stays responsive mid-operation | Erlang `gen_server` handling system messages while a call is in flight | the read loop is the system-message channel |
+| Cooperative cancellation (poll a flag at safe points), not forced unwind | Go `context.Context` cancellation / Java thread interruption | the handler decides where it is safe to stop |
+
+
+## Part II Complete
+
+Phases 4-6 are done: the **declarative tier** (declared-vs-observed state,
+`configure`, `apply` with a confirmed-commit dead-man's-switch, `delta`), the
+**selector grammar** (labels and set-based `:where` fan-out with field-argument
+ranking), and the **streaming tier** (`watch` and operation progress/cancel on
+a demultiplexing transport). The full Impulse suite stands at **285 checks,
+100% pass**; Origin core, untouched throughout Part II, remains at **244,
+100%**.
+
+### Outstanding Work (beyond Part II)
+
+- **Origin-core dependency graph / ordering phase.** Start/stop ordering and
+  dependency edges between orbitals -- deferred to a dedicated Origin-core phase
+  (it belongs in the core's supervisor, not the control vocabulary).
+- **Typed sub-vocabularies (Phase 7+).** The Lexter host adapter and other
+  typed control types register their own verbs/handlers over the `:generic`
+  base; the streaming tier is now in place for them to build on.
+- **`watch` push hook.** Replace the poll loop with a core-side event hook
+  behind the same `subscription` API, if/when latency warrants it.
