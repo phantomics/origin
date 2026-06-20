@@ -17,6 +17,7 @@
 (def-suite codec    :in impulse :description "Wire codec / hardening tests")
 (def-suite transport :in impulse :description "Unix-socket transport tests")
 (def-suite spec     :in impulse :description "Declared-vs-observed / apply tests")
+(def-suite selectors :in impulse :description "Selector grammar / fleet addressing tests")
 
 ;;; -----------------------------------------------------------------------
 ;;; Orbit cleanup
@@ -32,7 +33,8 @@
   ;; Impulse control-plane registries
   (clrhash impulse::*orbital-specs*)
   (clrhash impulse::*pending-commits*)
-  (clrhash impulse::*orbital-control-types*))
+  (clrhash impulse::*orbital-control-types*)
+  (clrhash impulse::*orbital-labels*))
 
 (defmacro with-clean-orbit (&body body)
   `(unwind-protect

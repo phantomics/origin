@@ -16,6 +16,7 @@
                              (:file "test-describe")
                              (:file "test-codec")
                              (:file "test-transport")
-                             (:file "test-spec"))))
+                             (:file "test-spec")
+                             (:file "test-selectors"))))
   :perform (test-op (o s)
             (uiop:symbol-call :impulse-tests :run-all-tests)))

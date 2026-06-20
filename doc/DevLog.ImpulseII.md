@@ -159,13 +159,101 @@ moved from `:configure` to `:signal`). Full suite: **224 checks, 100% pass**
 | Per-type `validate-spec`/`commit-spec` generics | JMX per-MBean operations; NETCONF per-YANG-model semantics; the adapter-as-respondent constraint | a sub-vocabulary or foreign adapter supplies its own spec semantics |
 
 
+## Phase 5 -- The selector grammar (fleet addressing)
+
+**Date:** 2026-06-20 (Phase 5)
+
+### Goal
+
+Extend addressing from "one orbital, or an explicit set" to "any set
+matching a label predicate", and let a fan-out's results be ranked, limited,
+and filtered by field arguments -- while keeping *target* selection cleanly
+separate from *intra-orbital* addressing.
+
+### Labels and the predicate matcher (`selectors.lisp`)
+
+Labels live in an Impulse-side registry (`*orbital-labels*`, name -> plist);
+`label-orbital` merges labels onto an orbital, and Origin core is again
+untouched. `label-match-p` evaluates a small set-based predicate grammar
+against a label plist:
+
+- `(:eq key value)`, `(:in key (v ...))`, `(:exists key)` -- the leaves;
+- `(:and p ...)`, `(:or p ...)`, `(:not p)` -- the connectives;
+- `nil` matches everything.
+
+A unique `*absent*` sentinel distinguishes a missing key from a present key
+whose value is `NIL`, so `(:exists :tag)` is true for `(:tag nil)` but false
+when `:tag` is absent. An unknown operator is a `malformed-message` -- the
+predicate is bounded data, like everything else on the wire.
+
+### `(:where ...)` target resolution and result refinement (`dispatch.lisp`)
+
+`fan-out-target-p` now recognizes `(:where pred)` alongside `:all` and
+`(:orbitals ...)`, and `resolve-target-set` resolves it via `resolve-where`,
+which returns every orbital whose labels satisfy the predicate. So
+`(:where (:and (:eq :layer :presentation) (:in :workload (:interactive
+:latency-sensitive))))` addresses a fleet by predicate, the Kubernetes
+set-based-selector model.
+
+After a fan-out produces its `:partial` results, `refine-results` applies the
+GraphQL-style field arguments carried in the request: `:where-result <pred>`
+keeps only the `:ok` results whose result plist matches (the *same*
+predicate grammar, now run over a result instead of a label set), `:by
+<field>` ranks larger-first, and `:top <n>` limits the count. This is what
+the high-cardinality cases need and what the Lexter window model never
+demanded -- "the top N orbitals by restart count," "only the running ones."
+
+### Separation of concerns
+
+The file is deliberately *only* about target selection (which orbitals a
+request addresses) and refining the resulting fan-out. Intra-orbital
+addressing -- naming a sub-object or aspect of one orbital, such as `:window
+2` -- stays in the request's `:args` / `:query`, never conflated with the
+target selector. This is the boundary the survey flagged as the Lexter trap;
+keeping the two grammars in different places enforces it structurally, ahead
+of the Lexter sub-vocabulary.
+
+### Design Decisions
+
+1. **Labels in an Impulse-side registry, like specs.** Consistent with Phase
+   4: fleet metadata is a control-plane concept, kept out of Origin core, so
+   it works uniformly for thread, cooperative, image, and (later) foreign
+   orbitals.
+2. **One predicate grammar, two uses.** The same `label-match-p` matches a
+   predicate against an orbital's labels (for `:where` selection) and against
+   a result plist (for `:where-result` filtering). One small, auditable
+   matcher; no second grammar to learn or secure.
+3. **`selectors.lisp` loads before `dispatch.lisp`.** The selector helpers
+   depend only on the registry, the orbit, and the envelope accessors -- not
+   on dispatch -- so loading them first lets `dispatch` call them with no
+   forward references.
+4. **Field arguments refine, they do not re-dispatch.** `:top`/`:by`/
+   `:where-result` post-process the already-collected `:partial`, so they
+   compose with any verb's fan-out and add no per-target cost beyond the sort.
+
+### Tests (Phase 5)
+
+A new `selectors` suite (27 checks): the predicate matcher (`:eq`/`:in`/
+`:exists` including the NIL-vs-absent distinction, `:and`/`:or`/`:not`, and a
+malformed operator); `(:where ...)` selecting exactly the matching set, a
+compound cross-key predicate, and an empty match yielding an empty
+`:partial`; `:top`/`:by` ranking and limiting a fan-out, and `:where-result`
+filtering it; and `describe` surfacing an orbital's labels. Full suite:
+**251 checks, 100% pass** (up from 224). Origin core: untouched.
+
+### Prior-art lineage (Phase 5)
+
+| Implemented feature | Reference lineage | Note |
+|---|---|---|
+| Labels + set-based selectors (`:where`, `:in`/`:exists`/`:and`/`:or`/`:not`) | Kubernetes labels + set-based label selectors | addressing a *set* of orbitals by predicate |
+| Key/value label matching | JMX `ObjectName` (domain + key/value selector with pattern fan-out) | structured, self-documenting selection |
+| Namespaced "select the whole set" | SNMP table-walk ("walk = all") | the `:all` / `:where` fan-out is the walk, in S-expressions not dotted OIDs |
+| Field arguments: `:top` / `:by` / `:where-result` | GraphQL field arguments (filter / top-N / pagination) | rank and limit high-cardinality fan-out results |
+| Target selection vs intra-orbital addressing kept distinct | the survey's "sub-orbital vs domain-object" hazard (Lexter) | one grammar for *which orbitals*, another (`:args`/`:query`) for *within one* |
+
+
 ## Outstanding Work (Part II)
 
-- **Phase 5 -- the selector grammar.** Labels + set-based predicates
-  (`:eq`/`:in`/`:exists`/`:and`/`:or`/`:not`) for addressing sets of
-  orbitals, and field-argument ranking (`:top`/`:by`/`:where-result`) of
-  fan-out results, keeping target selection distinct from intra-orbital
-  addressing.
 - **Phase 6 -- the streaming tier.** A demultiplexing transport client (a
   per-session reader thread routing correlated responses and async
   notifications), subscription-scoped `watch` (poll-based over the event log

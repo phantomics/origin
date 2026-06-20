@@ -94,20 +94,24 @@ separately (see FAN-OUT-TARGET-P / RESOLVE-TARGET-SET)."
 
 (defun fan-out-target-p (target)
   "True if TARGET addresses a set of orbitals rather than one.
-Phase 2 forms: :ALL (every orbital) and (:ORBITALS name ...) (an explicit
-set). The full label / predicate selector grammar arrives in Phase 5."
+Forms: :ALL (every orbital), (:ORBITALS name ...) (an explicit set), and
+(:WHERE pred) (every orbital whose labels satisfy the predicate)."
   (or (eq target :all)
-      (and (consp target) (eq (car target) :orbitals))))
+      (and (consp target)
+           (member (car target) '(:orbitals :where)))))
 
 (defun resolve-target-set (target)
   "Resolve a fan-out TARGET to a list of (KEY . ORBITAL-OR-NIL) pairs.
 For :ALL, KEY is each orbital's name. For (:ORBITALS n ...), KEY is each
-requested name and ORBITAL is NIL if that name is unknown."
+requested name (ORBITAL NIL if unknown). For (:WHERE pred), the label-matched
+set (see SELECTORS.LISP)."
   (cond
     ((eq target :all)
      (mapcar (lambda (o) (cons (process-name o) o)) (orbit)))
     ((and (consp target) (eq (car target) :orbitals))
      (mapcar (lambda (n) (cons n (find-process n :error-p nil))) (cdr target)))
+    ((and (consp target) (eq (car target) :where))
+     (resolve-where (second target)))
     (t nil)))
 
 ;;; -----------------------------------------------------------------------
@@ -164,7 +168,8 @@ the raw handler result. Assumes the verb is known and the tier already passed."
 (defun dispatch-fan-out (op req id context)
   "Dispatch OP against a set of targets, returning a :PARTIAL response whose
 results alist pairs each target key with its own :OK or :ERROR response. A
-failing or missing target does not abort the batch."
+failing or missing target does not abort the batch. Field arguments in the
+request (:top / :by / :where-result) then rank and limit the results."
   (let ((results
           (loop for (key . orbital) in (resolve-target-set (request-target req))
                 collect (cons key
@@ -176,7 +181,7 @@ failing or missing target does not abort the batch."
                                       (err (make-condition 'handler-error
                                                            :verb op :cause (princ-to-string c)))))
                                   (err (make-condition 'unknown-target :target key)))))))
-    (partial results :id id)))
+    (partial (refine-results results (request-args req)) :id id)))
 
 (defun dispatch (request &key (context *context*))
   "Dispatch a control REQUEST (a REQUEST struct or a wire plist) and return a

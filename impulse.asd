@@ -21,6 +21,7 @@
                              (:file "conditions")
                              (:file "envelope")
                              (:file "verbs")
+                             (:file "selectors")
                              (:file "dispatch")
                              (:file "describe")
                              (:file "spec")

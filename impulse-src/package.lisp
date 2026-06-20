@@ -87,6 +87,13 @@
    #:context-label
    #:fan-out-target-p
 
+   ;; Selectors / labels
+   #:orbital-labels
+   #:label-orbital
+   #:label-match-p
+   #:resolve-where
+   #:refine-results
+
    ;; Describe
    #:describe-orbital
    #:config-schema

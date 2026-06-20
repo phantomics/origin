@@ -89,6 +89,7 @@ it supports, and its query-leaf schemas."
   (let ((type (orbital-control-type orbital)))
     (list :orbital (process-name orbital)
           :control-type type
+          :labels (orbital-labels (process-name orbital))
           :verbs (supported-verbs type)
           :queries (loop for (verb . schema) in (gethash type *query-schemas*)
                          collect (list :verb verb :leaves schema))
