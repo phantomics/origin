@@ -57,6 +57,16 @@
              (format stream "Impulse transport error~@[: ~A~]"
                      (transport-error-detail c)))))
 
+(define-condition invalid-spec (impulse-error)
+  ((key :initarg :key :initform nil :reader invalid-spec-key)
+   (value :initarg :value :initform nil :reader invalid-spec-value)
+   (reason :initarg :reason :initform nil :reader invalid-spec-reason))
+  (:report (lambda (c stream)
+             (format stream "Invalid spec~@[ key ~S~]~@[ value ~S~]~@[: ~A~]"
+                     (invalid-spec-key c)
+                     (invalid-spec-value c)
+                     (invalid-spec-reason c)))))
+
 ;;; -----------------------------------------------------------------------
 ;;; Structured serialization
 ;;; -----------------------------------------------------------------------
@@ -103,6 +113,12 @@ Subclass methods extend the base via (APPEND (CALL-NEXT-METHOD) ...)."))
 
 (defmethod serialize-condition ((c transport-error))
   (append (call-next-method) (list :detail (transport-error-detail c))))
+
+(defmethod serialize-condition ((c invalid-spec))
+  (append (call-next-method)
+          (list :key (invalid-spec-key c)
+                :value (invalid-spec-value c)
+                :reason (invalid-spec-reason c))))
 
 ;; A few Origin conditions surface through Impulse when a lifecycle call fails.
 (defmethod serialize-condition ((c origin:process-not-found))

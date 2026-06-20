@@ -169,6 +169,22 @@ request datum and dispatches it in the current image. The same datum will
 later travel over the socket transport unchanged; this is simply the
 in-image path.
 
+### Prior-art lineage (Phase 1)
+
+Each implemented feature and the reference technologies it descends from
+(full evaluation in `Eval.ControlVocabulary.PriorArt.md`):
+
+| Implemented feature | Reference lineage | Note |
+|---|---|---|
+| Two-tier vocabulary (universal verbs + typed sub-vocabularies) | z/OS `MODIFY`; SNMP MIBs; JMX MBeans; LSP namespaces; D-Bus interfaces; K8s CRDs | MODIFY's universal-verb-carrying-a-sub-language is the closest operational twin; the two-tier shape recurs in *every* surveyed system |
+| Effect ladder (`:safe`/`:idempotent`/`:effecting`) | HTTP methods (GET/HEAD; PUT/DELETE; POST); SNMP MAX-ACCESS; 9P read/write | "safe implies idempotent" collapses HTTP's two axes into one ordered ladder |
+| Effect to tier permission gate (CQS) | HTTP safe methods (contract, not enforcement); SNMP MAX-ACCESS; JMX attribute/operation split; 9P medium-enforced read/write | safe on read-only; mutating audited; eval a separate privileged tier |
+| `describe` (mandatory, free, queried as data) | JMX `MBeanInfo` (direct ancestor); GraphQL introspection; D-Bus `Introspectable`; K8s API discovery; 9P directory listing | tools/UIs render from discovered metadata |
+| Typed status-leaf schema (type/access per leaf) | SNMP SMI types + MAX-ACCESS-in-schema | CQS pushed into the schema, per leaf |
+| "Free sys" default handlers from `managed-process` | Erlang `sys:get_state`/`get_status` | the core already knows lifecycle, so zero per-orbital code |
+| `status :query` field selection | GraphQL selection set | client names the fields it wants |
+| Data-not-code dispatch (datum dispatched, never eval'd) | 9P (write = command, no eval surface); SNMP (closed by MIB) | the security spine |
+
 
 ## Design Decisions
 
@@ -339,6 +355,14 @@ records it in the event-log detail (`"Impulse START [operator-1]"`). This is
 the seed of per-connection identity that the Phase-3 socket transport will
 populate from the handshake.
 
+### Prior-art lineage (Phase 2)
+
+| Implemented feature | Reference lineage | Note |
+|---|---|---|
+| Structured error serialization (`serialize-condition` + per-condition slots) | SNMP error-status + error-index; NETCONF `rpc-error` (type/severity/path); GraphQL data-plus-errors; HTTP status classes | a structured outcome, never a string |
+| Fan-out `:partial` envelope | HTTP 206 Partial Content; SNMP table-walk + error-index; GraphQL partial data+errors | per-target outcome survives partial failure |
+| Per-connection context (tier + label) | LSP connect-time session identity (seed) | audit records who issued a mutation |
+
 ### Design Decisions
 
 1. **Serialization by `call-next-method`, not a registry or `:around`.** An
@@ -467,6 +491,17 @@ read-write) alongside Slynk before entering the cooperative main loop;
 to the child; `impulse-socket-path` exposes it. So a deployed Lexter image
 is reachable two ways: Slynk for a human at a REPL, Impulse for structured
 machine control. `lexter/origin` gained `impulse` as a dependency.
+
+### Prior-art lineage (Phase 3)
+
+| Implemented feature | Reference lineage | Note |
+|---|---|---|
+| Hardened keyword-only codec (data-not-code at the wire) | 9P (read/write is data, no eval); SNMP closed-by-MIB surface | the wire enforces "data, not code" |
+| Length-prefixed framing | 9P `msize`-bounded messages | bounded, unambiguous boundaries |
+| Connect-time handshake (version + capabilities + tier) | NETCONF `<hello>`; LSP `initialize`; 9P `Tversion` | three independent inventions of the same handshake |
+| Tier pinning / negotiate-down (granted = min(requested, listener)) | capability negotiation (NETCONF/LSP); HTTP safe-method contract | a client may drop privilege, never exceed |
+| Impulse separate from Slynk (eval = privileged break-glass) | the effect-ladder operational law (eval is a separate, privileged tier) | structured plane is the default; eval the locked cabinet |
+| Transport reuses `dispatch` unchanged (carrier-agnostic) | Impulse goal G8 (same envelope in-image and over IPC) | the envelope is defined over the datum, not the carrier |
 
 ### Design Decisions
 

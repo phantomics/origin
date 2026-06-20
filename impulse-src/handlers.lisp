@@ -13,12 +13,11 @@
   (describe-orbital orbital))
 
 (define-control-handler (:generic :status) (orbital request)
-  (let ((info (process-info orbital))
-        (query (request-query request)))
-    (if query
-        ;; Return only the requested fields (GraphQL-style field selection).
-        (loop for field in query append (list field (getf info field)))
-        info)))
+  ;; :VIEW selects the stratum -- :STATUS (observed, default), :SPEC (declared),
+  ;; or :BOTH; :QUERY narrows the observed fields (GraphQL-style selection).
+  (status-view orbital
+               (or (getf (request-args request) :view) :status)
+               (request-query request)))
 
 (define-control-handler (:generic :start) (orbital request)
   (declare (ignore request))
@@ -39,3 +38,19 @@
   (declare (ignore request))
   (kill (process-name orbital))
   (list :name (process-name orbital) :status (process-status orbital)))
+
+;;; --- Configuration / declarative apply (Phase 4) ---
+
+(define-control-handler (:generic :configure) (orbital request)
+  ;; CONFIGURE = an immediate, validated, idempotent set of the named
+  ;; parameters (the request args are the spec). No workflow extras.
+  (apply-spec orbital (request-args request)))
+
+(define-control-handler (:generic :apply) (orbital request)
+  ;; APPLY = the declarative desired-state verb: validate, optionally dry-run,
+  ;; commit, optionally arm a confirmed-commit, or confirm a pending one.
+  (let ((args (request-args request)))
+    (apply-spec orbital (getf args :spec)
+                :dry-run (getf args :dry-run)
+                :confirm-timeout (getf args :confirm-timeout)
+                :confirm (getf args :confirm))))

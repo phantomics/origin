@@ -13,9 +13,13 @@
       ;; The free 'sys' verbs are present.
       (dolist (v '(:describe :status :start :stop :restart :kill))
         (is-true (member v verbs)))
-      ;; Verbs with no Phase-1 generic handler are NOT advertised.
-      (is-false (member :configure verbs))
-      (is-false (member :delta verbs)))))
+      ;; configure and apply gained generic handlers in Phase 4.
+      (is-true (member :configure verbs))
+      (is-true (member :apply verbs))
+      ;; delta / signal / watch still have no generic handler.
+      (is-false (member :delta verbs))
+      (is-false (member :signal verbs))
+      (is-false (member :watch verbs)))))
 
 (def-test describe-verb-metadata ()
   "Each advertised verb carries effect class and delivery modes."

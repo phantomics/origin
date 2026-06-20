@@ -34,6 +34,7 @@
    #:malformed-message
    #:handler-error
    #:transport-error
+   #:invalid-spec
 
    ;; Tiers
    #:+tier-read-only+
@@ -88,6 +89,17 @@
 
    ;; Describe
    #:describe-orbital
+   #:config-schema
+
+   ;; Spec / declarative apply
+   #:orbital-spec
+   #:stored-spec
+   #:apply-spec
+   #:validate-spec
+   #:commit-spec
+   #:orbital-ready-p
+   #:orbital-health
+   #:status-view
 
    ;; Codec
    #:validate-datum

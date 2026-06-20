@@ -78,8 +78,8 @@
   "A known verb with no handler for the orbital yields a handler-error."
   (with-clean-orbit
     (register-thread-orbital "d-unimpl")
-    ;; :configure is registered but has no :generic handler in Phase 1.
-    (let ((r (impulse:request "d-unimpl" :configure :args '(:x 1))))
+    ;; :signal is registered but has no :generic handler yet.
+    (let ((r (impulse:request "d-unimpl" :signal)))
       (is-true (impulse:error-p r))
       (assert-that (impulse:response-condition r)
         (has-plist-entries :type :handler-error)))))

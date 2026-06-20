@@ -29,8 +29,30 @@
     (:restart-policy  :type :keyword            :access :read-only)
     (:workload-class  :type :keyword            :access :read-only)
     (:priority        :type :keyword            :access :read-only)
-    (:crash-info      :type (:or :plist :null)   :access :read-only))
+    (:crash-info      :type (:or :plist :null)   :access :read-only)
+    (:health          :type :plist              :access :read-only))
   "Schema of the query leaves available under the generic :STATUS verb.")
+
+;;; -----------------------------------------------------------------------
+;;; Configurable-parameter schema (writable knobs for CONFIGURE / APPLY)
+;;; -----------------------------------------------------------------------
+
+(defparameter *generic-config-schema*
+  '((:workload-class :type :keyword :access :read-write)
+    (:priority       :type :keyword :access :read-write)
+    (:restart-policy :type :keyword :access :read-write)
+    (:max-restarts   :type :integer :access :read-write)
+    (:running-state  :type :keyword :access :read-write))
+  "Schema of the parameters CONFIGURE / APPLY may set on a generic orbital.")
+
+(defvar *config-schemas* (make-hash-table :test 'eq)
+  "Map control-type -> configurable-parameter schema.")
+
+(setf (gethash :generic *config-schemas*) *generic-config-schema*)
+
+(defun config-schema (control-type)
+  "Return the configurable-parameter schema for CONTROL-TYPE, or NIL."
+  (gethash control-type *config-schemas*))
 
 ;;; -----------------------------------------------------------------------
 ;;; Per-control-type query schema
@@ -70,4 +92,5 @@ it supports, and its query-leaf schemas."
           :verbs (supported-verbs type)
           :queries (loop for (verb . schema) in (gethash type *query-schemas*)
                          collect (list :verb verb :leaves schema))
+          :config-schema (config-schema type)
           :sub-vocabularies '())))

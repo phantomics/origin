@@ -23,6 +23,7 @@
                              (:file "verbs")
                              (:file "dispatch")
                              (:file "describe")
+                             (:file "spec")
                              (:file "handlers")
                              (:file "api")
                              (:file "codec")

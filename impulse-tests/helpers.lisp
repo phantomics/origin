@@ -16,18 +16,23 @@
 (def-suite describe :in impulse :description "Capability discovery tests")
 (def-suite codec    :in impulse :description "Wire codec / hardening tests")
 (def-suite transport :in impulse :description "Unix-socket transport tests")
+(def-suite spec     :in impulse :description "Declared-vs-observed / apply tests")
 
 ;;; -----------------------------------------------------------------------
 ;;; Orbit cleanup
 ;;; -----------------------------------------------------------------------
 
 (defun %clean-orbit ()
-  "Reset Origin registry and event log for test isolation."
+  "Reset Origin registry/event log and Impulse-side registries for isolation."
   (ignore-errors (origin:clear-registry :force t))
   (sb-thread:with-mutex (origin::*registry-lock*)
     (clrhash origin::*process-registry*))
   (sb-thread:with-mutex (origin::*event-log-lock*)
-    (setf origin::*event-log* nil)))
+    (setf origin::*event-log* nil))
+  ;; Impulse control-plane registries
+  (clrhash impulse::*orbital-specs*)
+  (clrhash impulse::*pending-commits*)
+  (clrhash impulse::*orbital-control-types*))
 
 (defmacro with-clean-orbit (&body body)
   `(unwind-protect
@@ -134,6 +139,20 @@ with the socket path. Kills the child and removes the socket on exit."
         (ignore-errors (sb-ext:process-kill proc sb-unix:sigkill))
         (ignore-errors (sb-ext:process-wait proc)))
       (ignore-errors (delete-file sock)))))
+
+;;; -----------------------------------------------------------------------
+;;; Polling
+;;; -----------------------------------------------------------------------
+
+(defun wait-until (predicate &key (timeout 5) (interval 0.05))
+  "Poll PREDICATE until it returns true or TIMEOUT seconds elapse. Returns
+T on success, NIL on timeout."
+  (let ((deadline (+ (get-internal-real-time)
+                     (* timeout internal-time-units-per-second))))
+    (loop
+      (when (funcall predicate) (return t))
+      (when (>= (get-internal-real-time) deadline) (return nil))
+      (sleep interval))))
 
 ;;; -----------------------------------------------------------------------
 ;;; Runners
