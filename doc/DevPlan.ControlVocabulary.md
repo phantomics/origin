@@ -48,6 +48,17 @@ a condition system, and a common notation (S-expressions). A universal,
 structured control vocabulary is therefore the *default* substrate, not
 something imposed against a hostile baseline.
 
+Arbitrary evaluation (Slynk) fails as a control plane for a third reason,
+beyond being insecure and unstable: it provides no shared vocabulary. Eval
+is a transport with no semantics -- every interaction is bespoke, and
+nothing general can be built on it, because there is no agreed meaning for
+"manage this thing." A dashboard, an automation, or one orbital
+coordinating another all need a common idiom to target; eval offers none.
+Even in a perfectly trusted and stable system the vocabulary would still
+be wanted, because it is what makes an orbit *legible and composable*.
+Establishing that idiom -- a consistent way to express system-management
+actions across Origin systems -- is the project's central purpose.
+
 The goal of this project is to define that vocabulary: a two-tier,
 data-oriented, command/query-separated message language that is rich
 enough to manage real orbitals (open a terminal window, report a buffer's
@@ -102,6 +113,13 @@ an arbitrary-evaluation channel.
    (core to a `:thread` or `:cooperative` orbital) and an inter-process
    message (core to an `:image` orbital). The envelope is defined
    independently of how it is carried.
+
+9. **A shared idiom -- legible and composable.** The vocabulary is a
+   lingua franca for management actions. Tools, dashboards, and automation
+   are built against the vocabulary, not against each orbital's bespoke
+   interface. Where "Data, not code" (goal 2) bounds the *surface*, this
+   goal supplies the *semantics*: a consistent meaning for management
+   actions that anything in an Origin system can target and compose.
 
 
 ## Settled Design Decisions
@@ -186,6 +204,46 @@ The universal verbs are specialized by domain. Candidate domains:
   to open and close windows with characteristics; `status :window :all
   :query (...)` for per-window reports such as total buffer lines and
   current working directory.
+
+
+## Foreign Orbitals as a Design Target
+
+A key target use case is managing non-CL software -- nginx,
+PostgreSQL, Redis, and the like -- through a CL **adapter orbital** that
+implements the control vocabulary on the foreign process's behalf. The
+foreign program speaks no Lisp; its adapter is the orbital, owning the
+subprocess (typically an `:image` orbital), generating its configuration
+from S-expressions, parsing its logs into structured events, and
+translating control messages into native actions (regenerate config and
+reload, signal, query a status endpoint).
+
+This imposes a **design constraint** on the vocabulary: it, and the
+handler-registration facility behind it, must be implementable by an
+adapter *on behalf of* a process that cannot itself respond -- not only by
+a native CL orbital answering for itself. In practice this reinforces the
+handler-registration direction (goal 7): a verb's behavior for an orbital
+type is a registered handler, and an adapter simply registers handlers
+that drive its foreign charge. The vocabulary must not assume the
+respondent is the managed thing.
+
+Two tiers are envisioned, only the first of which is an initial goal:
+
+- **Tier 2 -- Lisp-authored configuration and log processing** (initial
+  goal). The semantic win: the foreign program's quirky, untyped config
+  becomes typed, composable, validated S-expression data, and its
+  unstructured logs become structured events. This is worthwhile wherever
+  text-config-and-log management is the pain point.
+- **Tier 3 -- full vocabulary participation** (promising, heavier). The
+  adapter implements `describe`/`status`/`configure`/`restart` so a core
+  or admin UI drives the foreign service through the same structured
+  surface as a native orbital. Significant work to adapt each program, but
+  worth it for the right use case.
+
+The depth of this -- adapter structure, the nginx worked example
+(a CLI-referenced config generated into an ephemeral `/tmp` prefix,
+reloaded via SIGHUP), and the per-program effort -- is covered in a
+dedicated plan, [`DevPlan.ForeignOrbitals.md`](DevPlan.ForeignOrbitals.md).
+It is recorded here only as a target that shapes the vocabulary.
 
 
 ## Open Design Questions
@@ -290,3 +348,9 @@ Indicative sequencing; each milestone is to be designed in its own right.
 6. **Watch / subscription.** Streaming events and logs.
 7. **Restart with state handoff.** Export/import keyed by state stratum --
    the deepest and last milestone.
+
+A parallel track, designed in
+[`DevPlan.ForeignOrbitals.md`](DevPlan.ForeignOrbitals.md), applies the
+vocabulary to non-CL software via adapter orbitals -- Tier 2 (Lisp-authored
+config and log processing) first, with nginx as the worked example, and
+Tier 3 (full vocabulary participation) as a later step.

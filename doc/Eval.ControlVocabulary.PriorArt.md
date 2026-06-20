@@ -186,7 +186,7 @@ the dotted path `…lexter.windowTable.totalLines.2` -> `…2.2.2`.
 (snmp-get :term-host '((:lexter :window-table :total-lines 2)
                        (:lexter :window-table :pwd         2)))
 ;; => ((#oid(:lexter :window-table :total-lines 2) . 1843)
-;;     (#oid(:lexter :window-table :pwd         2) . "/home/sloane/src"))
+;;     (#oid(:lexter :window-table :pwd         2) . "/home/user/src"))
 
 ;; Q (fan-out) -- "all windows" is not a verb; it is a WALK of the column
 (snmp-walk :term-host '(:lexter :window-table :total-lines))
@@ -300,7 +300,7 @@ because that is what it is:
 ;; Q  -- MODIFY carrying a subsystem display sub-command, AS TEXT
 (modify :term-host "DISPLAY WINDOW=2,FIELDS=(LINES,PWD)")
 ;; <- reply is also text, written to the console / job log:
-;;    "TERMHOST: WINDOW 2 LINES=1843 PWD=/home/sloane/src"
+;;    "TERMHOST: WINDOW 2 LINES=1843 PWD=/home/user/src"
 
 ;; C-set
 (modify :term-host "SET WINDOW=2,POLL=250")
@@ -320,7 +320,7 @@ preserved, the inner string promoted to a datum:
 ```lisp
 ;; Q
 (modify :term-host '(:display :window 2 :fields (:lines :pwd)))
-;; => (:window 2 :lines 1843 :pwd "/home/sloane/src")
+;; => (:window 2 :lines 1843 :pwd "/home/user/src")
 
 ;; C-set
 (modify :term-host '(:set :window 2 :poll-interval 250))
@@ -430,7 +430,7 @@ out-of-band MIB.
 ```lisp
 ;; Q -- read attributes off a precisely named bean
 (mbean-get-attributes '(:lexter :type :window :id 2) '(:total-lines :pwd))
-;; => (:total-lines 1843 :pwd "/home/sloane/src")
+;; => (:total-lines 1843 :pwd "/home/user/src")
 
 ;; Q (fan-out) -- query the name SPACE with a pattern, then read each
 (mbean-query '(:lexter :type :window :id :*))     ; ObjectName pattern
@@ -727,7 +727,7 @@ a hard split between `query` (read), `mutation` (write), and `subscription`
              (:window (:id 2)
                       :total-lines :pwd
                       (:cursor :line :col))))
-;; => (:window (:id 2 :total-lines 1843 :pwd "/home/sloane/src"
+;; => (:window (:id 2 :total-lines 1843 :pwd "/home/user/src"
 ;;              :cursor (:line 40 :col 3)))
 
 ;; Web -- a nested aggregate selection retrieved in ONE round trip (no N+1),
@@ -1139,7 +1139,7 @@ version, the OTP hot-upgrade hook.
 ;; call -- synchronous, awaits a reply. This is a DELIVERY axis (sync vs async),
 ;; NOT a read/write axis: a call may read or mutate.
 (orbital-call :term-host '(:status :window 2 :query (:total-lines :pwd)) :timeout 5)
-;; => (:reply (:total-lines 1843 :pwd "/home/sloane/src"))
+;; => (:reply (:total-lines 1843 :pwd "/home/user/src"))
 (orbital-call :web '(:status :metrics :query (:request-rate :p99-latency)))
 
 ;; cast -- asynchronous, no reply (the `signal` shape)
@@ -1308,7 +1308,7 @@ inherently the safe query, writing the `ctl` file is the mutation -- and the
 ;; a file is the safe query, WRITING the ctl file is the mutating command.
 
 ;; Q -- read a status file (safe by the nature of the operation)
-(9p-read '(:orbit :term-host :window 2 :status))  ; => "lines 1843\npwd /home/sloane/src\n"
+(9p-read '(:orbit :term-host :window 2 :status))  ; => "lines 1843\npwd /home/user/src\n"
 (9p-read '(:orbit :web :metrics))                 ; => "rate 920\np99 14ms\nconns 311\n"
 
 ;; C-set / C-delta -- write the ctl file (mutating by the nature of the operation)
@@ -1753,3 +1753,354 @@ envelope-and-session layer, and the baseline to surpass. The **final piece** wil
 draw these eleven renditions together into a single set of conclusions and
 concrete recommendations to inform the engineering of Origin's IPC and control
 system.
+
+---
+
+# Renditions Reflected Upon
+
+Comparing the aforementioned eleven technologies and building their Lisp-formatted
+renditions brings to light a range of considerations for the Origin IPC design.
+Let's consider the lessons learned in exploration.
+
+## SNMP Considerations
+
+Its most interesting quality is the MAX-ACCESS property for fine-grained read/
+write/create capability specification. The error status/error index structure
+are also instructive along with the table-walking `:all` fan-out. MAX-ACCESS
+shows that CQS belongs in the schema, not just per-verb. The typed, access-
+tagged leaves are a good model for the sub-vocabulary schema. The counter/
+gauge metric typology is also important for WLM, as is the trap functionality.
+
+## z/OS MODIFY Considerations
+
+It validates Origin IPC's essential model: a two-tier model of general commands
+with service-specific sub-vocabularies. Its start/stop/cancel lifecycle is
+instructive as well.
+
+## JMX MBeans Considerations
+
+The MBeanInfo pattern is an excellent model for the `describe.` There are good
+lessons to be learned for CQS as well, like the attribute/operation split,
+and ObjectName's domain + key/value selector with pattern fan-out. This helps
+to inform Origin's selector grammar. Origin's addressing model could hybridize
+the JMX and SNMP conventions. Annotations to `describe` data are key for
+implementing WLM features.
+
+## HTTP Considerations
+
+HTTP separates verbs on two axes: safe/unsafe and idempotent/or not. This model
+should be ported to Origin. The Accept/Vary content negotiation is also useful.
+The PUT/POST duality is also an important validation of a planned Origin feature.
+ETag + If-Match's addressing system is another worty addition.
+
+## GraphQL Considerations
+
+GraphQL is a declarative query format with strong read/write/stream functional
+distinction. The SQS model is strong; it can be seen as an extension of the JMX
+model adding streaming. Its introspection system is an excellent model for
+`describe`, with capabilities discoverable through the same query language as
+the rest of the system. The field arguments for filtering/top-N/pagination
+are key ideas to uptake as well, along with partial success responses with
+data plus errors. The selection + arguments model is also invaluable for
+WLM.
+
+## NETCONF Considerations
+
+The standard for declarative configuration; the candidate datastore is the
+best model for the DevPlan's declarative `apply`. The config-vs-state
+dichotomy is another key feature to mirror in Origin. The per-node operation
+attribute unifies declarative and delta in a single edit. The `<hello>`
+capability handshake is instructive. The confirmed commit auto-rollback is
+an essential figure for a configuration change that could cut contact
+with the target. This is important for the MAPE-K loop implemented by the
+planned Origin workload management system.
+
+## Erlang/OTP Considerations
+
+The call/cast distinction is key here. It introduces a new verb axis:
+synchronous/asynchronous. The sys:get_state and get_status actions
+allow for state observability at no cost. The code_change model is an
+excellent reference for state handoff behavior. The `{reply|noreply|stop}`
+tuple is a good unified response/lifecycle envelope. An interesting note:
+does the call/cast addition mean a mandate for a three-axis verb space?
+Safe/unsafe, idempotent/not and sync/async.
+
+## LSP Considerations
+
+The capability and version negotiation at `initialize` is a potent model,
+with feature-gating and dynamic re-registration without reconnect. The
+request/notification axis reinforces the sync/async axis concept. The
+`$/progress` as operation-scoped progress streaming is an excellent
+distinction from subscription-scoped event streams. LSP's `$/progress`
+and `$/cancelRequest`, the expensive requests, are separate from the
+subscription-scoped event stream that `watch` provides.
+
+## Rendition 9 Considerations
+
+The CQS model is the cleanest of the reference technologies; the data-not-
+code enforcement is profound as well. The read-is-query, write-is-command
+structure will be invaluable for Origin. The addressing model is one of
+the best as well, with target + aspect path dichotomy and per-aspect
+decomposition. The Tversion confirms again the connect-time negotiation
+convention.
+
+## Kubernetes Considerations
+
+Kubernetes fills in the critical missing piece: continuous reconcilation
+for self-healing and drift correction based on a target state. Its
+duality of state (specified) and status (actual) is a key feature needed
+in Origin. Its powerful addressing will be a welcome addition. Its
+Health and Resources vocabularies may be ported for Origin's health and
+WLM systems. The labels and set-based selectors as fleet addressing is
+another important feature, along with server-side field ownership as
+multi-write arbitration.
+
+## D-bus Considerations
+
+The Introspectable feature is more validation for the `describe`
+structure, and the methods/properties/signals split is convergent
+with JMX. The concept of the small universal verb set is something
+already targeted for Origin IPC, and the systemd dependency ordering
+is a model for Origin's topology logic. The `reload` verb elegantly
+expresses the idea of no-restart configuration change.
+
+
+---
+
+# Summary and Conclusions: Designing Impulse
+
+The control vocabulary has a name: **Impulse** -- *Interactive Manifold
+Process-Uniting Lexicon as Symbolic Expressions*. The expansion is itself a
+design brief. *Interactive*: it is a live control surface, not a static config
+format. *Manifold*: one lexicon spans many orbital kinds -- native Lexter
+windows, image orbitals, and foreign adapters. *Process-Uniting*: it is the
+common idiom that binds a heterogeneous process network into one administrable
+whole. *Lexicon as Symbolic Expressions*: the medium is S-expression data read
+and dispatched, never code evaluated.
+
+This section consolidates the eleven renditions and the per-technology
+reflections above into design conclusions for Impulse. It does three things:
+resolves the verb-classification question raised in the Erlang reflection,
+states the cross-survey decisions where independent invention has effectively
+settled the design, and -- crucially -- pressure-tests the result against the
+foreign-orbital adapter requirements from `DevPlan.ForeignOrbitals.md`, so that
+Impulse is shaped by a real non-Lisp target (nginx) and not only by the native
+Lexter case.
+
+
+## The verb space: two dimensions, not three
+
+The Erlang reflection asks the right question: with `call`/`cast` adding a
+sync/async distinction on top of HTTP's safe/unsafe and idempotent/not, does
+Impulse need a *three-axis* verb space? The answer is **no -- it is two
+dimensions**, because two of the three candidate axes are not independent.
+
+The relations are:
+
+- **Safe implies idempotent.** A safe verb observably mutates nothing, so
+  applying it once or many times yields the same result. The cell "safe but
+  non-idempotent" is therefore *empty*. What looked like two independent boolean
+  axes (safe/unsafe x idempotent/not) is really a single **ordered effect
+  ladder** with three reachable rungs:
+
+  | Effect class | Meaning | Prior-art anchor | Impulse verbs |
+  |--------------|---------|------------------|---------------|
+  | **safe** | no observable mutation (hence idempotent) | HTTP GET/HEAD; SNMP read-only; 9P read; JMX attribute-get | `describe`, `status`, the read side of `watch` |
+  | **idempotent** | mutating, but repeating reaches the same end state | HTTP PUT/DELETE; K8s `apply`; NETCONF `merge`/`replace` | `configure`, `apply`, `start`, `stop`, `restart` |
+  | **effecting** | mutating and *non*-repeatable; each call accumulates | HTTP POST; NETCONF `create`/`delete`; `delta` | `delta`, `signal` |
+
+- **Delivery is the genuinely independent second dimension.** Synchronous
+  (await a correlated reply) versus asynchronous (fire-and-forget, or a streamed
+  reply) is orthogonal to effect, and it is a property of the *message*, not the
+  *verb* -- the same logical request can sometimes be issued either way
+  (Erlang `call`/`cast`; LSP request/notification). The two dimensions populate
+  a 3 x 2 grid, every cell of which is real:
+
+  | Effect \ Delivery | sync (await reply) | async (fire / stream) |
+  |-------------------|--------------------|-----------------------|
+  | **safe** | `status`, `describe` | `watch`/`subscribe` (read stream) |
+  | **idempotent** | `configure`/`apply` awaiting result+error (e.g. nginx `-t` verdict) | `apply` handed to a reconciler that converges in the background |
+  | **effecting** | `delta` awaiting confirmation | `signal` fire-and-forget |
+
+Three operational laws fall out of this structure, and they are the payoff of
+resolving the axes cleanly:
+
+1. **Effect maps onto the permission tiers** (open Q6). Safe verbs are allowed
+   on read-only connections and need no audit (open Q1, held by construction and
+   by contract -- the HTTP-safe and 9P-read lessons); idempotent and effecting
+   verbs require a read-write capability and are audited; arbitrary eval remains
+   a separate, privileged break-glass tier.
+2. **A control loop may auto-issue only safe and idempotent verbs -- never
+   effecting ones.** The desired-orbit reconciler, any retry logic, and the WLM
+   MAPE-K loop repeat their actions by nature; repeating an *effecting* verb
+   (`delta`, `signal`) is a bug. This is why the declarative `apply` (idempotent)
+   is the loop's Execute verb and `delta` is reserved for explicit, one-shot
+   operator intent -- the HTTP PUT-vs-POST lesson, now an enforced invariant.
+3. **Effect is a static verb property (discoverable via `describe`); delivery is
+   a per-message property (constrained by what the verb supports).** So
+   `describe` reports each verb's effect class and the delivery modes it offers,
+   and the envelope carries the chosen delivery mode plus a correlation id for
+   sync replies or a token for streamed ones.
+
+
+## What the survey settled
+
+Some design choices recur across so many independent systems that the
+convergence itself is the argument. These should be treated as decided:
+
+1. **Two tiers: universal verbs + a typed sub-vocabulary.** Present in *every*
+   reference (the SNMP MIB, the z/OS `MODIFY` sub-language, JMX MBeans, NETCONF
+   YANG models, LSP namespaces, the 9P per-orbital filesystem, K8s CRDs, D-Bus
+   interfaces). This is Impulse's spine; it was the working hypothesis and the
+   survey confirms it without exception.
+2. **`describe` is mandatory, free, and queried like everything else.** JMX
+   `MBeanInfo`, GraphQL introspection, D-Bus `Introspectable`, K8s API discovery,
+   and 9P directory listing all converge on self-description; GraphQL's
+   "introspection through the same query language" is the cleanest realization.
+   The schema `describe` returns should carry, per leaf, its type (SNMP SMI),
+   its effect class, and its read/write access (SNMP MAX-ACCESS in the schema,
+   not merely per-verb). And it is free: default universal-verb handlers derived
+   from `managed-process` give a bare orbital compliance with no extra code --
+   the Erlang `sys:get_state` pattern (goal 7).
+3. **A connect-time capability/version handshake** (open Q7). NETCONF `<hello>`,
+   LSP `initialize`, and 9P `Tversion` independently invent it. Impulse opens a
+   session by negotiating versions and gross capabilities, with LSP's refinements
+   (feature-gating, dynamic re-registration without reconnect); `describe`
+   answers fine schema on demand. Handshake and `describe` are complementary,
+   not redundant.
+4. **A hybrid selector grammar, from one target to a fleet** (open Q5). Compose
+   SNMP's namespaced path, JMX `ObjectName`'s key/value selector with pattern
+   fan-out, GraphQL's field arguments (filter / top-N / pagination for
+   high-cardinality populations), and Kubernetes labels with set-based selectors
+   for addressing *sets* of orbitals. Keep distinct the two things the Lexter
+   case blurred: addressing *through* to a managed sub-orbital versus addressing
+   a *domain object or aspect* of one orbital.
+5. **Declared versus observed is first-class.** NETCONF config-vs-state, the WLM
+   declared-vs-observed, and Kubernetes `spec`/`status` are three inventions of
+   one idea. `status` returns observed reality; a `get-spec`/`get-config` returns
+   declared intent; the gap drives both reconciliation and WLM.
+6. **A declarative `apply` with staged validation, plus an explicit `delta`.**
+   Kubernetes supplies continuous, level-triggered, idempotent reconciliation
+   (the desired-orbit reconciler, milestone 4); NETCONF supplies
+   candidate -> validate -> commit/discard and the confirmed-commit auto-rollback
+   that protects a change which might sever the controller's own link; NETCONF's
+   per-node operations unify declarative and delta in one edit. This is the
+   declarative tier the first installments lacked, now sourced.
+7. **A structured response / error / partial envelope** (open Q2). SNMP
+   `error-status` + `error-index`, NETCONF `rpc-error` with a path, GraphQL's
+   data-plus-errors, and HTTP's status classes + 206 Partial Content all model a
+   structured outcome that survives fan-out (some `:window :all` targets succeed,
+   some fail).
+8. **Two distinct streaming kinds.** Subscription-scoped `watch` (events and
+   logs -- SNMP traps, GraphQL subscriptions, D-Bus signals) is *not* the same as
+   operation-scoped progress and cancellation (LSP `$/progress` /
+   `$/cancelRequest` for a slow fan-out or drain). Impulse needs both and must
+   not conflate them (open Q3).
+9. **Two complementary state-handoff models** (milestone 7). Erlang
+   `code_change` (version-keyed, in-place transformation of application/session
+   state) and NETCONF candidate/commit (staged configuration) cover the deepest
+   verb from two angles; handoff is per-orbital, keyed by state stratum, and may
+   be empty.
+
+
+## Squaring Impulse with foreign orbitals
+
+The Foreign Orbitals plan is the discipline that keeps Impulse honest beyond the
+native case, and it sharpens several conclusions above. Its central constraint
+is **adapter-as-respondent**: a foreign program (nginx, Redis, PostgreSQL)
+cannot answer Impulse; a CL adapter answers *on its behalf*, translating verbs
+into the program's native control surface. This has direct consequences for the
+lexicon's design:
+
+- **It is the hardest possible proof of "data, not code" (G2).** A foreign
+  process has no catchable conditions, no shared heap, and -- decisively -- *no
+  eval*. An Impulse verb must therefore be answerable as pure translation to
+  files-and-signals (nginx), a wire protocol (Redis `CONFIG SET`/`INFO`), or SQL
+  plus `SIGHUP` (PostgreSQL). Eval-as-control is not merely discouraged for
+  foreign orbitals; it is *impossible*. This retroactively validates the closed,
+  dispatched-datum design: the lexicon must mean something to a respondent that
+  can only translate, never evaluate.
+
+- **The nginx requirements map onto the settled design, confirming it.** Each
+  demand the adapter places on Impulse lands on a conclusion already reached:
+
+  | nginx adapter demand | Impulse element it confirms |
+  |----------------------|-----------------------------|
+  | Validation before apply (`nginx -t` before SIGHUP) | declarative `apply` with candidate -> validate -> commit (NETCONF), abort-and-report on failure |
+  | Structured error returns (`nginx -t` file/line/message) | the structured error envelope, not a string (Q2) |
+  | Declarative desired-state config | `apply` over `delta` for config-heavy domains; the typed S-expression config *is* the spec |
+  | Graceful-vs-fast stop (SIGQUIT vs SIGTERM) | a lifecycle-verb parameter (`stop`/`restart` mode), surfaced via `describe`; first instance is the configurable `:image` stop signal |
+  | Read-only status with selectable fields (`stub_status` + log metrics) | `status :query (...)` field selection + the safe effect class |
+  | Adapter-as-respondent | every verb implementable by translation, assuming no conditions/heap/eval in the target |
+
+- **Health versus readiness is forced into the lexicon, not optional.** nginx's
+  "master alive" (`:image` liveness) differs from "serving on the port"
+  (`stub_status` reachable) -- the adapter answers liveness from the process and
+  readiness from the foreign surface. This is precisely the Kubernetes
+  liveness/readiness/startup split, and the adapter case makes it a requirement
+  of `status :health` rather than a nicety.
+
+- **The Redis/PostgreSQL contrast is the ultimate two-tier validation.** The
+  same universal verbs (`describe`, `status`, `configure`/`apply`, `restart`)
+  resolve to wholly different native surfaces -- files and signals for nginx, a
+  RESP wire protocol for Redis, a config file plus `ALTER SYSTEM` over SQL for
+  PostgreSQL. The universal tier is genuinely universal only because the typed
+  sub-vocabulary's *implementation* is adapter translation, and `describe` must
+  report each adapter's declared sub-vocabulary since no two foreign programs
+  agree. State handoff likewise varies: nginx is effectively stateless across
+  restarts (an empty handoff), while databases and session stores make
+  `restart`-with-state-handoff meaningful -- so the handoff verb must be optional
+  and adapter-declared.
+
+- **Transport-agnosticism is reinforced (G8).** Because an adapter may run
+  in-core or as its own image (the plan's topology (a) versus (b)) as a pure
+  deployment choice, the same Impulse envelope must serve an in-image call and an
+  inter-process message identically. The lexicon is defined over the datum, not
+  the carrier.
+
+
+## Recommendations for engineering Impulse
+
+Drawing the survey, the verb-space resolution, and the foreign-orbital
+constraints together, the concrete shape to build:
+
+1. **Envelope first** (milestone 1). One S-expression request datum -- `:op`
+   (verb), `:target` (selector), `:query`/`:args`, `:id` (correlation),
+   `:delivery` (sync/async) -- and one uniform response datum with success /
+   structured-error / partial variants. Define it over the datum so it rides an
+   in-image call and an IPC message unchanged.
+2. **Classify every verb on the effect ladder** (safe / idempotent / effecting)
+   and declare its supported delivery modes; derive the permission tier from the
+   effect class; forbid control loops from auto-issuing effecting verbs.
+3. **Make `describe` free and mandatory:** default universal-verb handlers from
+   `managed-process` (the `sys` pattern), typed sub-vocabularies via
+   handler-registration, schema reporting per-leaf type + effect + access; and
+   the same `describe` is what an adapter implements for a foreign orbital.
+4. **Open sessions with a capability/version handshake**, feature-gated, with
+   dynamic re-registration; complement it with on-demand `describe`.
+5. **Build the declarative `apply` as candidate -> validate -> commit/discard
+   with confirmed-commit**, level-triggered toward a desired orbit, with an
+   explicit one-shot `delta` for additive/subtractive operator intent; `nginx -t`
+   is the canonical external validator the shape must accommodate.
+6. **Adopt the structured response/error/partial envelope** for fan-out and for
+   foreign validators that return file/line/message diagnostics.
+7. **Separate `watch` (subscription) from operation progress/cancel**, and make
+   the safe-stream and operation-stream distinct envelope behaviors.
+8. **Treat state handoff as optional and adapter-declared**, keyed by the state
+   taxonomy (configuration / application / session / binary / ephemera), drawing
+   on `code_change` and candidate/commit.
+9. **Hold the foreign-orbital invariant as an acceptance test for the whole
+   lexicon:** every verb must be implementable by an adapter translating to a
+   foreign control surface, with no assumption that the respondent can catch a
+   condition, share a heap, or evaluate code. If a proposed verb cannot be
+   answered by the nginx or Redis adapter, it is mis-designed.
+
+The survey is complete. Across eleven technologies, four installments, and a
+workload-management appendix, the field that Impulse must occupy has been mapped
+end to end: a two-dimensional verb space over a two-tier, self-describing,
+declared-versus-observed, declaratively-reconciled lexicon of S-expression data
+-- structured where systemd is textual, homogeneous where Linux is a byte pipe,
+and answerable even by a process that speaks no Lisp. What remains is to build
+it, in the order the Control Vocabulary roadmap sets out, with the foreign
+adapter kept on the bench as the test that the lexicon never quietly assumes its
+respondent is a native orbital.
