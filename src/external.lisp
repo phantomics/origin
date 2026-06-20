@@ -63,3 +63,9 @@ All three are required."
 (defun cooperative-executor-active-p ()
   "Return T if a cooperative executor is currently registered."
   (and *cooperative-start-hook* t))
+
+(defun cooperative-executor-mailbox ()
+  "Return the EXECUTOR-MAILBOX of the active cooperative executor, or NIL.
+Other subsystems (e.g. Impulse dispatch) use this to marshal main-thread-
+affine work onto the executor thread via RUN-ON-EXECUTOR."
+  *cooperative-executor-mailbox*)

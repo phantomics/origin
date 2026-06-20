@@ -1,0 +1,102 @@
+;;;; impulse-tests/helpers.lisp
+;;;;
+;;;; Suite hierarchy, orbit cleanup, a fake cooperative executor, and orbital
+;;;; factories for the Impulse Phase-1 tests. No display, no real IPC.
+
+(in-package #:impulse-tests)
+
+;;; -----------------------------------------------------------------------
+;;; Suites
+;;; -----------------------------------------------------------------------
+
+(def-suite impulse :description "All Impulse tests")
+(def-suite envelope :in impulse :description "Envelope datum tests")
+(def-suite verbs    :in impulse :description "Verb model / effect ladder / tiers")
+(def-suite dispatch :in impulse :description "In-image dispatch tests")
+(def-suite describe :in impulse :description "Capability discovery tests")
+
+;;; -----------------------------------------------------------------------
+;;; Orbit cleanup
+;;; -----------------------------------------------------------------------
+
+(defun %clean-orbit ()
+  "Reset Origin registry and event log for test isolation."
+  (ignore-errors (origin:clear-registry :force t))
+  (sb-thread:with-mutex (origin::*registry-lock*)
+    (clrhash origin::*process-registry*))
+  (sb-thread:with-mutex (origin::*event-log-lock*)
+    (setf origin::*event-log* nil)))
+
+(defmacro with-clean-orbit (&body body)
+  `(unwind-protect
+        (progn (%clean-orbit) ,@body)
+     (%clean-orbit)))
+
+;;; -----------------------------------------------------------------------
+;;; Orbital factories
+;;; -----------------------------------------------------------------------
+
+(defun make-blocking-fn ()
+  "Return (VALUES entry-fn stop-fn): a cooperative blocking loop."
+  (let ((running (list t)))
+    (values
+     (lambda () (setf (car running) t)
+       (loop while (car running) do (sleep 0.02)))
+     (lambda () (setf (car running) nil)))))
+
+(defun register-thread-orbital (name)
+  "Register a :THREAD orbital with a graceful blocking entry point."
+  (multiple-value-bind (entry stop) (make-blocking-fn)
+    (origin:register-process name :entry-point entry :stop-function stop)))
+
+;;; -----------------------------------------------------------------------
+;;; Fake cooperative executor (mirrors origin-tests; no GLFW)
+;;; -----------------------------------------------------------------------
+
+(defvar *fake-windows* nil
+  "Alist canonical-name -> alive flag for fake cooperative orbitals.")
+(defvar *fake-mailbox* nil)
+
+(defun %fake-start (process)
+  (origin:run-on-executor *fake-mailbox*
+    (lambda ()
+      (let* ((name (origin:process-name process))
+             (cell (assoc name *fake-windows* :test #'equal)))
+        (if cell (setf (cdr cell) t) (push (cons name t) *fake-windows*))
+        (setf (origin:process-liveness-fn process)
+              (lambda ()
+                (let ((c (assoc name *fake-windows* :test #'equal)))
+                  (and c (cdr c)))))))))
+
+(defun %fake-stop (process &key timeout)
+  (declare (ignore timeout))
+  (origin:run-on-executor *fake-mailbox*
+    (lambda ()
+      (let ((cell (assoc (origin:process-name process) *fake-windows* :test #'equal)))
+        (when cell (setf (cdr cell) nil))))))
+
+(defmacro with-fake-executor (&body body)
+  "Run BODY with a fake cooperative executor whose mailbox runs inline on the
+current (test) thread."
+  `(progn
+     (setf *fake-windows* nil
+           *fake-mailbox* (origin:make-mailbox
+                           :executor-thread sb-thread:*current-thread*))
+     (with-clean-orbit
+       (origin:register-cooperative-executor
+        :start #'%fake-start :stop #'%fake-stop :mailbox *fake-mailbox*)
+       (unwind-protect
+            (progn ,@body)
+         (origin:unregister-cooperative-executor)
+         (setf *fake-windows* nil *fake-mailbox* nil)))))
+
+;;; -----------------------------------------------------------------------
+;;; Runners
+;;; -----------------------------------------------------------------------
+
+(defun run-all-tests ()
+  "Run all Impulse tests. Returns T if all pass."
+  (run! 'impulse))
+
+(defun run-suite (suite-name)
+  (run! suite-name))

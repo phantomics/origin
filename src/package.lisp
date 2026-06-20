@@ -60,6 +60,7 @@
    #:register-cooperative-executor
    #:unregister-cooperative-executor
    #:cooperative-executor-active-p
+   #:cooperative-executor-mailbox
 
    ;; Executor mailbox
    #:make-mailbox
