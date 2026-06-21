@@ -81,6 +81,44 @@ sub-vocabularies (Phase 7+) register their own.")
   (cdr (assoc verb (gethash control-type *query-schemas*))))
 
 ;;; -----------------------------------------------------------------------
+;;; Sub-vocabulary registration API
+;;; -----------------------------------------------------------------------
+;;;
+;;; A typed sub-vocabulary (Phase 7+: :lexter-host, :nginx, ...) registers the
+;;; schemas DESCRIBE should report for its control type through these, rather
+;;; than poking the registries directly. GENERIC-STATUS-SCHEMA /
+;;; GENERIC-CONFIG-SCHEMA expose the universal leaves so a sub-vocabulary can
+;;; extend them: (register-query-schema :nginx :status
+;;;                 (append (generic-status-schema) '((:active-connections ...))))
+
+(defun generic-status-schema ()
+  "A fresh copy of the universal :STATUS query-leaf schema, for a
+sub-vocabulary to extend."
+  (copy-tree *generic-status-schema*))
+
+(defun generic-config-schema ()
+  "A fresh copy of the universal configurable-parameter schema, for a
+sub-vocabulary to extend."
+  (copy-tree *generic-config-schema*))
+
+(defun register-query-schema (control-type verb schema)
+  "Register SCHEMA as the query-leaf schema for VERB under CONTROL-TYPE, so
+DESCRIBE reports it. Replaces any existing schema for that verb."
+  (check-type control-type keyword)
+  (check-type verb keyword)
+  (let ((entry (assoc verb (gethash control-type *query-schemas*))))
+    (if entry
+        (setf (cdr entry) schema)
+        (push (cons verb schema) (gethash control-type *query-schemas*))))
+  schema)
+
+(defun register-config-schema (control-type schema)
+  "Register SCHEMA as the configurable-parameter schema for CONTROL-TYPE, so
+DESCRIBE reports it (and tools can render an editor)."
+  (check-type control-type keyword)
+  (setf (gethash control-type *config-schemas*) schema))
+
+;;; -----------------------------------------------------------------------
 ;;; describe-orbital
 ;;; -----------------------------------------------------------------------
 

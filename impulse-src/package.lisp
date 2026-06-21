@@ -97,6 +97,11 @@
    ;; Describe
    #:describe-orbital
    #:config-schema
+   #:query-schema
+   #:register-query-schema
+   #:register-config-schema
+   #:generic-status-schema
+   #:generic-config-schema
 
    ;; Spec / declarative apply
    #:orbital-spec
