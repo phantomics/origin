@@ -19,6 +19,7 @@
 (def-suite streams  :in impulse :description "Streaming tier: watch + operation progress/cancel")
 (def-suite spec     :in impulse :description "Declared-vs-observed / apply tests")
 (def-suite selectors :in impulse :description "Selector grammar / fleet addressing tests")
+(def-suite handoff  :in impulse :description "Restart state-handoff protocol tests")
 
 ;;; -----------------------------------------------------------------------
 ;;; Orbit cleanup

@@ -74,6 +74,16 @@ invalid-spec whose reason carries the nginx diagnostic."
           (is (eq :invalid-spec (getf cond :type)))
           (is-true (search "nginx -t" (getf cond :reason))))))))
 
+(def-test handoff-graceful-no-op ()
+  "nginx hands off no state: the restart handoff protocol degrades to a uniform
+no-op for a foreign orbital -- export is NIL and describe advertises no strata,
+with no nginx-specific code (the default protocol)."
+  (with-clean
+    (nt:define-nginx-tether :web :listen (%free-port))
+    (let ((orb (origin:find-process "web")))
+      (is (null (impulse:orbital-export-state orb)))
+      (is (null (getf (impulse:describe-orbital orb) :handoff))))))
+
 (def-test adapter-as-respondent ()
   "Every universal verb is answerable for nginx -- a process that cannot respond
 for itself -- even when it is not running."

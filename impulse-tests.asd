@@ -18,6 +18,7 @@
                              (:file "test-transport")
                              (:file "test-streams")
                              (:file "test-spec")
-                             (:file "test-selectors"))))
+                             (:file "test-selectors")
+                             (:file "test-handoff"))))
   :perform (test-op (o s)
             (uiop:symbol-call :impulse-tests :run-all-tests)))

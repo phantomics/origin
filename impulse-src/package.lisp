@@ -94,6 +94,25 @@
    #:resolve-where
    #:refine-results
 
+   ;; Restart state handoff
+   #:export-state
+   #:import-state
+   #:handoff-strata-for
+   #:make-handoff-state
+   #:handoff-state-p
+   #:handoff-version
+   #:handoff-control-type
+   #:handoff-strata
+   #:handoff-stratum
+   #:handoff-compatible-p
+   #:filter-strata
+   #:valid-stratum-p
+   #:*handoff-strata*
+   #:*handoff-version*
+   #:orbital-export-state
+   #:orbital-import-state
+   #:restart-with-handoff
+
    ;; Describe
    #:describe-orbital
    #:config-schema

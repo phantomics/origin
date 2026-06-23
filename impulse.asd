@@ -23,6 +23,7 @@
                              (:file "verbs")
                              (:file "selectors")
                              (:file "dispatch")
+                             (:file "handoff")
                              (:file "describe")
                              (:file "spec")
                              (:file "handlers")

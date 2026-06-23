@@ -321,9 +321,155 @@ Origin core and Impulse suites unaffected.
 | Structured validation error (file/line/message) | NETCONF `<rpc-error>` / compiler diagnostics | `nginx -t` text lifted to keyword-tagged data |
 
 
-## Outstanding Work (Part III)
+## Phase 9 -- Restart state handoff (`handoff.lisp`)
 
-- **Phase 9 -- state handoff (MVP).** `export-state` / `import-state` generics
-  wired into `restart-process`, defaulting to NIL (no state), with an optional
-  `:lexter-host` specialization (scrollback + cursor) and a `:nginx` no-op,
-  proving the protocol handles both stateful and stateless orbitals.
+**Date:** 2026-06-22
+
+### Goal
+
+Let an orbital carry its chosen, meaningful state across a *clean restart*
+instead of cold-booting -- and, more importantly, do so as a **first-class,
+discoverable, default-safe protocol in the control lexicon**, uniform across
+native and foreign orbitals. State handoff is abundant as a runtime *mechanism*
+(systemd's FD store and memfd serialize-before-terminate, Envoy/HAProxy socket
+handoff, CRIU, Erlang `code_change`, Akka event sourcing, Lisp image saves), but
+it is always bolted onto an individual daemon and reached out of band. None of
+the surveyed control *vocabularies* expose it as an introspectable verb where a
+bare orbital answers "nothing" by default and `describe` advertises what it can
+hand off. Elevating handoff into the typed lexicon is the contribution; the
+`:nginx` no-op proving graceful degradation is how the uniformity is shown.
+
+### The protocol (`handoff.lisp`)
+
+Handoff is the cooperative, semantic, **selective** variant (serialize-and-reload,
+Family B): an orbital serializes its chosen state into a carrier-agnostic,
+keyword-tagged S-expression -- never opaque memory -- keyed by **stratum**:
+
+```
+(:handoff t :control-type <kw> :version N
+ :strata (:application (...) :session (...)))
+```
+
+`*handoff-strata*` is `(:configuration :application :session)`; the volatile
+strata `:ephemera` (sockets, threads, handles) and `:binary` (reconstructable
+from formatted files) are **never serializable** -- `make-handoff-state` rejects
+them. That discipline -- selective semantic state, not an opaque whole-memory
+snapshot -- is the whole point, and the founding "never conflate the strata."
+
+Three generics dispatch on control type, each with a default `(t)` method so a
+bare orbital is safe by default:
+
+- `export-state` -- return a datum, or NIL (the default). Pure: read, don't mutate.
+- `import-state` -- re-inject into the **already-restarted** orbital; **fail-safe**
+  (a bad/incompatible datum is ignored, never fatal -- the orbital always comes
+  back up); returns T when applied.
+- `handoff-strata-for` -- the strata this type can hand off, for `describe`.
+
+The datum carries a `:version`; `handoff-compatible-p` gates import on it, so a
+future code-change-on-restart can run `code_change`-style migration (deferred;
+same-version is the MVP). `filter-strata` implements the `:preserve` selector.
+
+### Wired to the clean, orchestrated restart
+
+`restart-with-handoff` is the orchestrator: export -> `reset` -> fail-safe
+import. The universal `restart` verb is its carrier -- it gained an optional
+`:preserve` arg (a list of strata, `:all` by default, or NIL to keep none) and
+reports `:state-preserved` in its response. Because handoff rides the *clean*
+restart, it gets the clean-restart guarantee for free; a **crash** restart does
+not preserve state (there is no live orbital to export from) until a
+continuous-checkpoint mode is added -- systemd's FD-store clean-vs-abnormal
+tradeoff, made explicit. Origin core is untouched: handoff is purely an
+Impulse-surfaced, control-type-dispatched protocol, and `describe` now carries a
+`:handoff` field advertising the strata.
+
+### Native vs. foreign, by orbital kind
+
+The two handoff strategies map onto Origin's two orbital kinds. A **native**
+orbital's precious state is application data in the heap, not kernel FDs, so the
+serialize-data strategy fits: the `:lexter-host` specialization (in the Lexter
+repo) exports a terminal's geometry and scrollback depth (`:application`) and
+cursor position (`:session`), and restores the cursor into the rebuilt screen --
+the in-heap round-trip. A **foreign** network server's state is live kernel
+sockets, whose preservation is FD/socket handoff (Family A: nginx `USR2` /
+FDSTORE) -- deferred -- so `:nginx` hands off **nothing**, and does so with *zero
+Tether code*: the default `(t)` methods answer NIL, and the test asserts the
+no-op. That a native orbital preserves state and a foreign one degrades
+gracefully *through the same verb and protocol* is exactly the uniformity the
+phase set out to demonstrate.
+
+### Design Decisions
+
+1. **Handoff is an Impulse protocol, not a core mechanism.** Dispatched on
+   control type, advertised via `describe`, default-safe -- the lexicon
+   elevation. Origin core's `restart-process` stays mechanical; `reset` alone
+   does not preserve state, which is correct (handoff is a control-plane
+   concern).
+2. **Selective by stratum; volatile strata never serialized.** The taxonomy is
+   enforced at construction, distinguishing this from CRIU's opaque snapshot.
+3. **Carrier-agnostic datum.** Export yields data independent of where it lives
+   (in-memory across a thread restart; a file/memfd across an `:image` restart;
+   Git-tracked text per the founding vision) -- mirroring Impulse's
+   transport-agnostic envelope.
+4. **Versioned and fail-safe.** A version tag enables future migration; import
+   runs after the orbital is back up and swallows errors, so the orbital always
+   restarts -- the validate-before-commit / confirmed-commit discipline applied
+   to handoff.
+5. **`:preserve` selector on `restart`.** No new verb; the existing universal
+   `restart` carries handoff, with stratum selection -- the DevPlan's
+   `restart :preserve` realized.
+
+### Tests
+
+A new `handoff` suite (31 checks): the envelope and accessors (and rejection of
+a volatile stratum); `filter-strata` / `:preserve`; version-gated compatibility;
+the default-NIL protocol; a synthetic stateful control type whose counter -- zeroed
+by every fresh start -- survives a restart only via import; stratum selectivity
+(`:preserve (:session)` drops `:application`-only state; `:preserve (:application)`
+keeps it; `:preserve nil` keeps nothing); a generic orbital preserving nothing;
+fail-safe import (a throwing import is swallowed and the orbital stays up); and
+`describe` advertising the strata. Impulse: **333 checks, 100% pass**. The Lexter
+suite adds the `:lexter-host` handoff (describe, geometry+cursor export, cursor
+import into a fresh screen, version-mismatch safety): **51 checks, 100% pass**.
+The nginx Tether adds the graceful-no-op proof: **69 checks, 100% pass**. Origin
+core untouched.
+
+### Prior-art lineage (Phase 9)
+
+| Implemented feature | Reference lineage | Note |
+|---|---|---|
+| Serialize chosen state to a transferable datum, re-ingest on start | systemd memfd serialize-before-terminate / FD store (`FDSTORE`) | the closest service-manager match; opt-in, off by default, clean-restart-scoped |
+| Handoff as a per-service, opt-in capability defaulting off | systemd `FileDescriptorStoreMax=0` | a bare orbital hands off nothing -- the default with precedent |
+| Cooperative semantic state export/import (not opaque memory) | Erlang `sys:get_state` / `sys:replace_state` + `code_change` | typed S-expressions per stratum; version tag for future migration |
+| Selective by stratum (never ephemera/binary) | the founding "never conflate the strata" vs. CRIU whole-memory snapshot | discipline is the differentiator from an opaque checkpoint |
+| Clean-restart vs. crash-restart distinction | systemd FD-store clean-vs-abnormal tradeoff | riding the orchestrated `restart` gives the clean guarantee; crash is out of scope (MVP) |
+| Fail-safe import (orbital always starts) | NETCONF candidate/commit & confirmed-commit; systemd POLLHUP auto-evict | validate-then-apply; a bad datum falls back to a clean start |
+| Native serialize-data vs. foreign FD/socket handoff | Lisp/Smalltalk image save (native) vs. Envoy/HAProxy/nginx `USR2` (foreign) | the two strategies map onto the two orbital kinds; foreign FD handoff deferred |
+| Restart state handoff as a first-class, discoverable verb-borne protocol | *(no direct precedent in the surveyed control vocabularies)* | the genuine contribution: handoff elevated into the typed lexicon, uniform across native + foreign |
+
+
+## Part III Complete
+
+Phases 7-9 are done: the **first typed sub-vocabulary** (`:lexter-host`), the
+**first foreign Tether** (`origin.tether.nginx`, with the configurable `:image`
+stop signal as its core pre-phase), and **restart state handoff** as a
+first-class Impulse protocol. The control plane now specializes cleanly: native
+CL orbitals and foreign processes are driven through the *same* universal verbs,
+the same `describe`-discoverable schemas, and the same handoff protocol -- a
+terminal preserving its cursor across a restart and nginx degrading to a no-op,
+through one lexicon. Suite tallies at the close of Part III: Impulse **333**,
+the Lexter integration **51**, the nginx Tether **69**, Origin core **291** --
+all 100%.
+
+### Outstanding Work (beyond Part III)
+
+- **Foreign FD/socket handoff.** The Family-A upgrade for `:nginx`: socket-
+  preserving reload (`USR2` / FDSTORE-style), so a foreign server keeps live
+  connections across a restart.
+- **Continuous-checkpoint handoff.** Export-on-change (not only on clean
+  restart) to extend handoff to crash recovery, with the overhead tradeoff.
+- **`code_change`-style migration.** Use the handoff `:version` to migrate
+  old-shaped state on import when an orbital's code changes across a restart.
+- **The typed nginx config layer and structured logs.** The Tier-2 constructors
+  (`server`/`location`/`upstream`/`tls-policy`) and the JSON `log_format` +
+  parser feeding the event log, plus a second Tether (Redis -- a wire-protocol
+  control model) to guard the abstraction.

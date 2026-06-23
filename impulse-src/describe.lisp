@@ -142,4 +142,5 @@ it supports, and its query-leaf schemas."
           :queries (loop for (verb . schema) in (gethash type *query-schemas*)
                          collect (list :verb verb :leaves schema))
           :config-schema (config-schema type)
+          :handoff (handoff-strata-for type)
           :sub-vocabularies '())))

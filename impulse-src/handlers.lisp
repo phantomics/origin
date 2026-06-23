@@ -30,9 +30,17 @@
   (list :name (process-name orbital) :status (process-status orbital)))
 
 (define-control-handler (:generic :restart) (orbital request)
-  (declare (ignore request))
-  (reset (process-name orbital))
-  (list :name (process-name orbital) :status (process-status orbital)))
+  ;; RESTART is the clean, orchestrated restart and so the carrier of state
+  ;; handoff: it exports the orbital's chosen state, resets, and re-injects it.
+  ;; :PRESERVE selects which strata to keep (:ALL by default; a list of strata,
+  ;; or NIL to keep none). :STATE-PRESERVED reports whether any was carried over.
+  (let ((preserve (if (member :preserve (request-args request))
+                      (getf (request-args request) :preserve)
+                      :all)))
+    (multiple-value-bind (orb preserved)
+        (restart-with-handoff orbital :preserve preserve)
+      (list :name (process-name orb) :status (process-status orb)
+            :state-preserved preserved))))
 
 (define-control-handler (:generic :kill) (orbital request)
   (declare (ignore request))
