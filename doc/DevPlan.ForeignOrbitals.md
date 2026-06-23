@@ -80,12 +80,22 @@ foreign orbital.
    orbital.
 
 
-## The Adapter Model
+## The Tether Model
 
-### The adapter, not the foreign program, is the orbital
+### Nomenclature
 
-The clean architecture is a CL adapter that *owns* a foreign subprocess
-and translates between Origin's world and the program's. The adapter:
+The foreign process adapter techology has been given the name Tether,
+standing for "Technology-Eliding Typed Host Endpoint Resolver." A Tether
+allows Origin's network of control to surpass the barriers between CL
+and non-CL software, adapting their variety of untyped configuration
+and log formats to the typed environment of the CL host platform. Each
+Tether sits at an endpoint of the Origin graph and resolves, or makes
+tangibly manifest within the Origin system, the foreign software beyond.
+
+### The Tether, not the foreign program, is the orbital
+
+The clean architecture is a Tether that *owns* a foreign subprocess
+and translates between Origin's world and the program's. The Tether:
 
 - spawns and supervises the foreign process (as an `:image` orbital);
 - generates the program's configuration from S-expressions, validates it,
@@ -104,13 +114,13 @@ A foreign process cannot itself respond to Origin. Its crash model is
 OS-level only (process exit or signal, never a catchable condition); its
 control surface is whatever it exposes (signals, a control socket, a
 status endpoint, log files); its internal state is opaque except through
-those interfaces. The adapter is the Lisp citizen; the foreign program is
+those interfaces. The Tether is the Lisp citizen; the foreign program is
 an `:image`-grade worker behind it. Trouble comes only from pretending
 otherwise -- giving the foreign orbital capabilities (live redefinition,
 in-image supervision of its internals) that its process boundary forbids.
 
 This constraint flows back to Impulse: the lexicon and its
-handler-registration must be implementable by an adapter *on behalf of* a
+handler-registration must be implementable by an Tethter *on behalf of* a
 process that cannot answer for itself -- the design constraint already
 recorded in `DevPlan.ControlVocabulary.md`.
 
@@ -125,29 +135,29 @@ recorded in `DevPlan.ControlVocabulary.md`.
 
 Tier 2 is self-contained: it needs nothing from Impulse, because
 configuration generation, validation, reload, and log parsing are ordinary
-CL operations the adapter performs directly. Tier 3 layers the control
+CL operations the Tether performs directly. Tier 3 layers the control
 lexicon on top, so the same management is reachable through the uniform,
 structured surface a core or admin UI uses for native orbitals.
 
 
 ## Topology
 
-The adapter is defined by its *handlers and translation logic*, not by
-where that code runs. Two deployments host the same adapter code:
+The Tether is defined by its *handlers and translation logic*, not by
+where that code runs. Two deployments host the same Tether code:
 
-- **(a) In-core / in-host adapter** (the starting point). The adapter
+- **(a) In-core / in-host Tether** (the starting point). The Tether
   logic lives in an existing image; nginx is a plain `:image` orbital the
-  adapter owns. Simplest -- no extra process -- but the adapter logic shares
+  Tether owns. Simplest -- no extra process -- but the Tether logic shares
   fate with its host image.
-- **(b) Adapter image** (later, isolation-maximizing). The adapter is its
+- **(b) Tether image** (later, isolation-maximizing). The Tether is its
   own `:image` orbital (a smart child) owning nginx as a nested
-  subprocess, so the adapter logic is crash-isolated too, at the cost of a
+  subprocess, so the Tether logic is crash-isolated too, at the cost of a
   second process per service.
 
-These coexist: because the adapter is the same handler code either way,
+These coexist: because the Tether is the same handler code either way,
 starting with (a) does not foreclose (b). Topology is a per-service
 deployment choice, not a rewrite. (a) suits lightweight, trusted services
-co-located with the core; (b) suits services whose adapter logic is heavy
+co-located with the core; (b) suits services whose Tether logic is heavy
 or whose isolation matters.
 
 
@@ -165,7 +175,7 @@ nginx runs from a single CLI-referenced config in an ephemeral prefix; no
 fixed config *directory* is required.
 
 - **Spawn:** `nginx -p /tmp/<id>/ -c /tmp/<id>/nginx.conf -g "daemon
-  off;"`. The `-p` prefix is an ephemeral directory the adapter creates at
+  off;"`. The `-p` prefix is an ephemeral directory the Tether creates at
   start; relative paths in the config (pid file, temp paths, logs) resolve
   against it. A single self-contained `nginx.conf` suffices -- `include` is
   optional.
@@ -179,7 +189,7 @@ fixed config *directory* is required.
   directory.
 - **Port:** the ephemeral instance defaults to a high port (e.g. 8080).
   Binding 80/443 requires privilege (root or `CAP_NET_BIND_SERVICE`) and
-  is an init-system / capability concern, not the adapter's -- consistent
+  is an init-system / capability concern, not the Tether's -- consistent
   with the README's division of labor between the init system and Origin.
 
 ### Configuration (Tier 2)
@@ -218,18 +228,18 @@ diagnostics as a structured error -- never a partial or broken live config.
 
 ### Logs (Tier 2)
 
-The adapter **authors both ends**. It writes a JSON `log_format` into the
+The Tether **authors both ends**. It writes a JSON `log_format` into the
 generated config using nginx's `escape=json`, for example a format
-emitting one JSON object per request with the fields the adapter cares
-about, and owns the matching parser. Because the adapter controls the
+emitting one JSON object per request with the fields the Tether cares
+about, and owns the matching parser. Because the Tether controls the
 format it requested, parsing is exact and schema-stable -- no regex against
 a conventional format that a config change could silently break. Parsed
 access lines become structured events fed into Origin's event log;
 error-log lines are parsed similarly into leveled events.
 
 This implies a small core capability: a **modular CL JSON facility usable
-from core**, for the in-core adapter topology (a) where no freestanding
-adapter image (with its own quicklisp dependencies) is present. Its scope
+from core**, for the in-core Tether topology (a) where no freestanding
+Tether image (with its own quicklisp dependencies) is present. Its scope
 is reading nginx's JSON log lines and writing JSON where useful; it is a
 core utility, not a general dependency pulled into the zero-dependency
 runtime lightly. (Whether this lives in core proper or in an optional
@@ -239,7 +249,7 @@ core-adjacent module is an open question below.)
 
 Open-source nginx exposes runtime state through the `stub_status` module
 (active connections, accepts/handled/requests, reading/writing/waiting).
-The adapter enables `stub_status` in the generated config on an internal
+The Tether enables `stub_status` in the generated config on an internal
 location and scrapes it for status queries, augmented by log-derived
 metrics (request rates, status-code distribution, upstream latency) from
 the structured access events. This is the open-source feature set; the
@@ -267,7 +277,7 @@ the one core change this plan proposes.
 
 To let Tier 2 stop nginx *gracefully* without waiting on Impulse, `:image`
 orbitals should carry a configurable stop signal, defaulting to `SIGTERM`
-(today's behavior) and set to `SIGQUIT` by the nginx adapter.
+(today's behavior) and set to `SIGQUIT` by the nginx Tether.
 
 Sketch: a per-orbital `image-stop-signal` slot (default
 `sb-unix:sigterm`), read by `%stop-process-image` in place of the
@@ -276,13 +286,13 @@ fallback after timeout is unchanged. `kill-process` continues to send
 `SIGKILL` unconditionally. This is small, generically useful (many daemons
 have a non-TERM graceful signal), and it is the single core change foreign
 orbitals justify at Tier 2. It is recorded here for design; the change
-will be made when the nginx adapter is built.
+will be made when the nginx Tether is built.
 
 
 ## Tier 3 Sketch (depends on Impulse)
 
-Once the Impulse lexicon exists, the nginx adapter registers handlers that
-answer the universal verbs on nginx's behalf -- the adapter *is* the
+Once the Impulse lexicon exists, the nginx Tether registers handlers that
+answer the universal verbs on nginx's behalf -- the Tether *is* the
 respondent the lexicon talks to:
 
 - **`describe`** -- report the nginx sub-vocabulary: which `status` queries
@@ -299,7 +309,7 @@ respondent the lexicon talks to:
 
 The point of Tier 3 is that a core or admin UI then drives nginx through
 exactly the same structured surface as a native Lexter orbital, with no
-nginx-specific knowledge above the adapter.
+nginx-specific knowledge above the Tether.
 
 
 ## Impulse Requirements Surfaced by nginx
@@ -323,16 +333,16 @@ the lexicon:
 5. **Read-only status with selectable fields.** stub_status plus
    log-derived metrics exercise `status :query (...)` field selection and
    the safe/read-only classification.
-6. **Adapter-as-respondent.** Every verb is answered by the adapter, not
+6. **Tether-as-respondent.** Every verb is answered by the Tether, not
    the managed thing -- the central constraint the lexicon must honor.
 
 These are inputs to Impulse, listed so its design is pressured by a real
-foreign adapter and not only by native orbitals.
+foreign Tether and not only by native orbitals.
 
 
 ## Generic Shape (grounded, not abstracted)
 
-nginx reveals primitives that will likely recur across foreign adapters,
+nginx reveals primitives that will likely recur across Tethers,
 named here but deliberately *not* abstracted into a framework yet -- a true
 general framework is impossible to predict from one example and should
 emerge as more services are adapted:
@@ -348,8 +358,8 @@ emerge as more services are adapted:
 - **Handler registration** -- (Tier 3) register Impulse handlers that drive
   the foreign program.
 
-When a second and third adapter exist, the common subset of these becomes
-a candidate "managed foreign service" module. Until then, each piece is
+When a second and third Tether exist, the common subset of these becomes
+a candidate "common Tether model" module. Until then, each piece is
 grounded concretely in nginx.
 
 
@@ -358,12 +368,12 @@ grounded concretely in nginx.
 nginx is managed through files and signals; not every foreign program is.
 Redis exposes a genuine TCP control protocol: live configuration changes
 via `CONFIG SET`, introspection via `INFO` and `CONFIG GET`, all over RESP
-on its client port. A Redis adapter's Tier 3 `configure` would translate
+on its client port. A Redis Tether's Tier 3 `configure` would translate
 to `CONFIG SET` commands rather than regenerating a file and signalling,
 and its `status` would parse `INFO` output rather than scraping a status
 page. This is the opposite control model from nginx, and including it as a
-contrast guards the adapter abstraction against being nginx-shaped: the
-adapter's job is *translation to the program's native control surface*,
+contrast guards the Tether abstraction against being nginx-shaped: the
+Tether's job is *translation to the program's native control surface*,
 whatever that surface is -- files-and-signals for nginx, a wire protocol
 for Redis. PostgreSQL is a third future case, blending both: a config file
 with `SIGHUP` reload for some parameters, `ALTER SYSTEM` over SQL for
@@ -376,37 +386,37 @@ others, and rich structured logs.
 |------------------|-------------------|
 | **Kubernetes sidecar / adapter containers** | a companion process presenting a uniform interface to a workload that does not cooperate natively |
 | **Kubernetes operator pattern** | a controller that drives foreign software toward a declared desired state via the software's own interfaces |
-| **systemd `ExecReload=` / `ExecStartPre=` wrappers** | bracketing a foreign daemon with validate/reload commands -- the brittle shell version of what the adapter does richly |
-| **Config-management generators (Puppet/Ansible templates, etc.)** | the typed-or-templated-config-to-native-config-text lineage; the adapter is the in-image, validated form of this |
-| **NetBSD/illumos SMF, runit `./run` scripts** | per-service control scripts -- the convention the adapter replaces with structured, in-language handlers |
+| **systemd `ExecReload=` / `ExecStartPre=` wrappers** | bracketing a foreign daemon with validate/reload commands -- the brittle shell version of what the Tether does richly |
+| **Config-management generators (Puppet/Ansible templates, etc.)** | the typed-or-templated-config-to-native-config-text lineage; the Tether is the in-image, validated form of this |
+| **NetBSD/illumos SMF, runit `./run` scripts** | per-service control scripts -- the convention the Tether replaces with structured, in-language handlers |
 
 
 ## Open Questions
 
 1. **Config atomicity and rollback.** On a failed reload after a config
-   swap, how does the adapter roll back -- keep the previous validated
+   swap, how does the Tether roll back -- keep the previous validated
    config and re-place it, or rely on validate-before-swap to make
    rollback unnecessary? (Leaning on validate-before-swap, with the
    previous config retained for safety.)
 2. **JSON facility placement.** Does the core-usable JSON reader/writer
    live in Origin core proper, or in an optional core-adjacent module
-   loaded only when an in-core adapter needs it? The zero-dependency
+   loaded only when an in-core Tether needs it? The zero-dependency
    runtime principle argues against pulling JSON into the base image
    unconditionally.
 3. **Secrets in generated config.** TLS keys, upstream credentials, and
    the like in generated nginx config -- how are they sourced and kept out
    of logs, the event log, and world-readable `/tmp` files (permissions,
    a secrets indirection)?
-4. **Log rotation.** Reopening logs is `USR1`; does the adapter own
+4. **Log rotation.** Reopening logs is `USR1`; does the Tether own
    rotation (rename + USR1) or defer to an external rotator? Ephemeral
    `/tmp` instances may not need rotation at all.
 5. **Health versus readiness.** For nginx, "the master is alive"
    (`:image` liveness) differs from "it is serving" (stub_status reachable
-   on the configured port). The adapter should distinguish them, feeding
+   on the configured port). The Tether should distinguish them, feeding
    the health/readiness sub-vocabulary discussion in Impulse.
 6. **Typed config sharing.** How much of the typed configuration layer is
    nginx-specific versus shareable (e.g. a generic TLS-policy or
-   upstream-set notion)? Resolved empirically as more adapters appear.
+   upstream-set notion)? Resolved empirically as more Tethers appear.
 7. **State handoff relevance.** nginx is effectively stateless across
    restarts; which foreign programs (databases, session stores) make
    `restart`-with-state-handoff meaningful, and how does that interact
@@ -435,5 +445,5 @@ Indicative sequencing; Tier 2 is the buildable near-term work.
    `describe` / `status` / `configure` / `restart` -- once the lexicon
    lands, feeding back the requirements listed above.
 7. **Generalization (deferred).** Extract the common "managed foreign
-   service" primitives once a second adapter (Redis or PostgreSQL) exists
+   service" primitives once a second Tether (Redis or PostgreSQL) exists
    to validate them.

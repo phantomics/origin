@@ -80,11 +80,14 @@ The honest starting point is that the service-manager layer is largely
   `:image` orbital runs its own local supervisor, registry, event log, and
   Impulse listener, reachable through the same vocabulary. **Built** as the
   Lexter control pattern.
+- **Tether** -- a framework for joining non-Common Lisp software with
+  Origin systems as managed orbitals. This allows software like nginx,
+  Redis or Postgres to be operated through an Origin/Impulse interface.
 
 So the answer to "how far can Origin take me toward an init system" is: it
 takes you through the entire service-manager layer and the supervision of
 foreign processes. The barriers are PID 1 survival, early boot, dependency
-ordering with readiness, and the breadth of service adapters.
+ordering with readiness, and the breadth of Tether-based service adapters.
 
 
 ## Settled Decisions
@@ -117,7 +120,7 @@ These were settled in discussion and are the spine of the build project.
    ready-made harness into which Origin slots as another init option,
    rather than a from-scratch graft. (MX Linux 25.1+ offers only
    sysvinit-or-systemd; runit-native distros like Void/Artix-runit are the
-   closest *conceptual* fit and the best template for the adapter set --
+   closest *conceptual* fit and the best template for the Tether set --
    see below.)
 
 5. **Origin replaces init and service management; the standalone
@@ -131,7 +134,7 @@ These were settled in discussion and are the spine of the build project.
 6. **First foreign orbital: nginx, in a container; Redis at Stage 1.5.**
    nginx is the ForeignOrbitals worked example. Redis (a wire-protocol
    control model, the opposite of nginx's files-and-signals) follows to
-   guard the adapter abstraction against being nginx-shaped. Device/seat
+   guard the Tether abstraction against being nginx-shaped. Device/seat
    managers are deferred to the VM stages, since they need real devices a
    container cannot cleanly provide.
 
@@ -141,10 +144,10 @@ These were settled in discussion and are the spine of the build project.
 8. **Zero-dependency core preserved; the JSON facility is an optional
    core-adjacent module.** The nginx log parser needs JSON, but JSON is not
    pulled into `origin` core. It lives in a separate optional module loaded
-   only when an in-core adapter needs it.
+   only when an in-core Tether needs it.
 
 9. **Recursion: design-for, apply-later.** Stage 1 is a single (root)
-   node, but Impulse addressing is kept path-shaped and the nginx adapter
+   node, but Impulse addressing is kept path-shaped and the nginx Tether
    is kept relocatable to a future subordinate node, so recursion is proven
    incrementally without a rewrite.
 
@@ -177,7 +180,7 @@ plus Impulse control plane, supervising every real orbital.
 [stub PID 1]                 reaper + signals + rootfs handoff + core respawner
    └── [Origin core]         austere nexus; SBCL; the service manager
          ├── [subsystem Origins]   (recursion; see below)
-         └── [orbitals]            threads / cooperative / images / foreign adapters
+         └── [orbitals]            threads / cooperative / images / Tethers
 ```
 
 This mirrors the README's own philosophy -- "the init system supervises the
@@ -233,7 +236,7 @@ B is early boot; C is service-manager completeness; D is operational.
   types, no readiness ("ready to serve" vs. merely "alive"), no socket
   activation. C1 *needs* C2 as its edge-satisfaction predicate, so the two
   must be designed together.
-- **C3. The long tail of boot-critical adapters.** Origin's "adapters =
+- **C3. The long tail of boot-critical Tethers.** Origin's "Tethers =
   init scripts" framing is correct, but the *number* of adapters (device
   management, fstab, network, getty/login, syslog, cron, time/hostname) is
   unchanged from any new init; Origin raises only the *quality* bar per
@@ -300,7 +303,7 @@ double-forking daemon detaches: the PID Origin holds (the forker) exits 0,
 SBCL reaps it and reports `:exited`, while the real daemon becomes an
 orphan adopted by the stub -- invisible and unsupervised. Hence the
 ForeignOrbitals `daemon off;` rule for nginx generalizes to a hard rule for
-every adapter: run the process in the foreground (`--no-daemon` /
+every Tether: run the process in the foreground (`--no-daemon` /
 foreground flag), with PID-file tracking only as a fragile fallback.
 
 **Finding 5 -- lifecycle hygiene.** Because reaping is targeted, every
@@ -338,7 +341,7 @@ The reaping barrier is **largely dissolved** by the architecture. SBCL's
 deliberately-targeted reaper composes correctly with a generic reaper as
 long as the generic reaper lives in the stub and Origin core is not a
 subreaper. The remaining work is small and well-defined: a ~dozen-line
-generic reaper in the stub, a foreground-execution rule for adapters, and a
+generic reaper in the stub, a foreground-execution rule for Tethers, and a
 tightened core-shutdown/deregistration path. No change to SBCL or to
 Origin's core supervision model is required.
 
@@ -364,10 +367,10 @@ because `:image` mode runs arbitrary argv).
 
 antiX init-diversity is the build/test substrate (Decision 4). The runit
 affinity is worth stating: a runit `./run` script is almost exactly what a
-Foreign Orbital adapter is -- a small, foreground, supervised service
-definition -- so a runit-based system gives a clean 1:1 mapping (each runit
-service to one Origin foreign orbital) and is the best template for the
-adapter inventory, even if deployment is on antiX/MX.
+Tether is -- a small, foreground, supervised service definition -- so a
+runit-based system gives a clean 1:1 mapping (each runit service to one
+Origin Tether) and is the best template for the Tether inventory, even if
+deployment is on antiX/MX.
 
 The standalone components Origin supervises rather than replaces:
 
@@ -468,7 +471,7 @@ interpreted by one monolithic PID 1 -- the "Organic" in the acronym.
          ├── [System Origin]          eudev, mounts, network, time   (system.slice)
          ├── [Session Origin / user]  seatd/elogind-scoped session
          │      └── [Lexter Origin]   windows                        (already exists)
-         ├── [Web Origin]             nginx adapter (+ siblings)      (web.slice)
+         ├── [Web Origin]             nginx Tether (+ siblings)      (web.slice)
          └── plain leaf orbitals      lightweight daemons (ECL where it pays)
 ```
 
@@ -486,7 +489,7 @@ metal. Staging adds risk only after the prior stage is proven:
 |---|---|---|---|
 | 0 | plain SBCL / container | the A1 reaping verification checklist | none |
 | 1 | container (Podman) | Origin supervising foreign services (nginx) as `:image` orbitals, driven via Impulse | none |
-| 1.5 | container | a Redis orbital (wire-protocol control model) to validate the adapter abstraction | none |
+| 1.5 | container | a Redis orbital (wire-protocol control model) to validate the Tether abstraction | none |
 | 2 | QEMU VM via `init=`, rootfs pre-mounted | the asm/C stub as PID 1: generic reaping, signals, Origin-core respawn | snapshot-protected |
 | 3 | QEMU with custom initramfs | `pivot_root`/`switch_root`, early mounts, syscall shim | snapshot-protected |
 | 4 | the workstation / spare machine | real hardware, real desktop | only after VM-proven |
@@ -501,7 +504,7 @@ Origin work (Stages 0-1) is done. x86_64 first; `qemu-system-aarch64` for
 the ARM64 target later.
 
 
-## Stage 1 Build Plan (nginx adapter in a container)
+## Stage 1 Build Plan (nginx Tether in a container)
 
 Stage 1 is, concretely, the ForeignOrbitals Tier 1 -> Tier 2 nginx work,
 executed in a Podman container and driven over Impulse. It carries no boot
@@ -527,7 +530,7 @@ in the current code:
 | `src/package.lisp` | Export `process-image-stop-signal` (and the `:image-stop-signal` initarg symbol). |
 | `tests/test-image.lisp` | Add checks: default is `SIGTERM`; a child that ignores `SIGTERM` but handles `SIGQUIT` stops gracefully via the configured signal; `SIGKILL` fallback still fires on a child that ignores both. Expect the existing 244 core checks to remain green. |
 
-### 2. nginx adapter -- new system `origin-nginx`
+### 2. nginx Tether -- new system `origin-nginx`
 
 A separate ASDF system mirroring `impulse.asd`, `:depends-on ("origin")`
 only (Tier 2 needs no Impulse; the generic verbs drive it for free). Sources
@@ -545,7 +548,7 @@ subordinate node can own it (topology (a) -> (b)).
 
 Pure SBCL, no dependencies (resolves ForeignOrbitals open Q2 toward "optional
 core-adjacent module"; keeps `origin` core zero-dependency). Scope: read
-nginx JSON log lines, write JSON where useful. Loaded only by the adapter's
+nginx JSON log lines, write JSON where useful. Loaded only by the Tether's
 `logs.lisp`.
 
 ### 4. Container harness (antiX/Debian base, Podman)
@@ -557,7 +560,7 @@ nginx JSON log lines, write JSON where useful. Loaded only by the adapter's
   block on a shutdown condition.
 - `demo` script: connect over the Impulse socket; exercise
   `describe`/`status`/`start`/`stop` against the nginx orbital using
-  **path-shaped targets**; push a config change through the adapter; show
+  **path-shaped targets**; push a config change through the Tether; show
   parsed nginx log lines surfacing as structured events.
 
 ### Sequencing
@@ -592,10 +595,10 @@ To be resolved during the build project that follows this plan.
    appliance; ties to OrbitalImages "orphan handling on core crash.")
 3. **Readiness protocol shape** (C2). How an orbital signals "ready to
    serve" vs. merely alive -- a notify-style fd, an Impulse `status :health`
-   field, or a per-adapter probe -- and how C1 consumes it.
+   field, or a per-Tether probe -- and how C1 consumes it.
 4. **Saved-core boot mechanism.** `save-lisp-and-die` cores per node type
    vs. a shared core with per-node config, and how it interacts with
-   ocicl-distributed adapters.
+   ocicl-distributed Tethers.
 5. **Hierarchical addressing grammar.** The concrete path/selector syntax
    for recursive administration (ControlVocabulary open Q5), and how
    request forwarding and `:partial` aggregation work across node hops.
@@ -606,8 +609,8 @@ To be resolved during the build project that follows this plan.
    cgroup-subtree is clean under cgroup v2 delegation rules, or forced.
 8. **Durable logging (D1).** The journald-equivalent logging orbital, and
    how it captures early-boot logs before disk is writable.
-9. **Boot-critical adapter inventory.** Which services (from the runit
-   template) are on the appliance's critical boot path and need adapters
+9. **Boot-critical Tether inventory.** Which services (from the runit
+   template) are on the appliance's critical boot path and need Tethers
    first.
 
 
@@ -617,7 +620,7 @@ To be resolved during the build project that follows this plan.
 |------------------|-------------------|
 | **Erlang/OTP supervision trees** | recursive supervisors-of-supervisors; restart strategies and intensity escalation -- the model for recursive nodes and `:gave-up` bubbling |
 | **dynamod (Zig + Rust)** | minimal crash-proof PID 1 beneath an OTP-style service manager -- the exact two-layer split, independently arrived at |
-| **runit** | `./run` foreground service scripts -- the direct analog of a foreground foreign-orbital adapter; the cleanest adapter-set template |
+| **runit** | `./run` foreground service scripts -- the direct analog of a foreground Tether; the cleanest Tether-set template |
 | **s6 / s6-rc** | dependency-ordered supervision; readiness notification -- input to C1/C2 |
 | **systemd (as contrast)** | slices/targets as static config trees, fixed two-tier hierarchy, devoured utilities -- the baseline Origin improves on and deliberately diverges from |
 | **z/OS WLM** | goal-oriented, feedback-driven resource allocation -- the workload-management benchmark for the cgroup-aligned node tree |
@@ -636,9 +639,9 @@ risk.
    SBCL; confirm the targeted-reaper, disjoint-set, and double-fork
    findings.
 2. **Stage 1 -- containerized nginx service manager.** The core stop-signal
-   change, the `origin-nginx` adapter (Tier 1 -> Tier 2), the `origin-json`
+   change, the `origin.tether.nginx` Tether (Tier 1 -> Tier 2), the `origin-json`
    module, and the Podman harness driven via Impulse.
-3. **Stage 1.5 -- Redis orbital.** Validate the adapter abstraction against
+3. **Stage 1.5 -- Redis orbital.** Validate the Tether abstraction against
    a wire-protocol control model.
 4. **Dependency ordering + readiness (C1/C2).** Hierarchy-aware dependency
    graph, readiness protocol, and Impulse declarative `apply` -- the boot
@@ -652,5 +655,5 @@ risk.
 8. **Stage 3 -- own the handoff.** Custom initramfs, `pivot_root`, syscall
    shim.
 9. **Durable logging, device/seat/login orbitals, and the boot-critical
-   adapter inventory** -- the long tail toward a self-hosting appliance.
+   Tether inventory** -- the long tail toward a self-hosting appliance.
 10. **Stage 4 -- bare metal**, only after the VM path is proven.
