@@ -55,6 +55,7 @@
    #:process-os-process
    #:process-image-output
    #:process-image-error
+   #:process-image-stop-signal
    #:process-restart-count
    #:process-started-at
    #:process-stopped-at

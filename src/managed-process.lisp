@@ -92,6 +92,15 @@ Used by :COOPERATIVE processes; ignored for :THREAD mode.")
     :initform nil
     :accessor process-image-error
     :documentation "For :IMAGE mode, a pathname for child stderr, or NIL to discard.")
+   (image-stop-signal
+    :initarg :image-stop-signal
+    :initform sb-unix:sigterm
+    :accessor process-image-stop-signal
+    :type integer
+    :documentation "For :IMAGE mode, the signal sent for a graceful STOP
+(default SIGTERM). Set to e.g. SIGQUIT for daemons whose graceful-shutdown
+signal differs (nginx). The SIGKILL fallback after the stop timeout, and
+KILL-PROCESS, are unaffected.")
    (%status
     :initform :stopped
     :accessor %process-status
@@ -567,8 +576,9 @@ from a crash (non-zero exit or signal, type :IMAGE-CRASH)."
      (setf (process-stopped-at process) (get-universal-time)))))
 
 (defun %stop-process-image (process timeout)
-  "Stop an :IMAGE process: SIGTERM, wait up to TIMEOUT, then SIGKILL.
-Lisp-level graceful shutdown is deferred to the IPC layer."
+  "Stop an :IMAGE process: send its configured graceful stop signal (default
+SIGTERM), wait up to TIMEOUT, then SIGKILL. Lisp-level graceful shutdown is
+deferred to the IPC layer."
   (let ((proc (process-os-process process)))
     (cond
       ;; No process or already dead -- just reap and update status.
@@ -577,10 +587,10 @@ Lisp-level graceful shutdown is deferred to the IPC layer."
        (unless (member (%process-status process) '(:stopped :crashed :gave-up))
          (setf (%process-status process) :stopped))
        (setf (process-stopped-at process) (get-universal-time)))
-      ;; Alive -- SIGTERM, wait, SIGKILL fallback.
+      ;; Alive -- graceful stop signal, wait, SIGKILL fallback.
       (t
        (setf (%process-status process) :stopping)
-       (sb-ext:process-kill proc sb-unix:sigterm)
+       (sb-ext:process-kill proc (process-image-stop-signal process))
        (let ((deadline (+ (get-internal-real-time)
                           (* timeout internal-time-units-per-second))))
          (loop while (and (sb-ext:process-alive-p proc)

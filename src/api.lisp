@@ -23,10 +23,11 @@
                             (execution-mode :thread)
                             description
                             entry-args
-                            liveness-fn
-                            image-command
-                            image-output
-                            image-error)
+                             liveness-fn
+                             image-command
+                             image-output
+                             image-error
+                             (image-stop-signal sb-unix:sigterm))
   "Define and register a managed process with the given NAME and properties.
 NAME can be a symbol or string.
 
@@ -51,12 +52,15 @@ Optional keyword arguments:
   :IMAGE-COMMAND       - argv list (program . args) for :IMAGE mode
   :IMAGE-OUTPUT        - pathname for child stdout (:IMAGE mode)
   :IMAGE-ERROR         - pathname for child stderr (:IMAGE mode)
+  :IMAGE-STOP-SIGNAL   - signal for graceful STOP of an :IMAGE orbital
+                         (default SIGTERM; e.g. SIGQUIT for nginx)
 
 Returns the managed-process instance."
   (declare (ignore entry-point stop-function restart-policy max-restarts
                    workload-class priority singleton backoff-base backoff-cap
                    stability-threshold execution-mode description entry-args
-                   liveness-fn image-command image-output image-error))
+                   liveness-fn image-command image-output image-error
+                   image-stop-signal))
   (apply #'register-process name initargs))
 
 ;; DISCOVER is already defined in asd-metadata.lisp and exported.

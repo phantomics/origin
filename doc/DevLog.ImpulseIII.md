@@ -162,10 +162,39 @@ Origin core untouched.
 | Main-thread marshaling of typed handlers (free) | Erlang `gen_server` (serialize all calls through one process) | the cooperative executor is the single serializing thread for window-touching work |
 
 
+## Pre-Phase 8 -- Configurable `:image` stop signal (Origin core)
+
+**Date:** 2026-06-21
+
+A small, generic core change that Phase 8 depends on, landed ahead of the
+adapter so the adapter builds on stable core. Origin's `:image` `stop`
+previously hardcoded `SIGTERM` for the graceful phase -- which for nginx is the
+*abrupt* path; nginx's graceful-shutdown signal is `SIGQUIT`. As planned in
+`DevPlan.ForeignOrbitals.md`:
+
+- A new `image-stop-signal` slot on `managed-process` (default
+  `sb-unix:sigterm`, accessor `process-image-stop-signal`), settable via
+  `define-process`/`register-process`'s `:image-stop-signal` keyword.
+- `%stop-process-image` sends `(process-image-stop-signal process)` for the
+  graceful phase instead of a hardcoded `SIGTERM`. The SIGKILL fallback after
+  the stop timeout, and `kill-process` (always SIGKILL), are unchanged.
+
+The change is additive and backward-compatible: an orbital that does not set the
+slot behaves exactly as before. It is broadly useful -- many daemons have a
+non-`TERM` graceful signal -- not nginx-specific.
+
+**Tests** (`test-image.lisp`): the default is `SIGTERM` and a custom signal is
+stored per orbital; and a behavioral test proves delivery -- a child that
+*ignores* `SIGTERM` but exits cleanly on `SIGQUIT` (writing a marker from its
+QUIT handler) is stopped gracefully by a `:image-stop-signal sb-unix:sigquit`
+orbital, confirming the configured signal, not `SIGTERM`, was sent. Origin core:
+**291 checks, 100% pass** (up from 285); Impulse unaffected (**302**).
+
+
 ## Outstanding Work (Part III)
 
 - **Phase 8 -- nginx adapter.** The adapter-as-respondent acceptance test: the
-  configurable `:image` stop-signal core change (a small pre-phase), an
+  configurable `:image` stop-signal core change (done, above), an
   S-expression-to-nginx config printer, validate (`nginx -t`) -> swap -> SIGHUP
   reload, `stub_status` scraping, and the `:nginx` Impulse handlers -- in a
   separate `origin-nginx` system, with end-to-end tests skip-gated on the nginx

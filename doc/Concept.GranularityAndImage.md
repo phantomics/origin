@@ -30,12 +30,24 @@ everything in between and above?
 The answer to that question is Origin.
 
 
-## The core tension: Unix fuses two roles into one unit
+## The core tension: the mainstream OS tradition fuses two roles into one unit
 
-The Unix process is simultaneously **the unit of isolation** (its own
-address space, kernel-arbitrated boundaries) and **the unit of launch**
-(fork/exec is how work begins). Because both roles live in the same object,
-and because launching means creating a new process, Unix is forced into a
+The process-as-simultaneously-isolation-and-launch-unit is **not a Unix
+invention**. It is the inherited default of the mainstream OS tradition from
+the batch-processing era onward. IBM's OS/360 (1966) had jobs and address
+spaces; Multics (1969) had processes with separate address spaces as its
+fundamental unit; the batch-to-timesharing evolution (CTSS -> Multics ->
+Unix) carried the model forward at each step. What Unix did was not invent
+this but **radically simplify** it -- Thompson and Ritchie stripped
+Multics's elaborate process/segment model down to fork+exec on a PDP-11,
+making it cheap, uniform, and composable (pipes, signals) enough to
+proliferate on the DEC minicomputers that were being eagerly adopted in
+place of room-filling mainframes. The brilliance was the simplification,
+not the concept. Unix's subsequent spread through the PDP series and then
+the microcomputer revolution carried this simplified process model into
+essentially all commodity computing, where it became the universal default.
+
+The result, as inherited by every modern OS in the Unix lineage, is a
 binary ontology:
 
 - **Discrete applications** -- pay startup, run to completion, discard.
@@ -131,9 +143,9 @@ process startup is cheap enough, there would be little point.
 
 ## The honest tradeoff: shared fate
 
-It would be a mistake to read any of this as "CL good, Unix bad." Unix's
-choice to fuse isolation and launch into one unit is a brilliant, deliberate
-simplification that buys:
+It would be a mistake to read any of this as "CL good, Unix bad." The
+process-as-both-isolation-and-launch-unit, inherited from the mainframe
+batch tradition and radically simplified by Unix for minicomputers, buys:
 
 - **Hard isolation by default.** Every program gets its own address space;
   a crash in one does not corrupt another.
@@ -142,8 +154,9 @@ simplification that buys:
 - **Uniform tooling.** Everything is killable, signalable, and observable
   through one set of system calls.
 
-These virtues are *why Unix won*. The cost is the granularity gap and the
-cost-inversion mismatch.
+These virtues -- plus Unix's radical simplification making them cheap on
+small hardware -- are why the process model won the commodity-computing
+world. The cost is the granularity gap and the cost-inversion mismatch.
 
 The shared-image model makes the opposite trade: cheap, live, fine-grained
 launch -- but **shared fate**. A thread-orbital that segfaults through FFI
@@ -186,10 +199,27 @@ makes Impulse's "data, not code" vocabulary natural rather than imposed --
 the lingua franca already exists because the substrate is homogeneous.
 
 
-## The lineage
+## The lineage: two contemporary traditions
 
-The persistent-image-with-many-activities model is old and keeps being
-rediscovered:
+The process model and the image model are **contemporary, parallel
+traditions** from the 1960s, not a sequence where one came first and the
+other reacted. They developed on the same or overlapping hardware for
+different communities with different priorities:
+
+- **The process tradition** (batch -> timesharing -> Unix): OS/360 (1966),
+  Multics (1969), Unix (1971). Prioritized isolation, multi-user security,
+  and language-agnosticism. Scaled *down* to cheap hardware via Unix's
+  simplification of Multics for the PDP series, then rode the
+  minicomputer-to-microcomputer revolution into universal adoption.
+
+- **The image tradition** (high-level programming systems): Lisp (from 1958,
+  with persistent images by the late 1960s), APL (1966, workspace model),
+  Smalltalk (1972, image-based), and the Lisp Machines (1970s-80s, where
+  the image *was* the OS). Prioritized expressiveness, interactivity, and
+  cheap sub-process granularity. Scaled *up* in richness but was tied to
+  specialized or expensive hardware and could not ride the commodity wave.
+
+Notable exemplars of the image tradition:
 
 - **Genera / Symbolics Lisp Machines.** The entire OS as one Lisp image;
   "applications" were Activities within it; the Lisp Listener was the
@@ -201,18 +231,21 @@ rediscovered:
 
 They all share the insight that *when the runtime is persistent and
 homogeneous, the natural management unit is sub-process, and launching is
-cheap evaluation in a live world.* Unix is the historical outlier that made
-the process the sole unit -- and because it won, the image model became
-exotic.
+cheap evaluation in a live world.* The process tradition won the hardware
+war -- Unix's simplification made it viable on the small, cheap machines
+that proliferated -- and the image tradition became exotic. But the image
+model is not a reaction to Unix; it is as old as the process model and
+represents an independent, equally principled answer to "what is the unit
+of computing?"
 
 What is genuinely new in Origin is the **hybrid**: reasserting the
-Genera-style cheap in-image granularity *on top of* Unix rather than
-instead of it, so that OS-level isolation and heterogeneity remain
-available as the coarse fallback while the fine, live, interactive
-granularity serves the homogeneous CL case. The recursive self-similar node
-model (see [`DevLog.OrbitalImages.md`](DevLog.OrbitalImages.md)) extends
-this hybrid across process and machine boundaries without changing the
-vocabulary.
+image tradition's cheap in-image granularity *on top of* the process
+tradition's substrate (Unix/Linux), so that OS-level isolation and
+heterogeneity remain available as the coarse fallback while the fine, live,
+interactive granularity serves the homogeneous CL case. The recursive
+self-similar node model (see
+[`DevLog.OrbitalImages.md`](DevLog.OrbitalImages.md)) extends this hybrid
+across process and machine boundaries without changing the vocabulary.
 
 
 ## Design principles implied

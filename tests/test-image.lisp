@@ -58,6 +58,56 @@
     (is (eq :stopped (status "img-kill")))
     (is-false (process-alive-p (find-process "img-kill")))))
 
+(def-test image-stop-signal-default-and-custom ()
+  "An :image orbital's graceful stop signal defaults to SIGTERM and is
+configurable per orbital."
+  (with-clean-origin
+    (register-process "img-sig-default"
+                      :execution-mode :image
+                      :image-command (sh "sleep 30"))
+    (is (= sb-unix:sigterm
+           (process-image-stop-signal (find-process "img-sig-default"))))
+    (register-process "img-sig-quit"
+                      :execution-mode :image
+                      :image-command (sh "sleep 30")
+                      :image-stop-signal sb-unix:sigquit)
+    (is (= sb-unix:sigquit
+           (process-image-stop-signal (find-process "img-sig-quit"))))))
+
+(def-test image-stop-uses-configured-signal ()
+  "STOP sends the orbital's configured graceful signal: a child that ignores
+SIGTERM but exits cleanly on SIGQUIT is stopped gracefully (a marker written by
+its QUIT handler), proving SIGQUIT -- not SIGTERM -- was delivered."
+  (with-clean-origin
+    (ensure-directories-exist "/tmp/opencode/")
+    (let ((marker "/tmp/opencode/origin-stopsig.txt"))
+      (ignore-errors (delete-file marker))
+      (register-process "img-sig-graceful"
+                        :execution-mode :image
+                        :image-stop-signal sb-unix:sigquit
+                        :image-command
+                        (sh (format nil
+                                    "trap 'printf graceful > ~A; exit 0' QUIT; ~
+                                     trap '' TERM; ~
+                                     while true; do sleep 0.05; done"
+                                    marker)))
+      (start "img-sig-graceful")
+      (is-true (process-alive-p (find-process "img-sig-graceful")))
+      ;; Graceful QUIT handler fires well within the timeout; if STOP had sent
+      ;; SIGTERM it would be ignored and we'd fall through to a SIGKILL with no
+      ;; marker.
+      (stop "img-sig-graceful" :timeout 3)
+      (is (eq :stopped (status "img-sig-graceful")))
+      (is-false (process-alive-p (find-process "img-sig-graceful")))
+      (is (string= "graceful"
+                   (with-open-file (s marker :if-does-not-exist nil)
+                     (if s
+                         (let ((buf (make-string (file-length s))))
+                           (read-sequence buf s)
+                           buf)
+                         ""))))
+      (ignore-errors (delete-file marker)))))
+
 (def-test image-liveness ()
   "process-alive-p tracks the OS process for :image orbitals."
   (with-clean-origin
