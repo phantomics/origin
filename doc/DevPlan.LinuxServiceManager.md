@@ -394,6 +394,15 @@ On the roadmap and required for a real boot. Two design couplings to honor:
 - **The triple is the boot sequencer.** Dependency graph + readiness +
   Impulse's planned declarative `apply` (desired-orbit reconciliation)
   together *are* the mechanism that boots the system in order.
+- A third coupling: **demand-start (start-on-need)**. The Windows Service
+  Control Manager's "demand start" mode — start a service only when a
+  dependent first needs it, not at boot — reduces boot time and resource
+  consumption for rarely-used services. When the dependency graph is
+  designed, a `:start-on-demand` policy (distinct from `:always` and the
+  existing restart policies, which govern *restart* behavior) should be
+  included as a start-time policy. This is the same concept as systemd's
+  socket activation, generalized: the dependency edge carries not just
+  ordering but a start-trigger semantic.
 
 Recursion reshapes C1 from one flat global graph into a **tree-of-graphs**:
 coarse inter-node dependencies (a storage node before a session node) and
@@ -627,6 +636,7 @@ To be resolved during the build project that follows this plan.
 | **Kubernetes** | declarative desired-state reconciliation; liveness vs. readiness probes |
 | **SBCL `run-program` internals** | the targeted (non-greedy) reaper that makes the stub/core reaping partition clean |
 | **antiX init-diversity** | init presented as a swappable choice -- the harness Origin slots into |
+| **Windows SCM (Service Control Manager)** | service dependencies with start/stop ordering; demand-start mode (start only when needed) |
 
 
 ## Roadmap

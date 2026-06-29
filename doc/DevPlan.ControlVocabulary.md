@@ -287,6 +287,15 @@ To be resolved during the design phase that follows this plan.
 7. **Vocabulary versioning.** How sub-vocabularies declare and negotiate
    versions, so a core and an orbital built at different times can
    interoperate (compare LSP capability negotiation, NETCONF `hello`).
+   The experience of Microsoft's COM/DCOM reinforces the weight of this
+   question: COM invested heavily in interface immutability (once published,
+   a COM interface's binary layout never changes; new capabilities require
+   new interfaces), which was burdensome but prevented the version-mismatch
+   chaos that plagued the rest of the Windows ecosystem. The lesson is that
+   version negotiation and backward compatibility for sub-vocabularies
+   should be designed in early rather than retrofitted — the `hello`
+   handshake already exchanges version; the open question is how strictly
+   enforcement gates verb dispatch.
 
 
 ## Prior Art
@@ -307,6 +316,8 @@ decades of management protocols. The most relevant references:
 | **Plan 9 / 9P (`ctl` and status files)** | control by writing structured data, status by reading it -- a filesystem-shaped envelope alternative |
 | **Kubernetes** | declarative desired-state reconciliation; liveness versus readiness probes |
 | **D-Bus / systemd** | a structured control plane bolted onto an unstructured substrate -- the baseline Origin improves upon |
+| **COM/DCOM `QueryInterface`** | mandatory capability discovery on every component; typed interfaces as contracts; location-transparent cross-process invocation; the versioning discipline (and pain) of immutable published interfaces |
+| **PowerShell** | typed objects through pipes rather than byte streams; runtime-discoverable commands (`Get-Help`, `Get-Command`) — the CLI equivalent of `describe` |
 
 
 ## Tradeoffs and Non-Goals
