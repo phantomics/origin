@@ -287,7 +287,9 @@ To be resolved during the design phase that follows this plan.
 7. **Vocabulary versioning.** How sub-vocabularies declare and negotiate
    versions, so a core and an orbital built at different times can
    interoperate (compare LSP capability negotiation, NETCONF `hello`).
-   The experience of Microsoft's COM/DCOM reinforces the weight of this
+   The experience of Microsoft's COM/DCOM (the Component Object Model, the
+   component-integration system underlying much of MS Windows) reinforces
+   the weight of this
    question: COM invested heavily in interface immutability (once published,
    a COM interface's binary layout never changes; new capabilities require
    new interfaces), which was burdensome but prevented the version-mismatch
