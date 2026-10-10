@@ -13,6 +13,7 @@ open-questions:
   - ORIGIN-O6
   - ORIGIN-O7
   - ORIGIN-O8
+  - ORIGIN-O9
 cites:
   - title:    Chromium Multi-Process Architecture & Site Isolation
     locator:  chromium.org design documents
@@ -385,6 +386,168 @@ restartable, declaratively specified, with managed dependencies). The
 distinction is meaningless because it was always a distinction without a
 real difference.
 
+
+## Security-scoped compositions
+
+The task-composition model has a further consequence for security: a
+meta-orbital can carry a **uniform security policy governing all its member
+orbitals as a single security domain**. This is a security boundary that
+coincides with a task composition — something no existing system offers.
+Unix gives per-process isolation (too fine for a multi-component task);
+containers give per-deployment isolation (too coarse or too rigid); browser
+profiles give per-browser isolation (too application-specific); OS user
+accounts give per-person isolation (orthogonal — the same person wants
+different security levels for different tasks). None of these match
+"per-task with uniform policy."
+
+### The financial workbench
+
+Consider a financial management composition — a meta-orbital bundling: a
+browser window pointing at the user's bank and investment sites, a
+spreadsheet orbital working with the same financial data, a tax-preparation
+tool, and a trading program. These all address the same sensitive data
+domain and share a security context: compromise of one implies risk to all.
+
+The meta-orbital's security policy governs the whole group:
+
+- **Privacy-mode history suppression.** The browser orbital's history
+  externalization is overridden by the node policy: no URLs from financial
+  sites are stored in the shared history log. This is not a per-tab browser
+  setting but a meta-orbital-level policy override that supersedes the
+  default externalization behavior for all member orbitals.
+- **Per-composition inactivity timeout.** After a short period of inactivity
+  (configurable per meta-orbital), the financial workbench engages a
+  localized lock curtain — independent of the system screensaver. The rest
+  of the desktop remains usable; only the financial node is locked.
+- **Re-authentication on resume.** After the lock curtain engages, or after
+  a crash-and-teardown, the user must re-authenticate to the meta-orbital
+  before any member orbital is accessible. The authentication boundary is
+  the composition, not each individual application.
+- **Restricted content and network policy.** The browser orbital within the
+  financial node accepts only a whitelist of financial-site origins —
+  a content policy (the externalized uMatrix equivalent) applied at the
+  node level. Network access for non-browser orbitals is similarly
+  constrained.
+- **Transaction confirmation gates.** Significant financial operations —
+  large transfers, trade executions — trigger an "are you sure?" prompt
+  enforced by the meta-orbital's policy layer, not by each individual
+  application. This is a cross-application safety check, possible only
+  because the meta-orbital sees the operations of all its members.
+- **Crash-kills-node** (see the next section). A crash in any member
+  orbital tears down the entire financial node rather than restarting the
+  crashed orbital, because a crash could indicate an exploit attempt and
+  continuing with potentially compromised state is worse than stopping.
+
+### The medical-records parallel
+
+A medical-records workbench — patient database browser, imaging viewer,
+clinical-notes editor, prescription system — carries the same structure:
+tightly-coupled orbitals sharing a sensitive data domain, governed by a
+uniform node-level security policy. Here the crash-kills-node policy is
+motivated by data-integrity risk (a crash during record handling could
+indicate corruption; continuing risks displaying or transmitting corrupted
+patient data), and the regulatory dimension (compliance requires an audit
+trail for any anomalous event in a clinical-data context) adds further
+policy requirements expressible at the node level.
+
+The common pattern: **domains where the integrity of the composition
+matters more than its availability** — the CIA triad with integrity
+explicitly ranked above availability for the node.
+
+
+## Enforced fragility: the crash-kills-node policy
+
+Origin's default stance is availability-first: contain the crash, log it,
+restart the orbital, continue. The supervision engine, restart policies, and
+exponential backoff all serve this — they assume crashes are accidental and
+that the right response is recovery.
+
+For an adversarial threat model, this assumption inverts. A
+crashed-and-restarted orbital may resume in a subtly compromised state: a
+partially-written transaction buffer, a leaked credential in memory, a
+half-completed authentication handshake, or a memory layout the attacker has
+already mapped. Restarting it gives the attacker a fresh target to probe,
+with the system helpfully respawning it. The restart behavior that is a
+virtue for a media player or a development tool becomes a **vulnerability**
+for a financial session or a medical-records context.
+
+**Enforced fragility** is the deliberate inversion: the node *chooses* to be
+fragile because fragility is safer than resilience when the integrity of the
+whole context is in question. The analogy is the hardware panic — when a CPU
+detects an unrecoverable error (a machine-check exception), it halts rather
+than continuing with potentially corrupted state. The kernel panic on PID 1
+death is the same principle. Enforced fragility is machine-check semantics
+applied to a security domain: **halt and require re-authentication rather
+than continue with uncertain integrity.**
+
+### Mechanism
+
+The natural expression is a per-node **`:crash-policy`** option, governing
+the node's response to any member orbital's crash:
+
+- **`:restart`** (the default) — supervise and restart as usual. The
+  existing behavior, appropriate for non-adversarial workloads.
+- **`:teardown`** — a crash in any member tears down the entire subordinate
+  Origin instance. All member orbitals are stopped; the node exits. The
+  parent (or the user, via the dashboard) must explicitly restart the node.
+- **`:teardown-and-lock`** — teardown plus the localized lock curtain
+  engages, requiring re-authentication before the node can be restarted.
+  The strongest option, appropriate for the financial and medical-records
+  cases.
+
+This composes with the existing per-orbital restart policies: the
+per-orbital `:restart-policy` (`:always`/`:never`/`:transient`) governs
+whether *that orbital* restarts within a healthy node; the node-level
+`:crash-policy` governs whether the *node itself* survives a member crash.
+The node policy takes precedence — if the node's policy is `:teardown`, a
+member orbital's `:always` restart policy is overridden by the node's
+decision to halt.
+
+A key distinction: the policy should differentiate between **crash** (an
+unhandled condition, a signal, a non-zero exit — potentially adversarial)
+and **clean exit** (an orbital completing its work normally — not a threat).
+Only crashes trigger the teardown; clean exits are normal lifecycle.
+Origin's exit-status classification (`%default-crash-info`, the
+`:transient` restart policy's distinction between error-exit and clean-exit)
+already makes this distinction, so the mechanism exists.
+
+### Where enforced fragility is useful
+
+- **Financial data** — the worked example above; integrity of transactions
+  and credentials matters more than session availability.
+- **Medical records** — data-integrity risk; regulatory audit requirements.
+- **Cryptographic operations** — a crash during key handling should destroy
+  the context (zeroize) rather than risk leaving key material in a
+  recoverable state.
+- **Legal and compliance contexts** — regulated data where a crash could
+  indicate tampering and must trigger an audit, not a silent restart.
+
+### Where it is counterproductive
+
+- **Non-adversarial workloads** — a game, a media player, a development
+  environment. Here crashes are bugs, not attacks, and fast restart is the
+  right response.
+- **High-availability services** — where uptime is the primary requirement
+  and the threat model does not include active exploitation of crashed state.
+- **Loosely-coupled compositions** — if the node contained many independent
+  tools with no shared security context, crashing everything because one
+  member crashed would be disproportionate. The policy earns its keep when
+  the composition is *tightly coupled* — the tools share a security context
+  and a data domain, so compromise of one implies risk to all.
+
+### Psyche
+
+On Psyche hardware, the node's isolation and teardown are hardware-enforced:
+the Psyche management hierarchy can halt and zeroize a partition, and Vox
+channel semantics ensure the secure node's communication does not leak
+through retry storms or buffered data surviving a teardown. This makes the
+fragility guarantee stronger than software-only enforcement on conventional
+hardware, where a compromised kernel could theoretically subvert the
+teardown. The full treatment of this hardware-enforced security domain is
+a Psyche architecture concern; here it is noted as a forward direction that
+strengthens the guarantees this section describes.
+
+
 ## Honest Limits
 
 - **The security floor is absolute.** The lightweight thread-per-tab option
@@ -412,6 +575,11 @@ real difference.
   (a stock GTK editor, a legacy Java tool), the composition is coarser —
   lifecycle management and meta-orbital grouping, but not rich structured
   integration. The vision is strongest where the ecosystem is homogeneous.
+- **Enforced fragility trades availability for integrity.** The
+  crash-kills-node policy is appropriate only for tightly-coupled,
+  integrity-sensitive compositions where the tools share a security context
+  and a data domain. Applying it to loosely-coupled or non-adversarial
+  workloads would sacrifice availability for no security gain.
 
 ## Relationship to Other Work
 
@@ -481,3 +649,14 @@ Which browser service should be externalized first to validate the thesis —
 content policy (the sharpest test of typed configuration), session
 management (the clearest meta-orbital exercise), or history (the richest
 downstream payoff)?
+
+### ORIGIN-O9 — Security-domain policy schema
+
+How is a meta-orbital's security policy (privacy overrides, inactivity
+timeout, crash-kills-node behavior, re-authentication requirements,
+transaction confirmation gates) expressed as typed data? How does it compose
+with member orbitals' individual policies — does the node policy override,
+intersect, or layer atop the per-orbital defaults? And how does the
+per-node `:crash-policy` interact with the supervisor's per-orbital restart
+policies when they conflict (e.g. a member orbital declaring `:always`
+restart inside a node declaring `:teardown`)?
