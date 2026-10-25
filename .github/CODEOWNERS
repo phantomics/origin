@@ -1,0 +1,7 @@
+# CODEOWNERS — the steward of the ORIGIN namespace approves every allocation
+#
+# Numbers are allocated by appending to the ledger (Compass §13). Requiring
+# review from code owners makes the steward's approval a condition of merging
+# any allocation (ORIGIN-DRAFT-compass-migration-D8).
+
+/doc/REGISTRY.sexp @phantomics
