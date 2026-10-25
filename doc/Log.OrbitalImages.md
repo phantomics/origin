@@ -12,6 +12,16 @@ provenance:
 relates-to:
   - ORIGIN-DRAFT-impulse-i
   - ORIGIN-DRAFT-linux-service-manager
+decisions:
+  - ORIGIN-DRAFT-orbital-images-D1
+  - ORIGIN-DRAFT-orbital-images-D2
+  - ORIGIN-DRAFT-orbital-images-D3
+  - ORIGIN-DRAFT-orbital-images-D4
+  - ORIGIN-DRAFT-orbital-images-D5
+  - ORIGIN-DRAFT-orbital-images-D6
+  - ORIGIN-DRAFT-orbital-images-D7
+  - ORIGIN-DRAFT-orbital-images-D8
+  - ORIGIN-DRAFT-orbital-images-D9
 ---
 
 # Orbital Images (`:image` Execution Mode): Development Log
@@ -62,6 +72,8 @@ policy, event log) is expressed in terms of `process-alive-p` and
 separate image is therefore a third mode -- `:image` -- defined entirely
 by what start/stop/liveness mean for an OS process:
 
+Table: The meaning of each lifecycle operation for the `:image` execution mode.
+
 | Operation | `:image` meaning |
 |-----------|------------------|
 | start     | `sb-ext:run-program` an argv; store the `sb-ext:process` |
@@ -84,66 +96,157 @@ Lexter still needs the main thread for GLFW. The layers compose:
                                       dispatcher, hosting N Lexter windows
 ```
 
+Description: A tree showing the core Origin supervisor spawning an `:image` orbital as a separate OS process. The child image starts Slynk for interactive development and runs its own Origin supervisor with a cooperative dispatcher hosting multiple Lexter windows.
+
 
 ## Design Decisions
 
-Seven questions were settled before implementation; their resolutions:
+Seven questions were settled before implementation; two more during the
+build.
 
-1. **Boot strategy -- quickload-at-boot.** Children quickload
-   `lexter/origin` at startup rather than booting a pre-saved core.
-   Simpler (no build artifact, no core management) at the cost of
-   multi-second startup. Saved cores for fast respawn are a roadmap item.
+### ORIGIN-DRAFT-orbital-images-D1 — Boot strategy: quickload-at-boot
 
-2. **Control channel -- Slynk for humans, OS-level for lifecycle.**
-   v1 lifecycle (spawn/kill/liveness/restart) rides entirely on OS
-   process management. The child starts a Slynk server for interactive
-   development (connect SLIME manually). A richer cross-image control /
-   query channel (S-expression IPC) is deferred.
+**Status:** Proposed
 
-3. **Cross-image status -- deferred.** The parent tracks OS-process-level
-   status (running/crashed/stopped/PID). Surfacing a child's *internal*
-   Origin state in the parent requires the query channel and is a roadmap
-   item.
+**Context:** Children need to load Lexter and Origin code. Two options:
+quickload at startup, or boot a pre-saved core image.
 
-4. **Child configuration -- an evaluated config file.** The child's fixed
-   boot recipe loads a user-authored Lisp config file (which declares
-   cooperative terminals via `define-terminal`) and then runs the main
-   loop. The core passes the config path and Slynk port to the child via
-   sequential `--eval` forms on the SBCL command line.
+**Decision:** Children quickload `lexter/origin` at startup. Simpler (no
+build artifact, no core management) at the cost of multi-second startup.
+Saved cores for fast respawn are a roadmap item.
 
-5. **Code placement -- core stays pure.** Origin core gained the
-   GLFW-free, Slynk-free `:image` mode (`run-program` + process object).
-   The boot recipe (load systems, start Slynk, run Lexter) lives in the
-   Lexter launcher layer. Origin depends on neither Lexter nor Slynk.
+**Alternatives:**
+- Pre-saved core images. Deferred: adds a build artifact and core
+  management that v1 does not need.
 
-6. **Slynk** (not Swank) is the interactivity server.
+### ORIGIN-DRAFT-orbital-images-D2 — Control channel: Slynk for humans, OS-level for lifecycle
 
-7. **Smart children.** Each spawned image runs its *own* local Origin
-   supervisor + cooperative dispatcher + registry, so windows can be
-   added and removed within it at runtime (the "Lexter admin tab"
-   scenario). Dumb single-process children remain possible via a config
-   that simply runs one process.
+**Status:** Proposed
 
-Two further decisions during the build:
+**Context:** The parent needs to control children. The question is what
+control channel to use in v1.
 
-- **Graceful shutdown -- SIGTERM only for v1.** The escalation ladder is
-  SIGTERM -> wait -> SIGKILL. A Lisp-level graceful quit (evaluating a
-  shutdown form in the child before signalling) waits for the IPC channel
-  -- it needs a control path the parent does not yet have.
+**Decision:** v1 lifecycle (spawn/kill/liveness/restart) rides entirely on
+OS process management. The child starts a Slynk server for interactive
+development (connect SLIME manually). A richer cross-image control / query
+channel (S-expression IPC) is deferred.
 
-- **Output handling in core, not a wrapper.** Child stdout/stderr are
-  redirected to a per-orbital log file via `run-program`'s `:output` /
-  `:error`, exposed as generic `image-output` / `image-error` slots on
-  the orbital. This is less fragile than wrapping the child in a shell
-  redirect, and keeps the mechanism generic (no Lexter/Slynk knowledge in
-  core).
+**Alternatives:**
+- An S-expression IPC channel from the start. Deferred: the lifecycle
+  verbs work without one, and the IPC design is better informed by
+  experience with the OS-level path.
+
+### ORIGIN-DRAFT-orbital-images-D3 — Cross-image status: deferred
+
+**Status:** Proposed
+
+**Context:** The parent could surface a child's internal Origin state
+(its own orbitals, their statuses) alongside the OS-process-level status.
+
+**Decision:** Deferred. The parent tracks OS-process-level status
+(running/crashed/stopped/PID). Surfacing a child's internal state
+requires the query channel (ORIGIN-DRAFT-orbital-images-D2).
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-orbital-images-D4 — Child configuration: an evaluated config file
+
+**Status:** Proposed
+
+**Context:** Children need to know what to run — which cooperative
+terminals to host, with what parameters.
+
+**Decision:** The child's fixed boot recipe loads a user-authored Lisp
+config file (which declares cooperative terminals via `define-terminal`)
+and then runs the main loop. The core passes the config path and Slynk
+port to the child via sequential `--eval` forms on the SBCL command line.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-orbital-images-D5 — Code placement: core stays pure
+
+**Status:** Proposed
+
+**Context:** The `:image` mode could live in Origin core or in the Lexter
+launcher layer.
+
+**Decision:** Origin core gained the GLFW-free, Slynk-free `:image` mode
+(`run-program` + process object). The boot recipe (load systems, start
+Slynk, run Lexter) lives in the Lexter launcher layer. Origin depends on
+neither Lexter nor Slynk.
+
+**Alternatives:**
+- Put the boot recipe in core. Rejected: it would make core depend on
+  Lexter and Slynk.
+
+### ORIGIN-DRAFT-orbital-images-D6 — Slynk (not Swank) is the interactivity server
+
+**Status:** Proposed
+
+**Context:** Two Emacs-to-Lisp interactivity servers exist: Swank (the
+original, for SLIME) and Slynk (the SLY fork).
+
+**Decision:** Slynk is used.
+
+**Alternatives:**
+- Swank. Not chosen.
+
+### ORIGIN-DRAFT-orbital-images-D7 — Smart children
+
+**Status:** Proposed
+
+**Context:** A spawned image could be a dumb single-process worker or a
+full management peer.
+
+**Decision:** Each spawned image runs its own local Origin supervisor +
+cooperative dispatcher + registry, so windows can be added and removed
+within it at runtime (the "Lexter admin tab" scenario). Dumb
+single-process children remain possible via a config that simply runs one
+process.
+
+**Alternatives:**
+- Dumb children only. Rejected: it forecloses the recursive self-similar
+  node model that multi-image supervision motivates.
+
+### ORIGIN-DRAFT-orbital-images-D8 — Graceful shutdown: SIGTERM only for v1
+
+**Status:** Proposed
+
+**Context:** Settled during the build. A richer graceful shutdown
+(evaluating a form in the child before signalling) needs a control path
+the parent does not yet have.
+
+**Decision:** The escalation ladder is SIGTERM → wait → SIGKILL. A
+Lisp-level graceful quit waits for the IPC channel.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-orbital-images-D9 — Output handling in core, not a wrapper
+
+**Status:** Proposed
+
+**Context:** Settled during the build. Child stdout/stderr need to be
+captured.
+
+**Decision:** Child stdout/stderr are redirected to a per-orbital log file
+via `run-program`'s `:output` / `:error`, exposed as generic
+`image-output` / `image-error` slots on the orbital. This is less fragile
+than wrapping the child in a shell redirect, and keeps the mechanism
+generic (no Lexter/Slynk knowledge in core).
+
+**Alternatives:**
+- A shell wrapper redirecting output. Rejected: fragile and puts
+  Lexter/Slynk knowledge in the wrapper.
 
 
 ## The orbit / orbital vocabulary
 
 In Origin's gravitational framing, a **core** holds managed units in its
 **orbit**; each unit -- thread, cooperative window, or image -- is an
-**orbital**. These were added as light aliases (`src/orbit.lisp`), not a
+**orbital**. These were added as light aliases (`src/orbit.lisp@ab349e7`), not a
 rename: `orbital` is a `deftype` synonym for `managed-process`, and
 `(orbit)` is a synonym for `(all-processes)`. "Satellite" (from the
 roadmap) is retired in favour of "orbital" as the one generic term; that
@@ -156,7 +259,7 @@ core.
 
 ### Origin core
 
-**`src/managed-process.lisp`.** The `execution-mode` type became
+**`src/managed-process.lisp@ab349e7`.** The `execution-mode` type became
 `(member :thread :cooperative :image)`. Four slots were added for image
 state: `image-command` (the argv list to spawn), `os-process` (the
 `sb-ext:process`), and `image-output` / `image-error` (log pathnames).
@@ -179,23 +282,23 @@ state: `image-command` (the argv list to spawn), `os-process` (the
   which `:transient` will not restart); a non-zero exit or a signal yields
   type `:image-crash` (which `:always` and `:transient` both restart).
 
-**`src/supervisor.lisp`.** The single crash-detection site now calls
+**`src/supervisor.lisp@ab349e7`.** The single crash-detection site now calls
 `%default-crash-info` instead of hard-coding a thread-exit plist, so the
 exit-status classification flows into the existing, unchanged restart
 policy logic. No other supervisor change was needed -- crash detection
 already keys on `process-alive-p`.
 
-**`src/api.lisp`.** `define-process` accepts `:image-command`,
+**`src/api.lisp@ab349e7`.** `define-process` accepts `:image-command`,
 `:image-output`, `:image-error`; `info` already reported execution mode.
 
-**`src/orbit.lisp` (new).** The `orbital` type and `orbit` function.
+**`src/orbit.lisp@ab349e7` (new).** The `orbital` type and `orbit` function.
 
-**`src/package.lisp`, `origin.asd`.** Exported the new accessors and the
+**`src/package.lisp@ab349e7`, `origin.asd@ab349e7`.** Exported the new accessors and the
 orbit vocabulary; added `orbit` to the build.
 
 ### Lexter launcher (`lexter/origin`)
 
-**`src/origin-image.lisp` (new).**
+**`LEXTER:src/origin-image.lisp@c8acd7c` (new).**
 
 - `define-image (name &key config slynk-port log-file restart-policy
   max-restarts description)` -- registers an `:image` orbital. Allocates a
@@ -222,14 +325,17 @@ orbit vocabulary; added `orbit` to the build.
 `define-terminal` (the cooperative, Approach-B registration) is unchanged
 and is what an image's config file calls to declare its windows.
 
-**`src/packages-origin.lisp`, `lexter.asd`.** Exported the launcher
+**`LEXTER:src/packages-origin.lisp@c8acd7c`, `LEXTER:lexter.asd@c8acd7c`.** Exported the launcher
 symbols; added `slynk` to the `lexter/origin` dependencies and the new
 file to the system.
 
 
-## Tests
+## Verification
 
-A new `tests/test-image.lisp` (`image` suite, 24 checks) exercises the
+*Migration note (2026-10-25):* the test command is
+`(asdf:test-system "origin-tests")`.
+
+A new `tests/test-image.lisp@ab349e7` (`image` suite, 24 checks) exercises the
 `:image` mode deterministically with trivial `/bin/sh` subprocesses --
 no Lexter, no display:
 
@@ -260,20 +366,22 @@ failures, 0 regressions.
 
 ## Files
 
-| Repo | File | Action | Description |
-|------|------|--------|-------------|
-| origin | `src/managed-process.lisp` | Modified | `:image` mode: 4 slots, alive/start/stop/kill branches, `%default-crash-info` exit-status classification |
-| origin | `src/supervisor.lisp` | Modified | Crash detection uses `%default-crash-info` |
-| origin | `src/api.lisp` | Modified | `define-process` accepts image keywords |
-| origin | `src/orbit.lisp` | **New** | `orbital` type, `orbit` function |
-| origin | `src/package.lisp` | Modified | Export image accessors + orbit vocabulary |
-| origin | `origin.asd` | Modified | Added `orbit` |
-| origin | `tests/test-image.lisp` | **New** | `image` suite (24 checks) |
-| origin | `tests/helpers.lisp`, `origin-tests.asd` | Modified | Register `image` suite |
-| origin | `doc/DevLog.OrbitalImages.md` | **New** | This log |
-| lexter | `src/origin-image.lisp` | **New** | `define-image`, `%build-child-argv`, `%child-boot`, port allocation, config stub |
-| lexter | `src/packages-origin.lisp` | Modified | Export launcher symbols |
-| lexter | `lexter.asd` | Modified | `lexter/origin` gains `slynk` dep + new file |
+Table: Files added or changed in commits `ab349e7` (Origin) and `c8acd7c` (Lexter).
+
+| File | Action | Description |
+|------|--------|-------------|
+| `src/managed-process.lisp` | Modified | `:image` mode: 4 slots, alive/start/stop/kill branches, `%default-crash-info` exit-status classification |
+| `src/supervisor.lisp` | Modified | Crash detection uses `%default-crash-info` |
+| `src/api.lisp` | Modified | `define-process` accepts image keywords |
+| `src/orbit.lisp` | **New** | `orbital` type, `orbit` function |
+| `src/package.lisp` | Modified | Export image accessors + orbit vocabulary |
+| `origin.asd` | Modified | Added `orbit` |
+| `tests/test-image.lisp` | **New** | `image` suite (24 checks) |
+| `tests/helpers.lisp`, `origin-tests.asd` | Modified | Register `image` suite |
+| `doc/DevLog.OrbitalImages.md` | **New** | This log |
+| `lexter/src/origin-image.lisp` | **New** | `define-image`, `%build-child-argv`, `%child-boot`, port allocation, config stub |
+| `lexter/src/packages-origin.lisp` | Modified | Export launcher symbols |
+| `lexter/lexter.asd` | Modified | `lexter/origin` gains `slynk` dep + new file |
 
 
 ## Metrics

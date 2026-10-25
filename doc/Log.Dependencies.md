@@ -12,6 +12,7 @@ provenance:
 relates-to:
   - ORIGIN-DRAFT-impulse-ii
   - ORIGIN-DRAFT-orbital-images
+  - ORIGIN-DRAFT-linux-service-manager
 ---
 
 # Orbital Dependencies & Ordered Lifecycle: Development Log
@@ -57,8 +58,8 @@ homes:
 
 ### Readiness: a core probe, a Kubernetes split
 
-A new `process-ready-p` generic (protocol.lisp) parallels `process-alive-p`, and
-a `readiness-fn` slot (managed-process.lisp) parallels the existing
+A new `process-ready-p` generic (`src/protocol.lisp@2622b17`) parallels `process-alive-p`, and
+a `readiness-fn` slot (`src/managed-process.lisp@2622b17`) parallels the existing
 `liveness-fn`. The default method makes **readiness imply liveness**: an orbital
 is ready when it is alive *and*, if a readiness probe is installed, the probe
 passes; with no probe, readiness is exactly liveness.
@@ -76,7 +77,7 @@ Dependency edges live as slots on `managed-process` (`requires`, `wants`,
 `after`, `before`, `conflicts`, plus the `propagate-restart` opt-in), because
 the supervisor must see them. But the engine never branches on an edge keyword.
 Each edge type's meaning is three **orthogonal properties** in one table
-(topology.lisp):
+(`src/topology.lisp@2622b17`):
 
 ```lisp
 ;;  type        requirement   ordering   exclusion
@@ -114,7 +115,7 @@ in reverse, dependents first.
 
 The supervisor gains two hook variables with NIL defaults, so it needs no
 forward reference to the dependency layer and behaves exactly as before when the
-layer is absent. topology.lisp installs them at load:
+layer is absent. `src/topology.lisp@2622b17` installs them at load:
 
 - **Restart gate** (`*restart-gate-hook*`): a crashed orbital's scheduled
   restart is *deferred* while any hard requirement is not ready — preventing a
@@ -142,21 +143,36 @@ fit the per-target model):
   `impulse:make-socket-readiness-fn` builds the image control-socket probe.
 
 
+## Design Decisions
+
+*Migration note (2026-10-25):* the design sections above describe the
+approach taken; their decisions are implicit in the descriptions and none
+was recorded as a numbered decision in the original text.
+
+
 ## Implementation
 
-New `src/topology.lisp` (the engine) and edits to `conditions.lisp` (three new
-conditions), `protocol.lisp` (`process-ready-p`), `managed-process.lisp` (slots,
-the readiness method, `process-info` fields), `supervisor.lisp` (two hook vars +
-call sites), `api.lisp` (ordered `shutdown`), plus package exports and the ASDF
-component. Impulse edits: `spec.lisp`, `describe.lisp`, `api.lisp`,
-`transport.lisp`, `package.lisp`.
+New `src/topology.lisp@2622b17` (the engine) and edits to
+`src/conditions.lisp@2622b17` (three new conditions),
+`src/protocol.lisp@2622b17` (`process-ready-p`),
+`src/managed-process.lisp@2622b17` (slots, the readiness method,
+`process-info` fields), `src/supervisor.lisp@2622b17` (two hook vars +
+call sites), `src/api.lisp@2622b17` (ordered `shutdown`), plus package
+exports and the ASDF component. Impulse edits:
+`impulse-src/spec.lisp@2622b17`, `impulse-src/describe.lisp@2622b17`,
+`impulse-src/api.lisp@2622b17`, `impulse-src/transport.lisp@2622b17`,
+`impulse-src/package.lisp@2622b17`.
 
 The total core change to existing files is small and additive; the supervisor
 edit is two hook calls. No existing behavior changed for orbitals without
 declared dependencies.
 
 
-## Tests
+## Verification
+
+*Migration note (2026-10-25):* the test commands are
+`(asdf:test-system "origin-tests")` and
+`(asdf:test-system "impulse-tests")`.
 
 A new `topology` suite (39 checks): the edge-type property table; readiness
 defaulting to liveness and being gated by a probe; `process-info` surfacing
@@ -173,7 +189,34 @@ Origin core: **285 checks, 100% pass** (the `topology` suite adds 39); the
 existing suites are unchanged. Impulse: **298 checks, 100% pass** (up from 285).
 
 
+## Files
+
+Table: Files added or changed in commit `2622b17`.
+
+| File | Action | Description |
+|------|--------|-------------|
+| `src/topology.lisp` | **New** | The dependency engine: edge-type table, topological ordering, `start-orbit`/`stop-orbit`, restart gate and cascade hooks |
+| `src/conditions.lisp` | Modified | Three new conditions: `dependency-cycle`, `dependency-not-ready`, `dependency-conflict` |
+| `src/protocol.lisp` | Modified | `process-ready-p` generic |
+| `src/managed-process.lisp` | Modified | Edge slots, `readiness-fn` slot, readiness method, `process-info` fields |
+| `src/supervisor.lisp` | Modified | Two hook variables and call sites |
+| `src/api.lisp` | Modified | Ordered `shutdown` |
+| `src/package.lisp` | Modified | Exports |
+| `origin.asd` | Modified | Added `topology` component |
+| `origin-tests.asd` | Modified | Added `test-topology` |
+| `tests/helpers.lisp` | Modified | Register `topology` suite |
+| `tests/test-topology.lisp` | **New** | `topology` suite (39 checks) |
+| `impulse-src/spec.lisp` | Modified | Edge keys in `apply`/spec; `validate-spec` checks edges |
+| `impulse-src/describe.lisp` | Modified | Topology schema in `describe` |
+| `impulse-src/api.lisp` | Modified | `start-orbit`/`stop-orbit` passthroughs; `make-socket-readiness-fn` |
+| `impulse-src/transport.lisp` | Modified | Ordered-orbit exposure |
+| `impulse-src/package.lisp` | Modified | Exports |
+| `impulse-tests/test-spec.lisp` | Modified | Edge and topology tests |
+
+
 ## Prior-art lineage
+
+Table: Implemented features and their reference lineage.
 
 | Implemented feature | Reference lineage | Note |
 |---|---|---|
@@ -187,7 +230,7 @@ existing suites are unchanged. Impulse: **298 checks, 100% pass** (up from 285).
 | Refuse on conflict with a running orbital (no auto-stop) | systemd `Conflicts=` (here, the conservative variant) | mutual exclusion that refuses rather than evicting the incumbent |
 
 
-## Future work
+## Outstanding Work
 
 This phase implements a principled core; several extensions are deliberately
 deferred, and the table-driven design keeps them additive:
