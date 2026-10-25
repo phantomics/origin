@@ -9,11 +9,11 @@ status:        Draft
 provenance:
   assistant:   claude
 open-questions:
+  - ORIGIN-O1
+  - ORIGIN-O2
+  - ORIGIN-O3
+  - ORIGIN-O4
   - ORIGIN-O5
-  - ORIGIN-O6
-  - ORIGIN-O7
-  - ORIGIN-O8
-  - ORIGIN-O9
 cites:
   - title:    Chromium Multi-Process Architecture & Site Isolation
     locator:  chromium.org design documents
@@ -624,33 +624,33 @@ Survey explores.
 
 ## Open Questions
 
-### ORIGIN-O5 — History orbital schema and storage
+### ORIGIN-O1 — History orbital schema and storage
 
 What is the structured schema for browsing events (and, by extension,
 file-access, command, and edit events from other orbitals), and what
 storage backend serves the history orbital — an in-image bounded log, an
 external database, or a Git-tracked event archive?
 
-### ORIGIN-O6 — Privacy and consent model
+### ORIGIN-O2 — Privacy and consent model
 
 How does the system model per-data-class consent (which events are
 externalized, to which orbitals, under which conditions), and how are
 retention/expiry policies expressed and enforced?
 
-### ORIGIN-O7 — Digest and agent pipeline
+### ORIGIN-O3 — Digest and agent pipeline
 
 How does a digest orbital or LLM agent consume structured history — as a
 scheduled concern query, a subscription (`watch`), or a direct database
 query — and what controls prevent over-broad access?
 
-### ORIGIN-O8 — First externalized service
+### ORIGIN-O4 — First externalized service
 
 Which browser service should be externalized first to validate the thesis —
 content policy (the sharpest test of typed configuration), session
 management (the clearest meta-orbital exercise), or history (the richest
 downstream payoff)?
 
-### ORIGIN-O9 — Security-domain policy schema
+### ORIGIN-O5 — Security-domain policy schema
 
 How is a meta-orbital's security policy (privacy overrides, inactivity
 timeout, crash-kills-node behavior, re-authentication requirements,
