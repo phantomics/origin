@@ -1,6 +1,6 @@
 ---
 id:            ORIGIN-DRAFT-compass-migration
-title:         Compass Migration Plan
+title:         "Compass Migration: Development Plan"
 genre:         Plan
 scope:         project
 project:       Origin
@@ -23,16 +23,15 @@ decisions:
 open-questions:
   - ORIGIN-DRAFT-compass-migration-O1
   - ORIGIN-DRAFT-compass-migration-O2
-  - ORIGIN-DRAFT-compass-migration-O3
 cites:
-  - title:    Compass Standard v0.3.0
+  - title:    Compass Standard v0.4.0
     locator:  COMPASS-0001
     external: true
 ---
 
 # Compass Migration: Development Plan
 
-This plan brings Origin's documentation into conformance with version 0.3.0
+This plan brings Origin's documentation into conformance with version 0.4.0
 of the Compass standard, as checked by version 0.2 of its toolchain. It
 proceeds in three phases: a clean baseline with the infrastructure the
 standard now expects; front-matter and link fixups on every document; and
@@ -196,10 +195,10 @@ Table: The commits each Log's code references are pinned to.
 
 | Log | Origin commits | Lexter commits |
 |---|---|---|
-| `Log.OrbitalImages.md` | `ab349e7` | to be identified |
-| `Log.ImpulseI.md` | `ada812e`, `d9ac637`, `2503ee0` | Phase 3 integration (to be identified) |
+| `Log.OrbitalImages.md` | `ab349e7` | `c8acd7c` |
+| `Log.ImpulseI.md` | `ada812e`, `d9ac637`, `2503ee0` | `a9a426c` (Phase 3 launcher integration) |
 | `Log.ImpulseII.md` | `3552924`, `dff5487`, `13cfe9f` | — |
-| `Log.ImpulseIII.md` | `3dcb7ab`, `cf288c4`, `2ba22c3`, `9a32069` | `8000d83` (to be confirmed) |
+| `Log.ImpulseIII.md` | `3dcb7ab`, `cf288c4`, `2ba22c3`, `9a32069` | `8000d83` (Phase 7), `1f07ee8` (Phase 9 handoff) |
 | `Log.Dependencies.md` | `2622b17` | — |
 
 The bare line-number references in `Plan.LinuxServiceManager.md` become
@@ -218,9 +217,13 @@ symbol-pinned references (e.g.
 `**Status:**` lines would compete with front-matter status.
 
 **Decision:** Every link from one document to another becomes an id-keyed
-Markdown link. In-body `**Status:**` lines are removed; `**Date:**` lines
-are kept (they record when the work or idea was dated by its author, which
-can differ from Git's dates). Stale content is not refreshed.
+Markdown link. In-body `**Status:**` labels are removed; where the status
+paragraph carries substantive content (dependencies, framing, tier
+descriptions), the content is kept as an opening paragraph without the
+label. `**Date:**` lines are kept (they record when the work or idea was
+dated by its author, which can differ from Git's dates). `created` and
+`updated` are omitted from front-matter and derived from Git. Stale
+content is not refreshed.
 
 **Alternatives:**
 - Refresh stale content in the same effort. Rejected: it multiplies the
@@ -278,32 +281,33 @@ is edited in this migration (for `Table:` captions and `relates-to`), uses
 1. **Add front-matter** to the 15 unmarked documents, following each
    genre's template:
 
-   Table: Front-matter to add to each document, with genre, scope, component, and dates.
+   Table: Front-matter to add to each document, with genre, scope, and component.
 
-   | Document | Genre | Scope | Component | Created | Updated |
-   |---|---|---|---|---|---|
-   | `Eval.ControlVocabulary.PriorArt.md` | Eval (prior-art) | project | impulse | 2026-06-17 | 2026-06-19 |
-   | `Log.OrbitalImages.md` | Log | project | core | 2026-06-14 | 2026-08-24 |
-   | `Log.ImpulseI.md` | Log | project | impulse | 2026-06-19 | 2026-08-24 |
-   | `Log.ImpulseII.md` | Log | project | impulse | 2026-06-19 | 2026-08-24 |
-   | `Log.ImpulseIII.md` | Log | project | impulse | 2026-06-21 | 2026-08-24 |
-   | `Log.Dependencies.md` | Log | project | core | 2026-06-20 | 2026-08-24 |
-   | `Plan.ControlVocabulary.md` | Plan | project | impulse | 2026-06-17 | 2026-08-24 |
-   | `Plan.ForeignOrbitals.md` | Plan | project | tether | 2026-06-19 | 2026-08-24 |
-   | `Plan.LinuxServiceManager.md` | Plan | project | — | 2026-06-19 | 2026-08-24 |
-   | `Plan.Orchestration.md` | Plan | project | — | 2026-06-20 | 2026-08-24 |
-   | `Plan.Placement.md` | Plan | project | — | 2026-06-20 | 2026-08-24 |
-   | `Plan.UserFacingSurfaces.md` | Plan | project | — | 2026-06-20 | 2026-08-24 |
-   | `Plan.ConcernTopologies.md` | Plan | project | — | 2026-06-22 | 2026-08-24 |
-   | `Survey.GranularityAndImage.md` | Survey | project | — | 2026-06-21 | 2026-08-24 |
-   | `Survey.GameImage.md` | Survey | project | — | 2026-06-29 | 2026-08-24 |
+   | Document | Genre | Scope | Component |
+   |---|---|---|---|
+   | `Eval.ControlVocabulary.PriorArt.md` | Eval (prior-art) | project | impulse |
+   | `Log.OrbitalImages.md` | Log | project | core |
+   | `Log.ImpulseI.md` | Log | project | impulse |
+   | `Log.ImpulseII.md` | Log | project | impulse |
+   | `Log.ImpulseIII.md` | Log | project | impulse |
+   | `Log.Dependencies.md` | Log | project | core |
+   | `Plan.ControlVocabulary.md` | Plan | project | impulse |
+   | `Plan.ForeignOrbitals.md` | Plan | project | tether |
+   | `Plan.LinuxServiceManager.md` | Plan | project | — |
+   | `Plan.Orchestration.md` | Plan | project | — |
+   | `Plan.Placement.md` | Plan | project | — |
+   | `Plan.UserFacingSurfaces.md` | Plan | project | — |
+   | `Plan.ConcernTopologies.md` | Plan | project | — |
+   | `Survey.GranularityAndImage.md` | Survey | project | — |
+   | `Survey.GameImage.md` | Survey | project | — |
 
    Each takes a provisional `id`, `status: Draft`
    (ORIGIN-DRAFT-compass-migration-D3), `project: Origin`,
    `language: en`, and `provenance: { assistant: opencode }`
    (ORIGIN-DRAFT-compass-migration-D9). `relates-to`
    is populated where documents cite each other. `created` and `updated`
-   are set from Git history to record the document's actual dates.
+   are omitted; the toolchain derives them from Git
+   (ORIGIN-DRAFT-compass-migration-D7).
 
 2. **Fix stale links** (~45 across 14 documents). Every link from one
    document to another becomes an id-keyed Markdown link to the document's
@@ -401,21 +405,13 @@ getting-started guide, an API reference, and an init-system section. Should
 it be compiled once the compiler exists, or stay hand-written with links to
 the documents?
 
-### ORIGIN-DRAFT-compass-migration-O3 — Provenance on the browser Survey
-
-The browser Survey currently records `provenance: { assistant: claude }`.
-This migration changes it to `opencode` for consistency
-(ORIGIN-DRAFT-compass-migration-D9). Should the
-original session's provenance be preserved in a `provenance.session` field
-instead, or is the harness name sufficient?
-
 ## Prior Art
 
 Table: Prior work in the federation and what this plan draws from each.
 
 | System | What to draw from |
 |---|---|
-| [COMPASS-0001](../../compass/Compass.md) | The standard being conformed to (version 0.3.0) |
+| [COMPASS-0001](../../compass/Compass.md) | The standard being conformed to (version 0.4.0) |
 | [COMPASS-0004](../../compass/doc/Plan.Toolchain.md) | The plan governing what the toolchain checks and the ledger discipline |
 | Classic's migration ([CLASSIC-0032](../../classic/doc/Plan.CompassMigration.md), [CLASSIC-0036](../../classic/doc/Log.CompassMigration.md)) | The three-phase structure, the D-record conventions (CLASSIC-D92 through CLASSIC-D102), the gate discipline, and the CI/CODEOWNERS pattern |
 | Origin commit `7ef2f48` | The `.mailmap` and ledger already in place |

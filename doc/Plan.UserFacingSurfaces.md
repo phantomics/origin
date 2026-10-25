@@ -23,11 +23,11 @@ of *launching* an application and the act of *observing and controlling* it
 are the same surface, rendered at a depth chosen by the user. It is an
 early, deliberately general plan -- it fixes the thesis, the abstractions,
 and the design direction, but not the specific tools, which require further
-refinement. It assumes the machinery of [`Log.ImpulseI.md`](Log.ImpulseI.md)
+refinement. It assumes the machinery of [ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md)
 (the `describe`/`status`/`apply` control vocabulary), the recursion model
-of [`Log.OrbitalImages.md`](Log.OrbitalImages.md), the workload and
-dependency directions in [`Plan.ControlVocabulary.md`](Plan.ControlVocabulary.md),
-and the appliance framing in [`Plan.LinuxServiceManager.md`](Plan.LinuxServiceManager.md).
+of [ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md), the workload and
+dependency directions in [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md),
+and the appliance framing in [ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md).
 
 **Date:** 2026-06-19
 

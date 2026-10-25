@@ -1,6 +1,6 @@
 ---
 id:            ORIGIN-DRAFT-linux-service-manager
-title:         "Origin as a Linux Service Manager: Development Plan"
+title:         "Origin as a Linux Service Manager and Init: Development Plan"
 genre:         Plan
 scope:         project
 project:       Origin
@@ -36,12 +36,12 @@ plane.
 
 This plan precedes and frames a build project to be carried out in
 another conversation. It assumes the machinery recorded in
-[Log.OrbitalImages.md](Log.OrbitalImages.md) (the `:image` execution
+[ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md) (the `:image` execution
 mode and "smart children"),
-[Log.ImpulseI.md](Log.ImpulseI.md) (the structured control plane,
+[ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md) (the structured control plane,
 Parts I Phases 1-3), and the two companion plans
-[Plan.ForeignOrbitals.md](Plan.ForeignOrbitals.md) and
-[Plan.ControlVocabulary.md](Plan.ControlVocabulary.md), with which this
+[ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md) and
+[ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md), with which this
 plan deliberately converges.
 
 

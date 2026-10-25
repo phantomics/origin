@@ -1,6 +1,6 @@
 ---
 id:            ORIGIN-DRAFT-dependencies
-title:         "Orbital Dependencies: Development Log"
+title:         "Orbital Dependencies & Ordered Lifecycle: Development Log"
 genre:         Log
 scope:         project
 project:       Origin

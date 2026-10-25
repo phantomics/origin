@@ -29,10 +29,10 @@ than routing all management through one uniform tree, concerns shape how
 the graph is traversed -- which nodes, at what cadence, with which verbs --
 adapting management intensity to the concern's actual distribution across
 the system. It assumes the Impulse control vocabulary
-([`Log.ImpulseI.md`](Log.ImpulseI.md)), the recursive node model
-([`Log.OrbitalImages.md`](Log.OrbitalImages.md)), the fleet tier
-([`Plan.Orchestration.md`](Plan.Orchestration.md)), and the topology
-DSL ([`Plan.Placement.md`](Plan.Placement.md)).
+([ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md)), the recursive node model
+([ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md)), the fleet tier
+([ORIGIN-DRAFT-orchestration](Plan.Orchestration.md)), and the topology
+DSL ([ORIGIN-DRAFT-placement](Plan.Placement.md)).
 
 **Date:** 2026-06-22
 

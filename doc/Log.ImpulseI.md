@@ -1,6 +1,6 @@
 ---
 id:            ORIGIN-DRAFT-impulse-i
-title:         "Impulse, Part I: Development Log"
+title:         "Impulse, Part I (Phases 1-3): Development Log"
 genre:         Log
 scope:         project
 project:       Origin
@@ -42,14 +42,14 @@ full; **Phases 2 and 3** will be appended as they are built.
 Impulse rests on an unusually long planning effort, recorded in three
 companion documents that this log assumes:
 
-- `Plan.ControlVocabulary.md` -- the goals, the two-tier shape, the
+- [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md) -- the goals, the two-tier shape, the
   command/query-separation principle, the "data, not code" stance, and
   the nine design goals.
-- `Eval.ControlVocabulary.PriorArt.md` -- an eleven-technology prior-art
+- [ORIGIN-DRAFT-control-vocabulary-prior-art](Eval.ControlVocabulary.PriorArt.md) -- an eleven-technology prior-art
   evaluation (SNMP, z/OS MODIFY, JMX, HTTP, GraphQL, NETCONF, Erlang/OTP,
   LSP, Plan 9, Kubernetes, D-Bus/systemd) that resolved the verb space
   and settled the design by independent-invention convergence.
-- `Plan.ForeignOrbitals.md` -- the adapter-orbital model that keeps the
+- [ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md) -- the adapter-orbital model that keeps the
   lexicon honest by requiring every verb to be answerable by a CL adapter
   on behalf of a non-Lisp process.
 
@@ -191,7 +191,7 @@ in-image path.
 ### Prior-art lineage (Phase 1)
 
 Each implemented feature and the reference technologies it descends from
-(full evaluation in `Eval.ControlVocabulary.PriorArt.md`):
+(full evaluation in [ORIGIN-DRAFT-control-vocabulary-prior-art](Eval.ControlVocabulary.PriorArt.md)):
 
 | Implemented feature | Reference lineage | Note |
 |---|---|---|
@@ -604,5 +604,5 @@ control).
 The committed roadmap beyond Part I -- declarative `apply` with staged
 validation, fleet selectors, `watch` and operation progress/cancel, the
 Lexter and nginx sub-vocabularies, and state handoff -- is recorded in
-`Plan.ControlVocabulary.md` and `Plan.ForeignOrbitals.md`, and will be
+[ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md) and [ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md), and will be
 chronicled in a Part II log.

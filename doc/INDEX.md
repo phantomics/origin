@@ -10,21 +10,21 @@ Table: Documents in the ORIGIN namespace.
 
 | ID | Title | Genre | Scope | Status | Component |
 |---|---|---|---|---|---|
-| [ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md) | The Browser as Orbital | Survey | project | Draft | — |
-| [ORIGIN-DRAFT-compass-migration](Plan.CompassMigration.md) | Compass Migration Plan | Plan | project | Draft | — |
+| [ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md) | The Browser as Orbital: Survey | Survey | project | Draft | — |
+| [ORIGIN-DRAFT-compass-migration](Plan.CompassMigration.md) | Compass Migration: Development Plan | Plan | project | Draft | — |
 | [ORIGIN-DRAFT-concern-topologies](Plan.ConcernTopologies.md) | Concern Topologies: Development Plan | Plan | project | Draft | — |
 | [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md) | Control Vocabulary: Development Plan | Plan | project | Draft | impulse |
 | [ORIGIN-DRAFT-control-vocabulary-prior-art](Eval.ControlVocabulary.PriorArt.md) | Control Vocabulary: Prior-Art Evaluation | Eval (prior-art) | project | Draft | impulse |
-| [ORIGIN-DRAFT-dependencies](Log.Dependencies.md) | Orbital Dependencies: Development Log | Log | project | Draft | core |
+| [ORIGIN-DRAFT-dependencies](Log.Dependencies.md) | Orbital Dependencies & Ordered Lifecycle: Development Log | Log | project | Draft | core |
 | [ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md) | Foreign Orbitals: Development Plan | Plan | project | Draft | tether |
 | [ORIGIN-DRAFT-game-image](Survey.GameImage.md) | Dedicated Game Images: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-granularity-and-image](Survey.GranularityAndImage.md) | Granularity and the Image Model: Survey | Survey | project | Draft | — |
-| [ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md) | Impulse, Part I: Development Log | Log | project | Draft | impulse |
-| [ORIGIN-DRAFT-impulse-ii](Log.ImpulseII.md) | Impulse, Part II: Development Log | Log | project | Draft | impulse |
-| [ORIGIN-DRAFT-impulse-iii](Log.ImpulseIII.md) | Impulse, Part III: Development Log | Log | project | Draft | impulse |
-| [ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md) | Origin as a Linux Service Manager: Development Plan | Plan | project | Draft | — |
-| [ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md) | Orbital Images: Development Log | Log | project | Draft | core |
-| [ORIGIN-DRAFT-orchestration](Plan.Orchestration.md) | Origin as a Recursive Orchestrator: Development Plan | Plan | project | Draft | — |
+| [ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md) | Impulse, Part I (Phases 1-3): Development Log | Log | project | Draft | impulse |
+| [ORIGIN-DRAFT-impulse-ii](Log.ImpulseII.md) | Impulse, Part II (Phases 4-6): Development Log | Log | project | Draft | impulse |
+| [ORIGIN-DRAFT-impulse-iii](Log.ImpulseIII.md) | Impulse, Part III (Phases 7-9): Development Log | Log | project | Draft | impulse |
+| [ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md) | Origin as a Linux Service Manager and Init: Development Plan | Plan | project | Draft | — |
+| [ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md) | Orbital Images (:image Execution Mode): Development Log | Log | project | Draft | core |
+| [ORIGIN-DRAFT-orchestration](Plan.Orchestration.md) | Origin as a Recursive Orchestrator (Fleet Tier): Development Plan | Plan | project | Draft | — |
 | [ORIGIN-DRAFT-placement](Plan.Placement.md) | Origin Placement and Topology: Development Plan | Plan | project | Draft | — |
 | [ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md) | Origin User-Facing Surfaces: Development Plan | Plan | project | Draft | — |
 
@@ -48,4 +48,8 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-O5](Survey.BrowserAsOrbital.md#origin-o5--security-domain-policy-schema) | Open question | Security-domain policy schema | — | ORIGIN-DRAFT-browser-as-orbital |
 | [ORIGIN-DRAFT-compass-migration-O1](Plan.CompassMigration.md#origin-draft-compass-migration-o1--which-documents-are-numbered-first) | Open question | Which documents are numbered first | — | ORIGIN-DRAFT-compass-migration |
 | [ORIGIN-DRAFT-compass-migration-O2](Plan.CompassMigration.md#origin-draft-compass-migration-o2--a-compiled-readme) | Open question | A compiled README | — | ORIGIN-DRAFT-compass-migration |
-| [ORIGIN-DRAFT-compass-migration-O3](Plan.CompassMigration.md#origin-draft-compass-migration-o3--provenance-on-the-browser-survey) | Open question | Provenance on the browser Survey | — | ORIGIN-DRAFT-compass-migration |
+| [ORIGIN-DRAFT-game-image-O1](Survey.GameImage.md#origin-draft-game-image-o1--saved-core-build-pipeline) | Open question | Saved-core build pipeline | — | ORIGIN-DRAFT-game-image |
+| [ORIGIN-DRAFT-game-image-O2](Survey.GameImage.md#origin-draft-game-image-o2--gpu-scheduling-integration) | Open question | GPU scheduling integration | — | ORIGIN-DRAFT-game-image |
+| [ORIGIN-DRAFT-game-image-O3](Survey.GameImage.md#origin-draft-game-image-o3--attestation-protocol-specifics) | Open question | Attestation protocol specifics | — | ORIGIN-DRAFT-game-image |
+| [ORIGIN-DRAFT-game-image-O4](Survey.GameImage.md#origin-draft-game-image-o4--state-persistence-across-crashes) | Open question | State persistence across crashes | — | ORIGIN-DRAFT-game-image |
+| [ORIGIN-DRAFT-game-image-O5](Survey.GameImage.md#origin-draft-game-image-o5--non-cl-game-support) | Open question | Non-CL game support | — | ORIGIN-DRAFT-game-image |

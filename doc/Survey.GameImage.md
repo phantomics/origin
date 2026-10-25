@@ -15,6 +15,12 @@ relates-to:
   - ORIGIN-DRAFT-granularity-and-image
   - ORIGIN-DRAFT-concern-topologies
   - ORIGIN-DRAFT-placement
+open-questions:
+  - ORIGIN-DRAFT-game-image-O1
+  - ORIGIN-DRAFT-game-image-O2
+  - ORIGIN-DRAFT-game-image-O3
+  - ORIGIN-DRAFT-game-image-O4
+  - ORIGIN-DRAFT-game-image-O5
 ---
 
 # Dedicated Game Images: Survey
@@ -26,13 +32,13 @@ crash isolation, and a non-invasive alternative to conventional anti-cheat
 technology. It is a conceptual sketch, not a build plan; it records why
 the idea is natural within Origin's model and where the genuine limits lie.
 It assumes the `:image` execution mode
-([`Log.OrbitalImages.md`](Log.OrbitalImages.md)), the focus-driven
+([ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md)), the focus-driven
 workload management direction
-([`Plan.UserFacingSurfaces.md`](Plan.UserFacingSurfaces.md)), the
+([ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md)), the
 cgroup alignment principle
-([`Plan.LinuxServiceManager.md`](Plan.LinuxServiceManager.md)), and
+([ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md)), and
 Impulse's `describe`/`status` vocabulary
-([`Log.ImpulseI.md`](Log.ImpulseI.md)).
+([ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md)).
 
 **Date:** 2026-06-23
 
@@ -223,7 +229,7 @@ The game image is a natural composition of existing capabilities:
 | Image-level attestation | cryptographic hash of the saved core |
 
 
-## Relationship to other plans
+## Relationship to Other Work
 
 - **UserFacingSurfaces:** the game launcher is a meta-orbital in the
   dashboard; the "dormant" badge when minimized is the observable face of
@@ -242,19 +248,32 @@ The game image is a natural composition of existing capabilities:
   same lifecycle protocol as a lightweight thread-orbital.
 
 
-## Open questions
+## Open Questions
 
-1. **Saved-core build pipeline.** How game images are built, hashed, signed,
-   and distributed (ties to the ocicl/OCI direction from the founding
-   discussion).
-2. **GPU scheduling integration.** Whether and how Origin can influence
-   DRM/GPU scheduler priority beyond CPU/memory cgroup controls.
-3. **Attestation protocol specifics.** The image-hash format, the Impulse
-   query/response schema for integrity checks, and the server-side
-   verification flow (deferred until a concrete game exists to protect).
-4. **State persistence across crashes.** How much game state the integrity
-   responder can checkpoint for crash-recovery (ties to the state-handoff
-   direction in ControlVocabulary milestone 7).
-5. **Non-CL game support.** Whether the namespace-isolation and WLM
-   benefits extend to non-CL games run through a tether (lifecycle and
-   resource management yes; introspective attestation no).
+### ORIGIN-DRAFT-game-image-O1 — Saved-core build pipeline
+
+How game images are built, hashed, signed, and distributed (ties to the
+ocicl/OCI direction from the founding discussion).
+
+### ORIGIN-DRAFT-game-image-O2 — GPU scheduling integration
+
+Whether and how Origin can influence DRM/GPU scheduler priority beyond
+CPU/memory cgroup controls.
+
+### ORIGIN-DRAFT-game-image-O3 — Attestation protocol specifics
+
+The image-hash format, the Impulse query/response schema for integrity
+checks, and the server-side verification flow (deferred until a concrete
+game exists to protect).
+
+### ORIGIN-DRAFT-game-image-O4 — State persistence across crashes
+
+How much game state the integrity responder can checkpoint for
+crash-recovery (ties to the state-handoff direction in ControlVocabulary
+milestone 7).
+
+### ORIGIN-DRAFT-game-image-O5 — Non-CL game support
+
+Whether the namespace-isolation and WLM benefits extend to non-CL games
+run through a tether (lifecycle and resource management yes; introspective
+attestation no).

@@ -1,6 +1,6 @@
 ---
 id:            ORIGIN-DRAFT-browser-as-orbital
-title:         The Browser as Orbital
+title:         "The Browser as Orbital: Survey"
 genre:         Survey
 scope:         project
 project:       Origin

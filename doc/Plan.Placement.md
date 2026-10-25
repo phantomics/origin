@@ -22,11 +22,11 @@ resources. It deliberately confines itself to the **modeling layer** -- the
 part where CL is strongest -- and draws a hard line between *placement* (a
 pure function over data) and *enactment* (an impure reconciler that drives
 reality toward a placement, treated as a separate concern). It is the
-companion to [`Plan.Orchestration.md`](Plan.Orchestration.md), which
+companion to [ORIGIN-DRAFT-orchestration](Plan.Orchestration.md), which
 covers the fleet tier and the borrow-not-build stance, and it reuses the
 dependency-ordering direction (C1) noted in
-[`Plan.LinuxServiceManager.md`](Plan.LinuxServiceManager.md) and the
-declarative `apply` of [`Plan.ControlVocabulary.md`](Plan.ControlVocabulary.md).
+[ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md) and the
+declarative `apply` of [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md).
 
 **Date:** 2026-06-19
 

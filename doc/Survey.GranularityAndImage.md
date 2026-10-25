@@ -27,7 +27,7 @@ the Plans and Logs.
 **Date:** 2026-06-21
 
 
-## The Origin Story
+## The origin story
 
 Origin began with a practical problem: Lexter, a desktop terminal emulator
 application, needed a way to launch new terminal windows. On a conventional
@@ -121,7 +121,7 @@ This bimodality is *mutually reinforcing* with Origin's design:
 The taskbar button stops being "spin up a CL image" and becomes "send a
 spawn-a-window message to the image that is already running" -- which is
 the declarative, idempotent launcher idea (see
-[`Plan.UserFacingSurfaces.md`](Plan.UserFacingSurfaces.md)), traced
+[ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md)), traced
 to its root cause.
 
 
@@ -181,7 +181,7 @@ or a GPU driver takes the whole image down, where a Unix process crash is
 contained for free. A large part of Origin's machinery -- the
 supervision/restart core, the cooperative and `:image` modes, the
 stub-PID-1 floor described in
-[`Plan.LinuxServiceManager.md`](Plan.LinuxServiceManager.md) -- is
+[ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md) -- is
 really a way to **buy back, selectively, the isolation Unix gives for
 free**, paying the process cost only for the units that warrant it.
 
@@ -261,7 +261,7 @@ tradition's substrate (Unix/Linux), so that OS-level isolation and
 heterogeneity remain available as the coarse fallback while the fine, live,
 interactive granularity serves the homogeneous CL case. The recursive
 self-similar node model (see
-[`Log.OrbitalImages.md`](Log.OrbitalImages.md)) extends this hybrid
+[ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md)) extends this hybrid
 across process and machine boundaries without changing the vocabulary.
 
 

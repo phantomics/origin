@@ -1,6 +1,6 @@
 ---
 id:            ORIGIN-DRAFT-orchestration
-title:         "Origin as a Recursive Orchestrator: Development Plan"
+title:         "Origin as a Recursive Orchestrator (Fleet Tier): Development Plan"
 genre:         Plan
 scope:         project
 project:       Origin
@@ -29,12 +29,12 @@ Origin is a subordinate node speaking the same control vocabulary. The
 result is a single coherent system spanning host service management
 (systemd's job), fleet orchestration (Kubernetes' job), and an
 administrative console -- unified by recursion rather than by bolting three
-stacks together. It assumes [`Log.OrbitalImages.md`](Log.OrbitalImages.md)
-(the `:image` mode and smart children), [`Log.ImpulseI.md`](Log.ImpulseI.md)
+stacks together. It assumes [ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md)
+(the `:image` mode and smart children), [ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md)
 (the carrier-agnostic control vocabulary and its socket transport),
-[`Plan.ForeignOrbitals.md`](Plan.ForeignOrbitals.md) (the adapter
+[ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md) (the adapter
 model), and the appliance framing of
-[`Plan.LinuxServiceManager.md`](Plan.LinuxServiceManager.md).
+[ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md).
 
 **Date:** 2026-06-19
 
@@ -82,7 +82,7 @@ new abstraction:
   transport and answering the same `describe`/`status`/`apply` vocabulary as
   any orbital.
 
-The `Plan.LinuxServiceManager.md` plan already anticipated this: "the
+The [ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md) plan already anticipated this: "the
 same recursion that yields per-session and per-subsystem Origins extends to
 per-host Origins over TCP Impulse -- the path from personal appliance to
 fleet."
@@ -139,7 +139,7 @@ not replace their isolation, networking, or storage.
    what it cannot.
 
 6. **Recursive dashboards.** The format-neutral surface model
-   (see [`Plan.UserFacingSurfaces.md`](Plan.UserFacingSurfaces.md))
+   (see [ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md))
    renders the fleet view, the host view, and the in-guest view from the
    same described data at every level.
 

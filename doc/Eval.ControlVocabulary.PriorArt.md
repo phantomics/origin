@@ -18,7 +18,7 @@ relates-to:
 # Control Vocabulary: Prior-Art Evaluation
 
 This document evaluates the control vocabularies of the prior-art technologies
-named in `Plan.ControlVocabulary.md`. For each, it renders a small subset of
+named in [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md). For each, it renders a small subset of
 the technology's grammar as Common Lisp forms, grounds the rendition in a shared
 Origin scenario, and scores the ergonomics against a rubric drawn from the
 DevPlan's design goals. The aim is not to specify Origin's vocabulary but to
@@ -1896,7 +1896,7 @@ reflections above into design conclusions for Impulse. It does three things:
 resolves the verb-classification question raised in the Erlang reflection,
 states the cross-survey decisions where independent invention has effectively
 settled the design, and -- crucially -- pressure-tests the result against the
-foreign-orbital adapter requirements from `Plan.ForeignOrbitals.md`, so that
+foreign-orbital adapter requirements from [ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md), so that
 Impulse is shaped by a real non-Lisp target (nginx) and not only by the native
 Lexter case.
 

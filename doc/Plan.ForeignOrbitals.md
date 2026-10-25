@@ -33,7 +33,7 @@ Tier 2 (Lisp-authored configuration and structured logs) is the current
 plan and is buildable on the existing `:image` mode without Impulse.
 Tier 3 (full participation in the Impulse control lexicon) is sketched
 here and depends on
-[Plan.ControlVocabulary.md](Plan.ControlVocabulary.md). This plan is
+[ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md). This plan is
 deliberately written *before* Impulse is implemented, so that a real
 foreign adapter's demands inform the lexicon's design rather than only
 the native Lexter case.
@@ -139,7 +139,7 @@ in-image supervision of its internals) that its process boundary forbids.
 This constraint flows back to Impulse: the lexicon and its
 handler-registration must be implementable by an Tethter *on behalf of* a
 process that cannot answer for itself -- the design constraint already
-recorded in `Plan.ControlVocabulary.md`.
+recorded in [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md).
 
 
 ## Tiers
@@ -332,7 +332,7 @@ nginx-specific knowledge above the Tether.
 ## Impulse Requirements Surfaced by nginx
 
 Because this plan precedes Impulse, the nginx example is a requirements
-source for `Plan.ControlVocabulary.md`. Concrete demands it places on
+source for [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md). Concrete demands it places on
 the lexicon:
 
 1. **Validation before apply.** `configure`/`apply` must support a

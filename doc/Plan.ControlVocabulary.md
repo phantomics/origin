@@ -257,7 +257,7 @@ Two tiers are envisioned, only the first of which is an initial goal:
 The depth of this -- adapter structure, the nginx worked example
 (a CLI-referenced config generated into an ephemeral `/tmp` prefix,
 reloaded via SIGHUP), and the per-program effort -- is covered in a
-dedicated plan, [`Plan.ForeignOrbitals.md`](Plan.ForeignOrbitals.md).
+dedicated plan, [ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md).
 It is recorded here only as a target that shapes the vocabulary.
 
 
@@ -378,7 +378,7 @@ Indicative sequencing; each milestone is to be designed in its own right.
    the deepest and last milestone.
 
 A parallel track, designed in
-[`Plan.ForeignOrbitals.md`](Plan.ForeignOrbitals.md), applies the
+[ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md), applies the
 vocabulary to non-CL software via adapter orbitals -- Tier 2 (Lisp-authored
 config and log processing) first, with nginx as the worked example, and
 Tier 3 (full vocabulary participation) as a later step.

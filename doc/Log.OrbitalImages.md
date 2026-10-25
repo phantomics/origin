@@ -1,6 +1,6 @@
 ---
 id:            ORIGIN-DRAFT-orbital-images
-title:         "Orbital Images: Development Log"
+title:         "Orbital Images (:image Execution Mode): Development Log"
 genre:         Log
 scope:         project
 project:       Origin
@@ -270,7 +270,7 @@ failures, 0 regressions.
 | origin | `origin.asd` | Modified | Added `orbit` |
 | origin | `tests/test-image.lisp` | **New** | `image` suite (24 checks) |
 | origin | `tests/helpers.lisp`, `origin-tests.asd` | Modified | Register `image` suite |
-| origin | `doc/Log.OrbitalImages.md` | **New** | This log |
+| origin | `doc/DevLog.OrbitalImages.md` | **New** | This log |
 | lexter | `src/origin-image.lisp` | **New** | `define-image`, `%build-child-argv`, `%child-boot`, port allocation, config stub |
 | lexter | `src/packages-origin.lisp` | Modified | Export launcher symbols |
 | lexter | `lexter.asd` | Modified | `lexter/origin` gains `slynk` dep + new file |
