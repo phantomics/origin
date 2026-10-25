@@ -13,6 +13,22 @@ relates-to:
   - ORIGIN-DRAFT-impulse-i
   - ORIGIN-DRAFT-impulse-ii
   - ORIGIN-DRAFT-foreign-orbitals
+decisions:
+  - ORIGIN-DRAFT-impulse-iii-D1
+  - ORIGIN-DRAFT-impulse-iii-D2
+  - ORIGIN-DRAFT-impulse-iii-D3
+  - ORIGIN-DRAFT-impulse-iii-D4
+  - ORIGIN-DRAFT-impulse-iii-D5
+  - ORIGIN-DRAFT-impulse-iii-D6
+  - ORIGIN-DRAFT-impulse-iii-D7
+  - ORIGIN-DRAFT-impulse-iii-D8
+  - ORIGIN-DRAFT-impulse-iii-D9
+  - ORIGIN-DRAFT-impulse-iii-D10
+  - ORIGIN-DRAFT-impulse-iii-D11
+  - ORIGIN-DRAFT-impulse-iii-D12
+  - ORIGIN-DRAFT-impulse-iii-D13
+  - ORIGIN-DRAFT-impulse-iii-D14
+  - ORIGIN-DRAFT-impulse-iii-D15
 ---
 
 # Impulse, Part III (Phases 7-9): Development Log
@@ -34,7 +50,7 @@ As before, each phase closes with a prior-art lineage table.
 **Date:** 2026-06-21 (Phase 7)
 
 
-## Phase 7 -- The Lexter terminal sub-vocabulary (`:lexter-host`)
+## Phase 7 — The Lexter terminal sub-vocabulary (`:lexter-host`)
 
 ### Goal
 
@@ -135,26 +151,54 @@ addresses it (`(:where (:eq :app :terminal))`, `:all`), and more powerfully
 keeps the orbital-per-window model and reuses target selection, honoring the
 selectors-file boundary between *which orbital* and *within one orbital*.
 
-### Design Decisions
+### ORIGIN-DRAFT-impulse-iii-D1 — Sub-vocabulary lives in the Lexter repo; only a generic registration API is added to Impulse
 
-1. **Sub-vocabulary lives in the Lexter repo; only a generic registration API
-   is added to Impulse.** Origin/Impulse stay free of any Lexter dependency;
-   the reusable seam (schema registration) is the single upstream change, and
-   it serves every future sub-vocabulary.
-2. **`configure` via `validate-spec`/`commit-spec` specialization, not a new
-   verb handler.** The generic `configure`/`apply` already dispatch through
-   those generics by control type, so specializing two methods is the whole
-   job -- and partitioning the spec lets the Lexter and universal knobs compose
-   without CLOS inheritance between control types.
-3. **Live-apply where safe; rebuild-spec always.** Parameters that need a window
-   rebuild (geometry, font) are recorded for the next restart rather than forced
-   live, while cheap ones (title, scale) apply immediately -- the
-   no-restart-`configure` precedent, honestly scoped.
-4. **Orbital-per-window + target selection, not an intra-orbital window
-   selector.** Reuses the Phase 5 grammar and keeps target-vs-aspect addressing
-   distinct, as the selector layer requires.
+**Status:** Proposed
 
-### Tests
+**Context:** The `:lexter-host` sub-vocabulary depends on Lexter code. It could live in Impulse or in the Lexter repository.
+
+**Decision:** Origin/Impulse stay free of any Lexter dependency; the reusable seam (schema registration) is the single upstream change, and it serves every future sub-vocabulary.
+
+**Alternatives:**
+- Put the sub-vocabulary in Impulse. Rejected: would make Impulse depend on Lexter.
+
+### ORIGIN-DRAFT-impulse-iii-D2 — configure via validate-spec/commit-spec specialization, not a new verb handler
+
+**Status:** Proposed
+
+**Context:** The `:lexter-host` type needs its own `configure`/`apply` behavior for window parameters.
+
+**Decision:** The generic `configure`/`apply` already dispatch through `validate-spec`/`commit-spec` by control type, so specializing two methods is the whole job — and partitioning the spec lets the Lexter and universal knobs compose without CLOS inheritance between control types.
+
+**Alternatives:**
+- A new verb handler. Not chosen: the generic handlers already route through the per-type generics.
+
+### ORIGIN-DRAFT-impulse-iii-D3 — Live-apply where safe; rebuild-spec always
+
+**Status:** Proposed
+
+**Context:** Some window parameters (geometry, font) need a rebuild; others (title, scale) are cheap to apply live.
+
+**Decision:** Parameters that need a window rebuild are recorded for the next restart rather than forced live, while cheap ones apply immediately — the no-restart-`configure` precedent, honestly scoped.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-iii-D4 — Orbital-per-window + target selection, not an intra-orbital window selector
+
+**Status:** Proposed
+
+**Context:** Per-window addressing could use a bespoke `:window` sub-selector or reuse the Phase 5 selector grammar.
+
+**Decision:** Reuses the Phase 5 grammar and keeps target-vs-aspect addressing distinct, as the selector layer requires.
+
+**Alternatives:**
+- An intra-orbital `:window` sub-selector. Not chosen: conflates target selection with aspect addressing.
+
+### Verification
+
+*Migration note (2026-10-25):* the test commands are
+`(asdf:test-system "impulse-tests")` and the Lexter integration suite.
 
 A new `lexter/origin-tests` system (headless: `make-terminal` builds the
 terminal struct without GLFW, so the live-window registry is populated with
@@ -168,7 +212,20 @@ cooperative executor. **39 checks, 100% pass.** The Impulse suite gained a unit
 test for the schema-registration API: **302 checks, 100% pass** (up from 298).
 Origin core untouched.
 
+### Files (Phase 7)
+
+Table: Files added or changed in commits `3dcb7ab` (Origin/Impulse) and `8000d83` (Lexter).
+
+| File | Action | Description |
+|------|--------|-------------|
+| `impulse-src/describe.lisp` | Modified | Schema-registration API: `register-query-schema`, `register-config-schema`, `generic-status-schema`, `generic-config-schema` |
+| `impulse-src/package.lisp` | Modified | Exports |
+| `impulse-tests/test-describe.lisp` | Modified | Schema-registration unit test |
+| `lexter/src/origin-impulse.lisp` | **New** | `:lexter-host` control type: status, validate-spec, commit-spec handlers, schema registration |
+
 ### Prior-art lineage (Phase 7)
+
+Table: Implemented features and their reference lineage.
 
 | Implemented feature | Reference lineage | Note |
 |---|---|---|
@@ -179,7 +236,7 @@ Origin core untouched.
 | Main-thread marshaling of typed handlers (free) | Erlang `gen_server` (serialize all calls through one process) | the cooperative executor is the single serializing thread for window-touching work |
 
 
-## Pre-Phase 8 -- Configurable `:image` stop signal (Origin core)
+## Pre-Phase 8 — Configurable `:image` stop signal (Origin core)
 
 **Date:** 2026-06-21
 
@@ -200,15 +257,26 @@ The change is additive and backward-compatible: an orbital that does not set the
 slot behaves exactly as before. It is broadly useful -- many daemons have a
 non-`TERM` graceful signal -- not nginx-specific.
 
-**Tests** (`test-image.lisp`): the default is `SIGTERM` and a custom signal is
-stored per orbital; and a behavioral test proves delivery -- a child that
+**Tests** (`tests/test-image.lisp@cf288c4`): the default is `SIGTERM` and a custom signal is
+stored per orbital; and a behavioral test proves delivery — a child that
 *ignores* `SIGTERM` but exits cleanly on `SIGQUIT` (writing a marker from its
 QUIT handler) is stopped gracefully by a `:image-stop-signal sb-unix:sigquit`
 orbital, confirming the configured signal, not `SIGTERM`, was sent. Origin core:
 **291 checks, 100% pass** (up from 285); Impulse unaffected (**302**).
 
+### Files (Pre-Phase 8)
 
-## Phase 8 -- The nginx Tether (`origin.tether.nginx`)
+Table: Files added or changed in commit `cf288c4`.
+
+| File | Action | Description |
+|------|--------|-------------|
+| `src/managed-process.lisp` | Modified | `image-stop-signal` slot (default `sb-unix:sigterm`) |
+| `src/api.lisp` | Modified | `define-process` accepts `:image-stop-signal` |
+| `src/package.lisp` | Modified | Export `process-image-stop-signal` |
+| `tests/test-image.lisp` | Modified | Stop-signal default and behavioral tests |
+
+
+## Phase 8 — The nginx Tether (`origin.tether.nginx`)
 
 **Date:** 2026-06-22
 
@@ -286,30 +354,77 @@ API, and provides:
 So a core or admin UI drives nginx through exactly the same structured surface
 as a native orbital, with no nginx-specific knowledge above the adapter.
 
-### Design Decisions
+### ORIGIN-DRAFT-impulse-iii-D5 — The adapter, not the program, is the orbital
 
-1. **The adapter, not the program, is the orbital.** All nginx-specific
-   knowledge (config syntax, signals, status text, validation command) lives in
-   the Tether; Origin core and Impulse stay protocol-pure and learn nothing of
-   nginx.
-2. **`mod/` add-on, depends only on `origin` + `impulse`.** The Tether is
-   separately distributable (its own repository later); nothing in core or
-   Impulse depends on it. The only upstream reuse is the Phase 7
-   schema-registration API.
-3. **Validate-before-commit, structured throughout.** `nginx -t` gates every
-   config change; its failure is parsed to `(:file :line :message)` and surfaced
-   as `invalid-spec`, never a partial live config and never a bare string.
-4. **Foreground + SIGQUIT.** The reparenting and graceful-shutdown rules from the
-   ServiceManager reaping analysis are baked into `define-nginx-tether`, so the
-   Tether is correct under a future stub-PID-1 init.
-5. **Readiness = serving, not alive.** The readiness probe is a stub_status
-   scrape, so dependency ordering (the Origin-core engine) can gate dependents on
-   nginx actually accepting connections.
-6. **Graceful degradation without nginx.** Structural validation and structural
-   answers keep the verbs answerable where the binary is absent, so the Tether is
-   testable and inspectable off-target.
+**Status:** Proposed
 
-### Tests
+**Context:** nginx-specific knowledge must live somewhere in the system.
+
+**Decision:** All nginx-specific knowledge (config syntax, signals, status text, validation command) lives in the Tether; Origin core and Impulse stay protocol-pure and learn nothing of nginx.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-iii-D6 — mod/ add-on, depends only on origin + impulse
+
+**Status:** Proposed
+
+**Context:** The Tether could live in Impulse, in core, or as a separate module.
+
+**Decision:** The Tether is separately distributable (its own repository later); nothing in core or Impulse depends on it. The only upstream reuse is the Phase 7 schema-registration API.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-iii-D7 — Validate-before-commit, structured throughout
+
+**Status:** Proposed
+
+**Context:** A config change could be applied directly or validated first.
+
+**Decision:** `nginx -t` gates every config change; its failure is parsed to `(:file :line :message)` and surfaced as `invalid-spec`, never a partial live config and never a bare string.
+
+**Alternatives:**
+- Apply without validation. Rejected: risks a partial or broken live config.
+
+### ORIGIN-DRAFT-impulse-iii-D8 — Foreground + SIGQUIT
+
+**Status:** Proposed
+
+**Context:** nginx daemonizes by default and uses SIGQUIT for graceful shutdown, not SIGTERM.
+
+**Decision:** The reparenting and graceful-shutdown rules from the ServiceManager reaping analysis are baked into `define-nginx-tether`, so the Tether is correct under a future stub-PID-1 init.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-iii-D9 — Readiness = serving, not alive
+
+**Status:** Proposed
+
+**Context:** An nginx orbital's OS process can be alive while not yet serving.
+
+**Decision:** The readiness probe is a stub_status scrape, so dependency ordering (the Origin-core engine) can gate dependents on nginx actually accepting connections.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-iii-D10 — Graceful degradation without nginx
+
+**Status:** Proposed
+
+**Context:** The Tether must be testable and inspectable on systems where the nginx binary is absent.
+
+**Decision:** Structural validation and structural answers keep the verbs answerable where the binary is absent, so the Tether is testable and inspectable off-target.
+
+**Alternatives:**
+- None recorded.
+
+### Verification
+
+*Migration note (2026-10-25):* the test commands are
+`(asdf:test-system "impulse-tests")` and
+`(asdf:test-system "origin.tether.nginx/tests")`.
 
 A new `origin.tether.nginx/tests` system, **67 checks, 100% pass**: the config
 printer (nesting, args, dash->underscore, default-config shape, malformed
@@ -325,7 +440,23 @@ live server up -> graceful stop via SIGQUIT. Headless, non-root, ephemeral
 prefix, random high port; stable across repeated runs with clean teardown.
 Origin core and Impulse suites unaffected.
 
+### Files (Phase 8)
+
+Table: Files added or changed in commit `2ba22c3`.
+
+| File | Action | Description |
+|------|--------|-------------|
+| `mod/origin.tether.nginx/src/config.lisp` | **New** | S-expression-to-nginx-conf printer, `default-config` |
+| `mod/origin.tether.nginx/src/status.lisp` | **New** | `parse-stub-status`, `parse-nginx-error`, HTTP/1.0 stub_status scraper |
+| `mod/origin.tether.nginx/src/lifecycle.lisp` | **New** | `define-nginx-tether`, ephemeral prefix, foreground+SIGQUIT, generate/validate/swap/SIGHUP reload |
+| `mod/origin.tether.nginx/src/impulse.lisp` | **New** | `:nginx` control type: status, validate-spec, commit-spec, describe schemas |
+| `mod/origin.tether.nginx/src/package.lisp` | **New** | Package definition |
+| `mod/origin.tether.nginx/origin.tether.nginx.asd` | **New** | System definition |
+| `mod/origin.tether.nginx/tests/` | **New** | Test suite (67 checks): config, parsers, sub-vocabulary, end-to-end |
+
 ### Prior-art lineage (Phase 8)
+
+Table: Implemented features and their reference lineage.
 
 | Implemented feature | Reference lineage | Note |
 |---|---|---|
@@ -338,7 +469,7 @@ Origin core and Impulse suites unaffected.
 | Structured validation error (file/line/message) | NETCONF `<rpc-error>` / compiler diagnostics | `nginx -t` text lifted to keyword-tagged data |
 
 
-## Phase 9 -- Restart state handoff (`handoff.lisp`)
+## Phase 9 — Restart state handoff (`handoff.lisp`)
 
 **Date:** 2026-06-22
 
@@ -414,28 +545,67 @@ no-op. That a native orbital preserves state and a foreign one degrades
 gracefully *through the same verb and protocol* is exactly the uniformity the
 phase set out to demonstrate.
 
-### Design Decisions
+### ORIGIN-DRAFT-impulse-iii-D11 — Handoff is an Impulse protocol, not a core mechanism
 
-1. **Handoff is an Impulse protocol, not a core mechanism.** Dispatched on
-   control type, advertised via `describe`, default-safe -- the lexicon
-   elevation. Origin core's `restart-process` stays mechanical; `reset` alone
-   does not preserve state, which is correct (handoff is a control-plane
-   concern).
-2. **Selective by stratum; volatile strata never serialized.** The taxonomy is
-   enforced at construction, distinguishing this from CRIU's opaque snapshot.
-3. **Carrier-agnostic datum.** Export yields data independent of where it lives
-   (in-memory across a thread restart; a file/memfd across an `:image` restart;
-   Git-tracked text per the founding vision) -- mirroring Impulse's
-   transport-agnostic envelope.
-4. **Versioned and fail-safe.** A version tag enables future migration; import
-   runs after the orbital is back up and swallows errors, so the orbital always
-   restarts -- the validate-before-commit / confirmed-commit discipline applied
-   to handoff.
-5. **`:preserve` selector on `restart`.** No new verb; the existing universal
-   `restart` carries handoff, with stratum selection -- the DevPlan's
-   `restart :preserve` realized.
+**Status:** Proposed
 
-### Tests
+**Context:** State handoff could be a core mechanism or a control-plane protocol.
+
+**Decision:** Dispatched on control type, advertised via `describe`, default-safe — the lexicon elevation. Origin core's `restart-process` stays mechanical; `reset` alone does not preserve state, which is correct (handoff is a control-plane concern).
+
+**Alternatives:**
+- A core mechanism. Not chosen: handoff is a control-plane concern, and the per-type dispatch belongs in Impulse.
+
+### ORIGIN-DRAFT-impulse-iii-D12 — Selective by stratum; volatile strata never serialized
+
+**Status:** Proposed
+
+**Context:** An orbital's state spans several strata (configuration, application, session, ephemera, binary). Not all are serializable.
+
+**Decision:** The taxonomy is enforced at construction, distinguishing this from CRIU's opaque snapshot. Volatile strata (ephemera, binary) are rejected by `make-handoff-state`.
+
+**Alternatives:**
+- Opaque whole-memory snapshot. Rejected: conflates the strata.
+
+### ORIGIN-DRAFT-impulse-iii-D13 — Carrier-agnostic datum
+
+**Status:** Proposed
+
+**Context:** The handoff datum could be tied to a specific carrier or independent of it.
+
+**Decision:** Export yields data independent of where it lives (in-memory across a thread restart; a file/memfd across an `:image` restart; Git-tracked text per the founding vision) — mirroring Impulse's transport-agnostic envelope.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-iii-D14 — Versioned and fail-safe
+
+**Status:** Proposed
+
+**Context:** A handoff datum may be incompatible with a newer version of the orbital's code.
+
+**Decision:** A version tag enables future migration; import runs after the orbital is back up and swallows errors, so the orbital always restarts — the validate-before-commit / confirmed-commit discipline applied to handoff.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-iii-D15 — :preserve selector on restart
+
+**Status:** Proposed
+
+**Context:** Handoff could require a new verb or ride the existing `restart`.
+
+**Decision:** No new verb; the existing universal `restart` carries handoff, with stratum selection — the plan's `restart :preserve` realized.
+
+**Alternatives:**
+- A new `handoff` verb. Not chosen: handoff is an aspect of restart, not a separate action.
+
+### Verification
+
+*Migration note (2026-10-25):* the test commands are
+`(asdf:test-system "impulse-tests")`,
+the Lexter integration suite, and
+`(asdf:test-system "origin.tether.nginx/tests")`.
 
 A new `handoff` suite (31 checks): the envelope and accessors (and rejection of
 a volatile stratum); `filter-strata` / `:preserve`; version-gated compatibility;
@@ -450,7 +620,27 @@ import into a fresh screen, version-mismatch safety): **51 checks, 100% pass**.
 The nginx Tether adds the graceful-no-op proof: **69 checks, 100% pass**. Origin
 core untouched.
 
+### Files (Phase 9)
+
+Table: Files added or changed in commits `9a32069` (Origin/Impulse) and `1f07ee8` (Lexter).
+
+| File | Action | Description |
+|------|--------|-------------|
+| `impulse-src/handoff.lisp` | **New** | Handoff protocol: `export-state`/`import-state`/`handoff-strata-for` generics, `make-handoff-state`, `restart-with-handoff` |
+| `impulse-src/handlers.lisp` | Modified | `restart` verb gains `:preserve` arg |
+| `impulse-src/describe.lisp` | Modified | `:handoff` field in describe output |
+| `impulse-src/package.lisp` | Modified | Exports |
+| `impulse.asd` | Modified | Added `handoff` |
+| `impulse-tests/test-handoff.lisp` | **New** | `handoff` suite (31 checks) |
+| `impulse-tests.asd` | Modified | Added `test-handoff` |
+| `impulse-tests/helpers.lisp` | Modified | Stateful control-type helper |
+| `mod/origin.tether.nginx/tests/test-impulse.lisp` | Modified | Graceful no-op handoff test |
+| `lexter/src/origin-impulse.lisp` | Modified | `:lexter-host` export-state/import-state (geometry, cursor) |
+| `lexter/tests/origin-impulse-tests.lisp` | Modified | Lexter handoff tests |
+
 ### Prior-art lineage (Phase 9)
+
+Table: Implemented features and their reference lineage.
 
 | Implemented feature | Reference lineage | Note |
 |---|---|---|

@@ -13,23 +13,37 @@ relates-to:
   - ORIGIN-DRAFT-impulse-i
   - ORIGIN-DRAFT-impulse-iii
   - ORIGIN-DRAFT-control-vocabulary-prior-art
+decisions:
+  - ORIGIN-DRAFT-impulse-ii-D1
+  - ORIGIN-DRAFT-impulse-ii-D2
+  - ORIGIN-DRAFT-impulse-ii-D3
+  - ORIGIN-DRAFT-impulse-ii-D4
+  - ORIGIN-DRAFT-impulse-ii-D5
+  - ORIGIN-DRAFT-impulse-ii-D6
+  - ORIGIN-DRAFT-impulse-ii-D7
+  - ORIGIN-DRAFT-impulse-ii-D8
+  - ORIGIN-DRAFT-impulse-ii-D9
+  - ORIGIN-DRAFT-impulse-ii-D10
+  - ORIGIN-DRAFT-impulse-ii-D11
+  - ORIGIN-DRAFT-impulse-ii-D12
+  - ORIGIN-DRAFT-impulse-ii-D13
 ---
 
 # Impulse, Part II (Phases 4-6): Development Log
 
-This document continues the chronicle of **Impulse** -- Origin's structured
-control vocabulary -- begun in [ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md), which covered the MVP
+This document continues the chronicle of **Impulse** — Origin's structured
+control vocabulary — begun in [ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md), which covered the MVP
 (Phases 1-3: the envelope and verb model, effect/tier enforcement and the
 structured response envelope, and the hardened codec and Unix-socket
 transport). Part II builds the declarative tier and the streaming tier on
 top of that MVP:
 
-- **Phase 4** -- declared-vs-observed state, `configure`, and the single
+- **Phase 4** — declared-vs-observed state, `configure`, and the single
   high-level declarative `apply` (with a confirmed-commit dead-man's-switch),
   plus `delta` demonstrated through a test sub-vocabulary.
-- **Phase 5** -- the selector grammar: labels and set-based predicates for
+- **Phase 5** — the selector grammar: labels and set-based predicates for
   fleet addressing, with field-argument ranking of fan-out results.
-- **Phase 6** -- the two streaming kinds: subscription-scoped `watch` and
+- **Phase 6** — the two streaming kinds: subscription-scoped `watch` and
   operation-scoped progress/cancel, on a demultiplexing transport client.
 
 As in Part I, the log is written in installments and each phase closes with
@@ -39,7 +53,7 @@ a prior-art lineage table (full evaluation in
 **Date:** 2026-06-20 (Phase 4)
 
 
-## Phase 4 -- Declared-vs-observed, `configure`, `apply`, `delta`
+## Phase 4 — Declared-vs-observed, `configure`, `apply`, `delta`
 
 ### Goal
 
@@ -122,29 +136,54 @@ answer). It also reports a `:config-schema` -- the writable parameters with
 type and access -- so a tool can render an editor from discovered metadata,
 and the status schema gained the `:health` leaf.
 
-### Design Decisions
+### ORIGIN-DRAFT-impulse-ii-D1 — Spec in an Impulse-side registry, not on the orbital
 
-1. **Spec in an Impulse-side registry, not on the orbital.** Keeping the
-   declared spec out of `managed-process` preserves Origin core's ignorance
-   of the control plane and -- decisively -- works for foreign orbitals, whose
-   "orbital" is a generic image with no place to hang a spec slot. The
-   `validate-spec`/`commit-spec` generics are the per-type seam.
-2. **Declared-vs-observed folded into `status :view`, not a new verb.** The
-   universal verb set stays at ten; `:view` selects the stratum. This matches
-   the survey's finding that declared-vs-observed is one idea (NETCONF
-   config-vs-state, K8s spec/status, WLM declared-vs-observed) best exposed as
-   two views of one resource.
-3. **One high-level `apply`, not separate edit/validate/commit verbs.** For
-   the one-shot scope, a single `apply` carrying `:dry-run` /
-   `:confirm-timeout` / `:confirm` is simpler than a NETCONF-literal
-   datastore protocol, while preserving the stage -> validate ->
-   commit/confirm shape internally.
-4. **Health via a generic with a liveness default.** `orbital-ready-p` is a
-   generic method that defaults readiness to liveness, so `status :health`
-   works today and typed/foreign orbitals refine it later -- the seam the
-   dependencies-and-readiness phase needs, introduced cheaply now.
+**Status:** Proposed
 
-### Tests (Phase 4)
+**Context:** The declared spec could live on `managed-process` or in Impulse.
+
+**Decision:** Keeping it in an Impulse-side registry preserves core's ignorance and works for foreign orbitals, whose "orbital" is a generic image with no place to hang a spec slot. The `validate-spec`/`commit-spec` generics are the per-type seam.
+
+**Alternatives:**
+- On the orbital. Rejected: would not work for foreign orbitals.
+
+### ORIGIN-DRAFT-impulse-ii-D2 — Declared-vs-observed folded into status :view, not a new verb
+
+**Status:** Proposed
+
+**Context:** Declared-vs-observed state could be a new verb or a view on `status`.
+
+**Decision:** The universal verb set stays at ten; `:view` selects the stratum. This matches the survey's finding that declared-vs-observed is one idea (NETCONF config-vs-state, K8s spec/status, WLM declared-vs-observed) best exposed as two views of one resource.
+
+**Alternatives:**
+- A new verb. Not chosen: keeps the verb set at ten.
+
+### ORIGIN-DRAFT-impulse-ii-D3 — One high-level apply, not separate edit/validate/commit verbs
+
+**Status:** Proposed
+
+**Context:** The declarative workflow could use NETCONF-literal separate verbs or one combined verb.
+
+**Decision:** A single `apply` carrying `:dry-run`/`:confirm-timeout`/`:confirm`, simpler than a NETCONF-literal datastore protocol for the one-shot scope, while preserving the stage -> validate -> commit/confirm shape internally.
+
+**Alternatives:**
+- Separate edit/validate/commit verbs. Not chosen: simpler for the one-shot scope.
+
+### ORIGIN-DRAFT-impulse-ii-D4 — Health via a generic with a liveness default
+
+**Status:** Proposed
+
+**Context:** Readiness needs a seam for typed/foreign orbitals to refine later.
+
+**Decision:** `orbital-ready-p` is a generic that defaults readiness to liveness, so `status :health` works today and typed/foreign orbitals refine it later — the seam the dependencies-and-readiness phase needs, introduced cheaply now.
+
+**Alternatives:**
+- None recorded.
+
+### Verification (Phase 4)
+
+*Migration note (2026-10-25):* the test command is
+`(asdf:test-system "impulse-tests")`.
 
 A new `spec` suite (40 checks): the three `status :view` strata and the
 `:health` field; `configure` sets and is idempotent and rejects invalid
@@ -161,7 +200,27 @@ Two Part-I tests were updated to reflect the grown surface (`describe` now
 moved from `:configure` to `:signal`). Full suite: **224 checks, 100% pass**
 (up from 181). Origin core: **244, 100%** (Phase 4 touched no Origin code).
 
+### Files (Phase 4)
+
+Table: Files added or changed in commit `3552924`.
+
+| File | Action | Description |
+|------|--------|-------------|
+| `impulse-src/spec.lisp` | **New** | Declared spec registry, `validate-spec`/`commit-spec` generics, `apply-spec` workflow, confirmed-commit |
+| `impulse-src/conditions.lisp` | Modified | `invalid-spec` condition |
+| `impulse-src/describe.lisp` | Modified | `configure`/`apply` advertised; config schema; health leaf |
+| `impulse-src/handlers.lisp` | Modified | `configure`/`apply` generic handlers |
+| `impulse-src/package.lisp` | Modified | Exports |
+| `impulse-tests/test-spec.lisp` | **New** | `spec` suite (40 checks) |
+| `impulse-tests/helpers.lisp` | Modified | `with-clean-orbit` extended |
+| `impulse-tests/test-describe.lisp` | Modified | Updated for grown surface |
+| `impulse-tests/test-dispatch.lisp` | Modified | Updated unimplemented-verb example |
+| `impulse-tests.asd` | Modified | Added `test-spec` |
+| `impulse.asd` | Modified | Added `spec` |
+
 ### Prior-art lineage (Phase 4)
+
+Table: Implemented features and their reference lineage.
 
 | Implemented feature | Reference lineage | Note |
 |---|---|---|
@@ -176,7 +235,7 @@ moved from `:configure` to `:signal`). Full suite: **224 checks, 100% pass**
 | Per-type `validate-spec`/`commit-spec` generics | JMX per-MBean operations; NETCONF per-YANG-model semantics; the adapter-as-respondent constraint | a sub-vocabulary or foreign adapter supplies its own spec semantics |
 
 
-## Phase 5 -- The selector grammar (fleet addressing)
+## Phase 5 — The selector grammar (fleet addressing)
 
 **Date:** 2026-06-20 (Phase 5)
 
@@ -230,25 +289,54 @@ target selector. This is the boundary the survey flagged as the Lexter trap;
 keeping the two grammars in different places enforces it structurally, ahead
 of the Lexter sub-vocabulary.
 
-### Design Decisions
+### ORIGIN-DRAFT-impulse-ii-D5 — Labels in an Impulse-side registry, like specs
 
-1. **Labels in an Impulse-side registry, like specs.** Consistent with Phase
-   4: fleet metadata is a control-plane concept, kept out of Origin core, so
-   it works uniformly for thread, cooperative, image, and (later) foreign
-   orbitals.
-2. **One predicate grammar, two uses.** The same `label-match-p` matches a
-   predicate against an orbital's labels (for `:where` selection) and against
-   a result plist (for `:where-result` filtering). One small, auditable
-   matcher; no second grammar to learn or secure.
-3. **`selectors.lisp` loads before `dispatch.lisp`.** The selector helpers
-   depend only on the registry, the orbit, and the envelope accessors -- not
-   on dispatch -- so loading them first lets `dispatch` call them with no
-   forward references.
-4. **Field arguments refine, they do not re-dispatch.** `:top`/`:by`/
-   `:where-result` post-process the already-collected `:partial`, so they
-   compose with any verb's fan-out and add no per-target cost beyond the sort.
+**Status:** Proposed
 
-### Tests (Phase 5)
+**Context:** Consistent with Phase 4, fleet metadata (labels) is a control-plane concept that needs a home.
+
+**Decision:** Kept out of Origin core in an Impulse-side registry, so it works uniformly for thread, cooperative, image, and (later) foreign orbitals.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-ii-D6 — One predicate grammar, two uses
+
+**Status:** Proposed
+
+**Context:** The predicate matcher could be one grammar shared between target selection and result filtering, or two separate grammars.
+
+**Decision:** The same `label-match-p` matches a predicate against an orbital's labels (for `:where` selection) and against a result plist (for `:where-result` filtering). One small, auditable matcher; no second grammar to learn or secure.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-ii-D7 — selectors.lisp loads before dispatch.lisp
+
+**Status:** Proposed
+
+**Context:** The selector helpers depend only on the registry, the orbit, and the envelope accessors — not on dispatch.
+
+**Decision:** `selectors.lisp` loads before `dispatch.lisp`, so dispatch can call them with no forward references.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-ii-D8 — Field arguments refine, they do not re-dispatch
+
+**Status:** Proposed
+
+**Context:** Field arguments could re-dispatch per target or post-process the already-collected results.
+
+**Decision:** `:top`/`:by`/`:where-result` post-process the already-collected `:partial`, so they compose with any verb's fan-out and add no per-target cost beyond the sort.
+
+**Alternatives:**
+- None recorded.
+
+### Verification (Phase 5)
+
+*Migration note (2026-10-25):* the test command is
+`(asdf:test-system "impulse-tests")`.
 
 A new `selectors` suite (27 checks): the predicate matcher (`:eq`/`:in`/
 `:exists` including the NIL-vs-absent distinction, `:and`/`:or`/`:not`, and a
@@ -258,7 +346,24 @@ compound cross-key predicate, and an empty match yielding an empty
 filtering it; and `describe` surfacing an orbital's labels. Full suite:
 **251 checks, 100% pass** (up from 224). Origin core: untouched.
 
+### Files (Phase 5)
+
+Table: Files added or changed in commit `dff5487`.
+
+| File | Action | Description |
+|------|--------|-------------|
+| `impulse-src/selectors.lisp` | **New** | Label registry, `label-match-p` predicate matcher, `resolve-where`, result refinement |
+| `impulse-src/dispatch.lisp` | Modified | `(:where ...)` target resolution |
+| `impulse-src/describe.lisp` | Modified | Labels in describe output |
+| `impulse-src/package.lisp` | Modified | Exports |
+| `impulse-tests/test-selectors.lisp` | **New** | `selectors` suite (27 checks) |
+| `impulse-tests/helpers.lisp` | Modified | Label helpers |
+| `impulse-tests.asd` | Modified | Added `test-selectors` |
+| `impulse.asd` | Modified | Added `selectors` |
+
 ### Prior-art lineage (Phase 5)
+
+Table: Implemented features and their reference lineage.
 
 | Implemented feature | Reference lineage | Note |
 |---|---|---|
@@ -269,7 +374,7 @@ filtering it; and `describe` surfacing an orbital's labels. Full suite:
 | Target selection vs intra-orbital addressing kept distinct | the survey's "sub-orbital vs domain-object" hazard (Lexter) | one grammar for *which orbitals*, another (`:args`/`:query`) for *within one* |
 
 
-## Phase 6 -- The streaming tier (watch + operation progress/cancel)
+## Phase 6 — The streaming tier (watch + operation progress/cancel)
 
 **Date:** 2026-06-20 (Phase 6)
 
@@ -352,32 +457,65 @@ share one connection with ordinary traffic:
   want to stream or cancel before the final reply); `session-request` is the
   sync convenience over them.
 
-### Design Decisions
+### ORIGIN-DRAFT-impulse-ii-D9 — The connection's sink is the only transport coupling
 
-1. **The connection's sink is the only transport coupling.** The entire
-   streaming tier is unit-tested in-process against a list-collecting sink; the
-   socket is just one sink implementation. This is what let `streams` ship with
-   a 22-check suite that needs no child image.
-2. **`watch` is poll-based over the event log, by choice.** No push hook is
-   added to Origin core: the supervisor's event log is already the system's
-   ground truth, and an eq-cursor diff over it is exact and allocation-free.
-   The poll interval is the only latency knob, and v1 trades a little latency
-   for zero core surface. A push hook can replace the poll later behind the
-   same `subscription` API.
-3. **The request id is the cancellation/unwatch token (LSP model).** Cancel and
-   unwatch are *transport control frames*, not verbs -- they must be readable
-   and actionable while a worker is mid-dispatch, which a dispatched verb (also
-   queued behind the read loop's frame) could not guarantee.
-4. **One worker thread per non-control request.** Uniform, and the only way the
-   read loop can stay responsive to a cancel during a long operation. Writes
-   are serialized by the output lock, so concurrent workers and subscription
-   threads never interleave a frame.
-5. **`streams.lisp` loads before `api`/`codec`/`transport`.** Its sink-based
-   core depends only on dispatch (for the `:watch` handler and `*context*`) and
-   the event log -- not on the codec or socket -- so it sits cleanly between the
-   handlers and the carrier.
+**Status:** Proposed
 
-### Tests (Phase 6)
+**Context:** The streaming tier needs a transport interface.
+
+**Decision:** The connection's sink is the only coupling. The entire streaming tier is unit-tested in-process against a list-collecting sink; the socket is just one sink implementation. This is what let `streams` ship with a 22-check suite that needs no child image.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-ii-D10 — watch is poll-based over the event log, by choice
+
+**Status:** Proposed
+
+**Context:** `watch` could use a push hook in Origin core or poll the event log.
+
+**Decision:** Poll-based: the supervisor's event log is already the system's ground truth, and an eq-cursor diff over it is exact and allocation-free. The poll interval is the only latency knob, and v1 trades a little latency for zero core surface.
+
+**Alternatives:**
+- A push hook in Origin core. Not chosen for v1: a push hook can replace the poll later behind the same `subscription` API.
+
+### ORIGIN-DRAFT-impulse-ii-D11 — The request id is the cancellation/unwatch token (LSP model)
+
+**Status:** Proposed
+
+**Context:** Cancel and unwatch must be actionable while a worker is mid-dispatch.
+
+**Decision:** The request id is the cancellation/unwatch token. Cancel and unwatch are transport control frames, not verbs, so they are readable and actionable inline by the read loop.
+
+**Alternatives:**
+- Dispatched verbs. Not chosen: a dispatched verb queued behind the read loop's frame could not guarantee timely delivery.
+
+### ORIGIN-DRAFT-impulse-ii-D12 — One worker thread per non-control request
+
+**Status:** Proposed
+
+**Context:** The read loop must stay responsive to a cancel during a long operation.
+
+**Decision:** One worker thread per non-control request. Writes are serialized by the output lock, so concurrent workers and subscription threads never interleave a frame.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-ii-D13 — streams.lisp loads before api/codec/transport
+
+**Status:** Proposed
+
+**Context:** `streams.lisp` depends only on dispatch (for the `:watch` handler and `*context*`) and the event log — not on the codec or socket.
+
+**Decision:** `streams.lisp` loads before `api`/`codec`/`transport`, sitting cleanly between the handlers and the carrier.
+
+**Alternatives:**
+- None recorded.
+
+### Verification (Phase 6)
+
+*Migration note (2026-10-25):* the test command is
+`(asdf:test-system "impulse-tests")`.
 
 A new `streams` suite (22 checks) drives the tier in-process against a mock
 connection: an operation reporting progress and flipping to cancelled (and
@@ -392,7 +530,26 @@ extend the `transport` suite: a real child image's events streamed over a
 checks, 100% pass** (up from 251), stable across repeated runs. Origin core:
 untouched (**244, 100%**).
 
+### Files (Phase 6)
+
+Table: Files added or changed in commit `13cfe9f`.
+
+| File | Action | Description |
+|------|--------|-------------|
+| `impulse-src/streams.lisp` | **New** | Connection, subscriptions, operations, progress/cancel, `watch` handler |
+| `impulse-src/transport.lisp` | Modified | Demultiplexing read loop, worker threads, per-connection output lock, client reader thread |
+| `impulse-src/dispatch.lisp` | Modified | `*current-operation*` binding |
+| `impulse-src/package.lisp` | Modified | Exports |
+| `impulse-tests/test-streams.lisp` | **New** | `streams` suite (22 checks) |
+| `impulse-tests/test-transport.lisp` | Modified | End-to-end watch and cancel tests |
+| `impulse-tests/child-vocab.lisp` | **New** | `:slow-op` test sub-vocabulary for cancel testing |
+| `impulse-tests/helpers.lisp` | Modified | Mock connection helpers |
+| `impulse-tests.asd` | Modified | Added `test-streams` |
+| `impulse.asd` | Modified | Added `streams` |
+
 ### Prior-art lineage (Phase 6)
+
+Table: Implemented features and their reference lineage.
 
 | Implemented feature | Reference lineage | Note |
 |---|---|---|

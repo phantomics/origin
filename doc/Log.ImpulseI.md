@@ -15,6 +15,20 @@ relates-to:
   - ORIGIN-DRAFT-foreign-orbitals
   - ORIGIN-DRAFT-impulse-ii
   - ORIGIN-DRAFT-orbital-images
+decisions:
+  - ORIGIN-DRAFT-impulse-i-D1
+  - ORIGIN-DRAFT-impulse-i-D2
+  - ORIGIN-DRAFT-impulse-i-D3
+  - ORIGIN-DRAFT-impulse-i-D4
+  - ORIGIN-DRAFT-impulse-i-D5
+  - ORIGIN-DRAFT-impulse-i-D6
+  - ORIGIN-DRAFT-impulse-i-D7
+  - ORIGIN-DRAFT-impulse-i-D8
+  - ORIGIN-DRAFT-impulse-i-D9
+  - ORIGIN-DRAFT-impulse-i-D10
+  - ORIGIN-DRAFT-impulse-i-D11
+  - ORIGIN-DRAFT-impulse-i-D12
+  - ORIGIN-DRAFT-impulse-i-D13
 ---
 
 # Impulse, Part I (Phases 1-3): Development Log
@@ -71,7 +85,7 @@ same lexicon as a native orbital, and it is the security property the
 Phase 3 codec will enforce at the wire.
 
 
-## Phase 1 -- In-image dispatcher, verb model, describe/status
+## Phase 1 — In-image dispatcher, verb model, describe/status
 
 ### Goal
 
@@ -193,6 +207,8 @@ in-image path.
 Each implemented feature and the reference technologies it descends from
 (full evaluation in [ORIGIN-DRAFT-control-vocabulary-prior-art](Eval.ControlVocabulary.PriorArt.md)):
 
+Table: Implemented features and their reference lineage.
+
 | Implemented feature | Reference lineage | Note |
 |---|---|---|
 | Two-tier vocabulary (universal verbs + typed sub-vocabularies) | z/OS `MODIFY`; SNMP MIBs; JMX MBeans; LSP namespaces; D-Bus interfaces; K8s CRDs | MODIFY's universal-verb-carrying-a-sub-language is the closest operational twin; the two-tier shape recurs in *every* surveyed system |
@@ -205,63 +221,108 @@ Each implemented feature and the reference technologies it descends from
 | Data-not-code dispatch (datum dispatched, never eval'd) | 9P (write = command, no eval surface); SNMP (closed by MIB) | the security spine |
 
 
-## Design Decisions
+### ORIGIN-DRAFT-impulse-i-D1 — A separate impulse system, not part of core
 
-### 1. A separate `impulse` system, not part of core
+**Status:** Proposed
 
-Impulse is the meta-OS's control layer, but it is not needed to *manage
-threads*. Keeping it a separate system depending on `origin` preserves
-Origin's "pure, minimal core" property and lets the control vocabulary
-evolve on its own cadence. It costs nothing: a deployment that wants the
-control plane loads one more system.
+**Context:**
+Impulse is the meta-OS's control layer, but it is not needed to manage
+threads.
 
-### 2. Control type by registry, not by class
+**Decision:**
+Keep it a separate system depending on `origin`, preserving Origin's
+"pure, minimal core" property and letting the control vocabulary evolve on
+its own cadence. A deployment that wants the control plane loads one more
+system.
 
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-i-D2 — Control type by registry, not by class
+
+**Status:** Proposed
+
+**Context:**
 Sub-vocabularies (Lexter windows, nginx) need a way to claim a richer set
-of verbs than the generic default. Subclassing `managed-process` per kind
-would entangle the orbital model with the control model and would not work
-for foreign orbitals, whose "orbital" is a generic image. A name-keyed
-control-type registry keeps the two models orthogonal and lets an adapter
-declare its type without touching the orbital's class -- the
+of verbs than the generic default.
+
+**Decision:**
+A name-keyed control-type registry keeps the two models orthogonal and lets
+an adapter declare its type without touching the orbital's class -- the
 adapter-as-respondent constraint from the Foreign Orbitals plan, honoured
 from the first phase.
 
-### 3. The dispatcher never signals
+**Alternatives:**
+- Subclassing `managed-process` per kind. Rejected: would entangle the
+  orbital model with the control model and would not work for foreign
+  orbitals, whose "orbital" is a generic image.
 
-A control request can fail in many ways, and several of them (unknown
-verb, permission denied) are routine. Making `dispatch` total -- always
-returning a response, never signalling -- means a transport can hand any
-inbound datum to the dispatcher and always have a datum to send back. It
-also means the structured error envelope is exercised from day one, not
-bolted on later.
+### ORIGIN-DRAFT-impulse-i-D3 — The dispatcher never signals
 
-### 4. Effect and tier enforced in Phase 1, not deferred
+**Status:** Proposed
 
-The plan placed CQS enforcement in Phase 2, but the verb model made it
-nearly free to enforce immediately: the effect ladder, `effect-minimum-tier`,
-and a tier on the context are all that is needed. Doing it now means the
-"read-only connection cannot mutate" guarantee is real from the first
-dispatch, and Phase 2's work narrows to richer error/partial envelopes and
-per-connection contexts rather than the core CQS gate.
+**Context:**
+A control request can fail in many ways, and several of them (unknown verb,
+permission denied) are routine.
 
-### 5. Register all verbs now; advertise only the implemented ones
+**Decision:**
+Making `dispatch` total -- always returning a response, never signalling --
+means a transport can hand any inbound datum to the dispatcher and always
+have a datum to send back. The structured error envelope is exercised from
+day one, not bolted on later.
 
-The full universal verb set is registered at load time so `describe` and
-the tier gate see the whole surface and effect classifications are fixed
-once. But `describe-orbital` advertises only the verbs an orbital has a
-handler for, so a generic orbital honestly reports the six it implements.
-A request for a registered-but-unimplemented verb (e.g. `:configure`)
-returns a `handler-error`, distinct from the `unknown-verb` a truly
-unregistered verb yields.
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-i-D4 — Effect and tier enforced in Phase 1, not deferred
+
+**Status:** Proposed
+
+**Context:**
+The plan placed CQS enforcement in Phase 2.
+
+**Decision:**
+Enforce immediately since the verb model made it nearly free: the effect
+ladder, `effect-minimum-tier`, and a tier on the context are all that is
+needed. The "read-only connection cannot mutate" guarantee is real from the
+first dispatch, and Phase 2's work narrows to richer error/partial envelopes
+and per-connection contexts rather than the core CQS gate.
+
+**Alternatives:**
+- Defer to Phase 2 as planned. Not chosen: the verb model made immediate
+  enforcement nearly free.
+
+### ORIGIN-DRAFT-impulse-i-D5 — Register all verbs now; advertise only the implemented ones
+
+**Status:** Proposed
+
+**Context:**
+The full universal verb set needs to be visible to `describe` and the tier
+gate from the start, but not all verbs have handlers yet.
+
+**Decision:**
+The full verb set is registered at load time; `describe-orbital` advertises
+only those with a handler, so a generic orbital honestly reports the six it
+implements. A request for a registered-but-unimplemented verb (e.g.
+`:configure`) returns a `handler-error`, distinct from the `unknown-verb` a
+truly unregistered verb yields.
+
+**Alternatives:**
+- None recorded.
 
 
-## Tests
+### Verification
+
+*Migration note (2026-10-25):* the test command is
+`(asdf:test-system "impulse-tests")`.
 
 `impulse-tests` reuses Origin's FiveAM + cl-hamcrest stack, with a suite
 hierarchy mirroring the source modules. A `with-clean-orbit` macro resets
 the registry and event log between tests, and a fake cooperative executor
 (ported from `test-external.lisp`, no GLFW) exercises the main-thread
 marshaling path with its mailbox running inline on the test thread.
+
+Table: Test suites and coverage areas.
 
 | Suite | Coverage |
 |-------|----------|
@@ -275,7 +336,9 @@ checks, 100%** (the only core change was the additive
 `cooperative-executor-mailbox` export).
 
 
-## Files (Phase 1)
+### Files (Phase 1)
+
+Table: Files added or changed in commit `ada812e`.
 
 | File | Action | Description |
 |------|--------|-------------|
@@ -294,7 +357,7 @@ checks, 100%** (the only core change was the additive
 | `src/package.lisp` | Modified | Exported `cooperative-executor-mailbox` |
 
 
-## Metrics (Phase 1)
+### Metrics (Phase 1)
 
 - New source files: 8 (impulse-src) + 6 (impulse-tests) + 2 systems
 - Origin core changes: 1 additive export, 0 behavioural changes, 0 regressions
@@ -302,7 +365,7 @@ checks, 100%** (the only core change was the additive
 - Universal verbs registered: 10; default generic handlers: 6
 
 
-## Phase 2 -- Structured serialization, fan-out, and per-connection context
+## Phase 2 — Structured serialization, fan-out, and per-connection context
 
 **Date:** 2026-06-19 (Phase 2)
 
@@ -376,30 +439,64 @@ populate from the handshake.
 
 ### Prior-art lineage (Phase 2)
 
+Table: Implemented features and their reference lineage.
+
 | Implemented feature | Reference lineage | Note |
 |---|---|---|
 | Structured error serialization (`serialize-condition` + per-condition slots) | SNMP error-status + error-index; NETCONF `rpc-error` (type/severity/path); GraphQL data-plus-errors; HTTP status classes | a structured outcome, never a string |
 | Fan-out `:partial` envelope | HTTP 206 Partial Content; SNMP table-walk + error-index; GraphQL partial data+errors | per-target outcome survives partial failure |
 | Per-connection context (tier + label) | LSP connect-time session identity (seed) | audit records who issued a mutation |
 
-### Design Decisions
+### ORIGIN-DRAFT-impulse-i-D6 — Serialization by call-next-method, not a registry or :around
 
-1. **Serialization by `call-next-method`, not a registry or `:around`.** An
-   initial `:around` design double-counted the base keys; the clean form is
-   a default primary method returning `(:type :message)` and each subclass
-   appending its slots onto `(call-next-method)`. It is idiomatic CLOS,
-   needs no central table, and a new condition participates by defining one
-   method.
-2. **Check verb and tier once; capture per-target outcomes.** Effect and
-   tier are properties of the verb and the connection, not of the target, so
-   they are validated before fan-out. Only target resolution and handler
-   execution vary per orbital, and those are exactly the failures the
-   `:partial` envelope is for.
-3. **Fan-out reuses single-target dispatch.** `run-verb` is the shared core;
-   single and fan-out dispatch differ only in target resolution and how
-   outcomes are aggregated. No verb logic is duplicated.
+**Status:** Proposed
 
-### Tests (Phase 2)
+**Context:**
+An initial `:around` design double-counted the base keys.
+
+**Decision:**
+A default primary method returning `(:type :message)` and each subclass
+appending its slots onto `(call-next-method)`. It is idiomatic CLOS, needs
+no central table, and a new condition participates by defining one method.
+
+**Alternatives:**
+- An `:around` design. Rejected: double-counted the base keys.
+
+### ORIGIN-DRAFT-impulse-i-D7 — Check verb and tier once; capture per-target outcomes
+
+**Status:** Proposed
+
+**Context:**
+Effect and tier are properties of the verb and the connection, not of the
+target.
+
+**Decision:**
+Verb and tier validated before fan-out; only target resolution and handler
+execution vary per orbital, and those are exactly the failures the `:partial`
+envelope is for.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-i-D8 — Fan-out reuses single-target dispatch
+
+**Status:** Proposed
+
+**Context:**
+Single and fan-out dispatch share the same verb logic.
+
+**Decision:**
+`run-verb` is the shared core; single and fan-out dispatch differ only in
+target resolution and how outcomes are aggregated. No verb logic is
+duplicated.
+
+**Alternatives:**
+- None recorded.
+
+### Verification (Phase 2)
+
+*Migration note (2026-10-25):* the test command is
+`(asdf:test-system "impulse-tests")`.
 
 Added to the existing suites (no new files):
 
@@ -418,6 +515,8 @@ check: **244 checks, 100%** (Phase 2 touched no Origin code).
 
 ### Files (Phase 2)
 
+Table: Files added or changed in commit `d9ac637`.
+
 | File | Action | Description |
 |------|--------|-------------|
 | `impulse-src/conditions.lisp` | Modified | `serialize-condition` generic + per-condition and Origin-condition methods; `%class-keyword` moved here |
@@ -434,7 +533,7 @@ check: **244 checks, 100%** (Phase 2 touched no Origin code).
 - New error-envelope slots surfaced: 6 condition types enriched
 
 
-## Phase 3 -- The hardened codec and the Unix-socket transport
+## Phase 3 — The hardened codec and the Unix-socket transport
 
 **Date:** 2026-06-19 (Phase 3)
 
@@ -513,6 +612,8 @@ machine control. `lexter/origin` gained `impulse` as a dependency.
 
 ### Prior-art lineage (Phase 3)
 
+Table: Implemented features and their reference lineage.
+
 | Implemented feature | Reference lineage | Note |
 |---|---|---|
 | Hardened keyword-only codec (data-not-code at the wire) | 9P (read/write is data, no eval); SNMP closed-by-MIB surface | the wire enforces "data, not code" |
@@ -522,31 +623,91 @@ machine control. `lexter/origin` gained `impulse` as a dependency.
 | Impulse separate from Slynk (eval = privileged break-glass) | the effect-ladder operational law (eval is a separate, privileged tier) | structured plane is the default; eval the locked cabinet |
 | Transport reuses `dispatch` unchanged (carrier-agnostic) | Impulse goal G8 (same envelope in-image and over IPC) | the envelope is defined over the datum, not the carrier |
 
-### Design Decisions
+### ORIGIN-DRAFT-impulse-i-D9 — Validation is the guarantee; the readtable is defense in depth
 
-1. **Validation is the guarantee; the readtable is defense in depth.** Even
-   if a future SBCL or a missed reader macro produced a non-data object,
-   `validate-datum` refuses it. The hardened readtable and `*read-eval*` nil
-   shrink the attack surface, but the post-read grammar check is the line
-   that cannot be crossed.
-2. **Keyword-only, enforced symmetrically.** The receiver rejects
-   non-keyword symbols; the sender down-converts them. Neither side ever
-   needs a package allowlist, and no `origin`/`impulse` internal symbol can
-   be named on the wire -- the policy settled in planning, now mechanical.
-3. **Length-prefixed framing over character streams.** Counting characters
-   on both ends (with a fixed external format) sidesteps byte/character
-   mismatch and gives bounded, unambiguous message boundaries -- simpler and
-   safer than relying on the reader to find a form's end in a socket stream.
-4. **Tier pinned by the listener, negotiated down by the client.** Socket
-   file permissions are the coarse auth (who can open it at all); the
-   listener tier is the ceiling; the handshake lets a client self-limit.
-   This is enough for a single-host nexus without per-user identity (Q6).
-5. **Transport reuses dispatch unchanged.** The socket handler calls the
-   same `dispatch` as the in-image path, with a context whose tier is the
-   granted tier. The envelope, the verb model, and the error/partial
-   responses are all carrier-agnostic, exactly as goal G8 intended.
+**Status:** Proposed
 
-### Tests (Phase 3)
+**Context:**
+The codec is where untrusted bytes become Lisp data, and multiple defense
+layers are in place.
+
+**Decision:**
+Even if a future SBCL or a missed reader macro produced a non-data object,
+`validate-datum` refuses it. The hardened readtable and `*read-eval*` nil
+shrink the attack surface, but the post-read grammar check is the line that
+cannot be crossed.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-i-D10 — Keyword-only, enforced symmetrically
+
+**Status:** Proposed
+
+**Context:**
+The wire format needs a policy for symbol handling.
+
+**Decision:**
+The receiver rejects non-keyword symbols; the sender down-converts them.
+Neither side ever needs a package allowlist, and no `origin`/`impulse`
+internal symbol can be named on the wire -- the policy settled in planning,
+now mechanical.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-i-D11 — Length-prefixed framing over character streams
+
+**Status:** Proposed
+
+**Context:**
+Message boundaries must be unambiguous on a socket stream.
+
+**Decision:**
+Counting characters on both ends (with a fixed external format) sidesteps
+byte/character mismatch and gives bounded, unambiguous message boundaries --
+simpler and safer than relying on the reader to find a form's end in a
+socket stream.
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-i-D12 — Tier pinned by the listener, negotiated down by the client
+
+**Status:** Proposed
+
+**Context:**
+Socket file permissions are the coarse auth (who can open it at all); the
+transport needs a finer-grained tier model.
+
+**Decision:**
+The listener tier is the ceiling; the handshake lets a client self-limit.
+This is enough for a single-host nexus without per-user identity (Q6).
+
+**Alternatives:**
+- None recorded.
+
+### ORIGIN-DRAFT-impulse-i-D13 — Transport reuses dispatch unchanged
+
+**Status:** Proposed
+
+**Context:**
+The envelope, the verb model, and the error/partial responses need to work
+both in-image and over IPC (goal G8).
+
+**Decision:**
+The socket handler calls the same `dispatch` as the in-image path, with a
+context whose tier is the granted tier. The envelope, the verb model, and
+the error/partial responses are all carrier-agnostic, exactly as goal G8
+intended.
+
+**Alternatives:**
+- None recorded.
+
+### Verification (Phase 3)
+
+*Migration note (2026-10-25):* the test command is
+`(asdf:test-system "impulse-tests")`.
 
 - `codec` (in-process, fast): validation accepts data and rejects
   non-keyword symbols, vectors, hash-tables, and over-deep nesting; parsing
@@ -569,6 +730,8 @@ caveats); the transport itself is fully exercised headlessly by the
 bare-Origin child.
 
 ### Files (Phase 3)
+
+Table: Files added or changed in commits `2503ee0` (Origin) and `a9a426c` (Lexter).
 
 | File | Action | Description |
 |------|--------|-------------|
