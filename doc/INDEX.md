@@ -12,6 +12,7 @@ Table: Documents in the ORIGIN namespace.
 |---|---|---|---|---|---|
 | [ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md) | The Browser as Orbital: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-compass-migration](Plan.CompassMigration.md) | Compass Migration: Development Plan | Plan | project | Draft | — |
+| [ORIGIN-DRAFT-compass-migration-log](Log.CompassMigration.md) | Compass Migration: Development Log | Log | project | Draft | — |
 | [ORIGIN-DRAFT-concern-topologies](Plan.ConcernTopologies.md) | Concern Topologies: Development Plan | Plan | project | Draft | — |
 | [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md) | Control Vocabulary: Development Plan | Plan | project | Draft | impulse |
 | [ORIGIN-DRAFT-control-vocabulary-prior-art](Eval.ControlVocabulary.PriorArt.md) | Control Vocabulary: Prior-Art Evaluation | Eval (prior-art) | project | Draft | impulse |
