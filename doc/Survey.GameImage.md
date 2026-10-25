@@ -214,7 +214,11 @@ gaming, this is a very good tradeoff.
    └── [Game server tether]             (multiplayer: relays attestation queries)
 ```
 
+Description: A tree showing an Origin core supervising a game image (an `:image` orbital with game logic, graphics/physics, and an integrity responder in a restricted namespace), a compositor orbital emitting focus signals, and an optional game server tether for multiplayer attestation.
+
 The game image is a natural composition of existing capabilities:
+
+Table: Game-image capabilities and the Origin primitives they compose.
 
 | Capability | Source |
 |---|---|

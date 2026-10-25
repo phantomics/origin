@@ -60,12 +60,14 @@ sketched. None of this is wired to Origin's real `start-process` / `status`
 protocol -- that mapping is the synthesis at the end.
 
 
-## The shared scenario
+## The Shared Scenario
 
 `:term-host` is an `:image` orbital (a dedicated Lexter image) hosting several
 `:cooperative` terminal windows, each with a scrollback buffer, a working
 directory, a font, and a poll interval. The core wants to perform four
 representative operations -- one per archetype the DevPlan cares about:
+
+Table: The four representative operations, one per archetype.
 
 | Tag | Archetype | Operation | CQS class |
 |-----|-----------|-----------|-----------|
@@ -99,6 +101,8 @@ Many Origin targets (web services, data gateways) share none of this.
 The vocabulary should therefore be checked against these axes of variation,
 not just the Lexter column:
 
+Table: Axes of variation between Lexter and contrasting orbital archetypes.
+
 | Axis | Lexter | Contrasting end |
 |------|--------|-----------------|
 | Sub-object cardinality | enumerable, stable (windows) | high, ephemeral, churning (connections / requests) |
@@ -124,7 +128,7 @@ sub-orbital-versus-domain-object conflation (axis 6) is flagged as the specific
 addressing hazard to watch when designing the selector grammar (open Q5).
 
 
-## The rubric
+## The Rubric
 
 Each rendition is scored on:
 
@@ -526,6 +530,8 @@ substrate anyway).
 
 ## Comparison -- Installment I
 
+Table: Installment I comparison across rubric axes.
+
 | Axis | SNMP | z/OS MODIFY | JMX MBeans |
 |------|------|-------------|------------|
 | **G1 Structured** | Strong (typed var-binds; enumerated errors) | Outer only; inner + replies are prose | Strong (typed attrs; MBeanInfo record) |
@@ -621,6 +627,8 @@ a configuration *tree* (listen ports, a route table, a worker pool, TLS) rather
 than a collection of UI objects, and -- crucially -- routes that are
 configuration data, **not** managed orbitals. The same four archetypes, plus the
 two the web case forces into view:
+
+Table: The four archetypes plus the two the web case surfaces, contrasting Lexter and web.
 
 | Tag | Archetype | Lexter (`:term-host`) | Web (`:web`) |
 |-----|-----------|-----------------------|--------------|
@@ -904,6 +912,8 @@ in-image `:thread` orbitals where it would be overkill.
 ---
 
 ## Comparison -- Installment II
+
+Table: Installment II comparison across rubric axes.
 
 | Axis | HTTP safe methods | GraphQL | NETCONF/YANG |
 |------|-------------------|---------|--------------|
@@ -1392,6 +1402,8 @@ side.
 
 ## Comparison -- Installment III
 
+Table: Installment III comparison across rubric axes.
+
 | Axis | Erlang/OTP | LSP | Plan 9 / 9P |
 |------|------------|-----|-------------|
 | **G1 Structured** | Strong (tagged terms/tuples) | Strong (JSON-RPC + error objects) | Split -- uniform envelope, textual file contents |
@@ -1690,6 +1702,8 @@ envelope needs.
 ---
 
 ## Comparison -- Installment IV
+
+Table: Installment IV comparison across rubric axes.
 
 | Axis | Kubernetes | D-Bus / systemd |
 |------|------------|-----------------|

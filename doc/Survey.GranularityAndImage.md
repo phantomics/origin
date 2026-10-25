@@ -141,6 +141,8 @@ granularity a **parameter, not a category boundary**: the same lifecycle
 protocol, supervision, backoff, event log, and Impulse control vocabulary
 apply to:
 
+Table: The granularity ladder from thread to remote host.
+
 | Granularity | Origin execution mode | Cost | Isolation |
 |---|---|---|---|
 | Thread | `:thread` | near-zero | shared image (condition-catchable) |
