@@ -13,6 +13,18 @@ relates-to:
   - ORIGIN-DRAFT-orbital-images
   - ORIGIN-DRAFT-control-vocabulary
   - ORIGIN-DRAFT-linux-service-manager
+decisions:
+  - ORIGIN-DRAFT-user-facing-surfaces-D1
+  - ORIGIN-DRAFT-user-facing-surfaces-D2
+open-questions:
+  - ORIGIN-DRAFT-user-facing-surfaces-O1
+  - ORIGIN-DRAFT-user-facing-surfaces-O2
+  - ORIGIN-DRAFT-user-facing-surfaces-O3
+  - ORIGIN-DRAFT-user-facing-surfaces-O4
+  - ORIGIN-DRAFT-user-facing-surfaces-O5
+  - ORIGIN-DRAFT-user-facing-surfaces-O6
+  - ORIGIN-DRAFT-user-facing-surfaces-O7
+  - ORIGIN-DRAFT-user-facing-surfaces-O8
 ---
 
 # Origin User-Facing Surfaces: Development Plan
@@ -116,6 +128,8 @@ The same orbit, rendered at increasing depth. The levels are not arbitrary
 skill gates; they correspond to **Impulse permission tiers**, which gives
 them a principled and securable basis.
 
+Table: The progressive-disclosure spectrum mapped to Impulse permission tiers.
+
 | Level | Audience | Surface | Impulse tier |
 |------|----------|---------|--------------|
 | App list | anyone / touch / kiosk | task buttons (meta-orbitals); click = reconcile to desired state | read-only / limited lifecycle |
@@ -167,6 +181,8 @@ Three properties make this coherent rather than ad hoc:
 
 The vision is grounded -- each element maps to machinery that exists or is
 already planned:
+
+Table: UX elements mapped to Origin primitives.
 
 | UX element | Origin primitive |
 |------------|------------------|
@@ -228,6 +244,8 @@ mechanism by which it becomes Origin-aware are an open investigation
 
 
 ## Comparison to Existing Paradigms
+
+Table: Comparison of Origin surfaces to existing paradigms.
 
 | Paradigm | Launch | Live state | Post-launch control | Task abstraction | Resource policy | Dependencies |
 |---|---|---|---|---|---|---|
@@ -293,34 +311,83 @@ are recorded.
    demotion does not function. The mechanism is under investigation.
 
 
+## Settled Decisions
+
+### ORIGIN-DRAFT-user-facing-surfaces-D1 — Surfaces produced from a common representational layer
+
+**Status:** Proposed
+
+**Context:** Surfaces could be hardcoded per toolkit or produced from a
+common base.
+
+**Decision:** Surfaces are produced from a common base representational layer
+that composes to multiple output formats, rather than a single hardcoded
+toolkit.
+
+**Alternatives:** None recorded.
+
+### ORIGIN-DRAFT-user-facing-surfaces-D2 — Focus-driven workload management via compositor-as-orbital
+
+**Status:** Proposed
+
+**Context:** Workload priority could be static or driven by user
+focus/visibility.
+
+**Decision:** The compositor runs as an Origin-aware orbital that emits
+focus/visibility events as Impulse signals, driving WLM priority.
+
+**Alternatives:** None recorded.
+
+
 ## Open Questions
 
 To be resolved as the concept is refined toward specific tools.
 
-1. **The common representational layer's model.** What the format-neutral
-   description is, and how it composes to web and native Lexter renderers.
-2. **Meta-orbital schema and authoring.** How a meta-orbital declares its
-   members, desired state, presentation, and rolled-up health; and the
-   authoring UX for users to define and regroup them.
-3. **Focus-signal vocabulary.** The Impulse signals a compositor orbital
-   emits (focus, minimize, visibility, workspace) and how the WLM layer maps
-   them to cgroup retuning.
-4. **Compositor choice and Origin-awareness mechanism.** Which compositor,
-   and whether it is itself an orbital or observed through an adapter, given
-   that this dependency is load-bearing for focus-driven WLM.
-5. **Reconciliation feedback.** How a click's effect (focusing vs.
-   restoring vs. waking) is made immediately legible, including the
-   bring-to-front, gray-out, and loading-indicator behaviors.
-6. **Always-on console scope.** What the Lexter administrative console must
-   guarantee to remain usable when richer surfaces fail, and how it is
-   isolated from their failure.
-7. **Surface/tier binding.** How surfaces acquire and display their Impulse
-   permission tier, and how privilege is elevated (e.g. to reach the REPL).
-8. **Foreign-app surfacing.** How arbitrary X/Wayland apps appear in the
-   surfaces (lifecycle-only) versus deeply-managed orbitals.
+### ORIGIN-DRAFT-user-facing-surfaces-O1 — The common representational layer's model
+
+What the format-neutral description is, and how it composes to web and
+native Lexter renderers.
+
+### ORIGIN-DRAFT-user-facing-surfaces-O2 — Meta-orbital schema and authoring
+
+How a meta-orbital declares its members, desired state, presentation, and
+rolled-up health; and the authoring UX for users to define and regroup them.
+
+### ORIGIN-DRAFT-user-facing-surfaces-O3 — Focus-signal vocabulary
+
+The Impulse signals a compositor orbital emits (focus, minimize, visibility,
+workspace) and how the WLM layer maps them to cgroup retuning.
+
+### ORIGIN-DRAFT-user-facing-surfaces-O4 — Compositor choice and Origin-awareness mechanism
+
+Which compositor, and whether it is itself an orbital or observed through an
+adapter, given that this dependency is load-bearing for focus-driven WLM.
+
+### ORIGIN-DRAFT-user-facing-surfaces-O5 — Reconciliation feedback
+
+How a click's effect (focusing vs. restoring vs. waking) is made immediately
+legible, including the bring-to-front, gray-out, and loading-indicator
+behaviors.
+
+### ORIGIN-DRAFT-user-facing-surfaces-O6 — Always-on console scope
+
+What the Lexter administrative console must guarantee to remain usable when
+richer surfaces fail, and how it is isolated from their failure.
+
+### ORIGIN-DRAFT-user-facing-surfaces-O7 — Surface/tier binding
+
+How surfaces acquire and display their Impulse permission tier, and how
+privilege is elevated (e.g. to reach the REPL).
+
+### ORIGIN-DRAFT-user-facing-surfaces-O8 — Foreign-app surfacing
+
+How arbitrary X/Wayland apps appear in the surfaces (lifecycle-only) versus
+deeply-managed orbitals.
 
 
 ## Prior Art
+
+Table: Prior art and what to draw from each.
 
 | System / pattern | What to draw from |
 |------------------|-------------------|
@@ -333,7 +400,7 @@ To be resolved as the concept is refined toward specific tools.
 | **Task managers / `systemctl`** | the control/observe half the model re-unifies with launching |
 
 
-## Direction
+## Roadmap
 
 Indicative and tool-agnostic; the concept needs refinement before tool
 selection. The order tracks the primitives it depends on.

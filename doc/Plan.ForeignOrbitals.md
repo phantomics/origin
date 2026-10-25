@@ -13,6 +13,14 @@ relates-to:
   - ORIGIN-DRAFT-control-vocabulary
   - ORIGIN-DRAFT-impulse-iii
   - ORIGIN-DRAFT-linux-service-manager
+open-questions:
+  - ORIGIN-DRAFT-foreign-orbitals-O1
+  - ORIGIN-DRAFT-foreign-orbitals-O2
+  - ORIGIN-DRAFT-foreign-orbitals-O3
+  - ORIGIN-DRAFT-foreign-orbitals-O4
+  - ORIGIN-DRAFT-foreign-orbitals-O5
+  - ORIGIN-DRAFT-foreign-orbitals-O6
+  - ORIGIN-DRAFT-foreign-orbitals-O7
 ---
 
 # Foreign Orbitals: Development Plan
@@ -143,6 +151,8 @@ recorded in [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md).
 
 
 ## Tiers
+
+Table: Foreign orbital integration tiers.
 
 | Tier | Scope | Depends on | Status |
 |------|-------|------------|--------|
@@ -277,6 +287,8 @@ commercial nginx Plus API is out of scope.
 nginx assigns specific meanings to signals, and they do not match
 Origin's defaults:
 
+Table: nginx signal meanings.
+
 | Signal | nginx meaning |
 |--------|---------------|
 | `TERM` / `INT` | fast shutdown |
@@ -399,6 +411,8 @@ others, and rich structured logs.
 
 ## Prior Art
 
+Table: Prior art and what to draw from each.
+
 | System / pattern | What to draw from |
 |------------------|-------------------|
 | **Kubernetes sidecar / adapter containers** | a companion process presenting a uniform interface to a workload that does not cooperate natively |
@@ -410,34 +424,50 @@ others, and rich structured logs.
 
 ## Open Questions
 
-1. **Config atomicity and rollback.** On a failed reload after a config
-   swap, how does the Tether roll back -- keep the previous validated
-   config and re-place it, or rely on validate-before-swap to make
-   rollback unnecessary? (Leaning on validate-before-swap, with the
-   previous config retained for safety.)
-2. **JSON facility placement.** Does the core-usable JSON reader/writer
-   live in Origin core proper, or in an optional core-adjacent module
-   loaded only when an in-core Tether needs it? The zero-dependency
-   runtime principle argues against pulling JSON into the base image
-   unconditionally.
-3. **Secrets in generated config.** TLS keys, upstream credentials, and
-   the like in generated nginx config -- how are they sourced and kept out
-   of logs, the event log, and world-readable `/tmp` files (permissions,
-   a secrets indirection)?
-4. **Log rotation.** Reopening logs is `USR1`; does the Tether own
-   rotation (rename + USR1) or defer to an external rotator? Ephemeral
-   `/tmp` instances may not need rotation at all.
-5. **Health versus readiness.** For nginx, "the master is alive"
-   (`:image` liveness) differs from "it is serving" (stub_status reachable
-   on the configured port). The Tether should distinguish them, feeding
-   the health/readiness sub-vocabulary discussion in Impulse.
-6. **Typed config sharing.** How much of the typed configuration layer is
-   nginx-specific versus shareable (e.g. a generic TLS-policy or
-   upstream-set notion)? Resolved empirically as more Tethers appear.
-7. **State handoff relevance.** nginx is effectively stateless across
-   restarts; which foreign programs (databases, session stores) make
-   `restart`-with-state-handoff meaningful, and how does that interact
-   with the program's own persistence?
+### ORIGIN-DRAFT-foreign-orbitals-O1 — Config atomicity and rollback
+
+On a failed reload after a config swap, how does the Tether roll back --
+keep the previous validated config and re-place it, or rely on
+validate-before-swap to make rollback unnecessary? (Leaning on
+validate-before-swap, with the previous config retained for safety.)
+
+### ORIGIN-DRAFT-foreign-orbitals-O2 — JSON facility placement
+
+Does the core-usable JSON reader/writer live in Origin core proper, or in
+an optional core-adjacent module loaded only when an in-core Tether needs
+it? The zero-dependency runtime principle argues against pulling JSON into
+the base image unconditionally.
+
+### ORIGIN-DRAFT-foreign-orbitals-O3 — Secrets in generated config
+
+TLS keys, upstream credentials, and the like in generated nginx config --
+how are they sourced and kept out of logs, the event log, and
+world-readable `/tmp` files (permissions, a secrets indirection)?
+
+### ORIGIN-DRAFT-foreign-orbitals-O4 — Log rotation
+
+Reopening logs is `USR1`; does the Tether own rotation (rename + USR1) or
+defer to an external rotator? Ephemeral `/tmp` instances may not need
+rotation at all.
+
+### ORIGIN-DRAFT-foreign-orbitals-O5 — Health versus readiness
+
+For nginx, "the master is alive" (`:image` liveness) differs from "it is
+serving" (stub_status reachable on the configured port). The Tether should
+distinguish them, feeding the health/readiness sub-vocabulary discussion in
+Impulse.
+
+### ORIGIN-DRAFT-foreign-orbitals-O6 — Typed config sharing
+
+How much of the typed configuration layer is nginx-specific versus shareable
+(e.g. a generic TLS-policy or upstream-set notion)? Resolved empirically as
+more Tethers appear.
+
+### ORIGIN-DRAFT-foreign-orbitals-O7 — State handoff relevance
+
+nginx is effectively stateless across restarts; which foreign programs
+(databases, session stores) make `restart`-with-state-handoff meaningful,
+and how does that interact with the program's own persistence?
 
 
 ## Roadmap

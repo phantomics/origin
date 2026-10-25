@@ -15,6 +15,18 @@ relates-to:
   - ORIGIN-DRAFT-linux-service-manager
   - ORIGIN-DRAFT-user-facing-surfaces
   - ORIGIN-DRAFT-placement
+decisions:
+  - ORIGIN-DRAFT-orchestration-D1
+  - ORIGIN-DRAFT-orchestration-D2
+open-questions:
+  - ORIGIN-DRAFT-orchestration-O1
+  - ORIGIN-DRAFT-orchestration-O2
+  - ORIGIN-DRAFT-orchestration-O3
+  - ORIGIN-DRAFT-orchestration-O4
+  - ORIGIN-DRAFT-orchestration-O5
+  - ORIGIN-DRAFT-orchestration-O6
+  - ORIGIN-DRAFT-orchestration-O7
+  - ORIGIN-DRAFT-orchestration-O8
 ---
 
 # Origin as a Recursive Orchestrator (Fleet Tier): Development Plan
@@ -88,6 +100,35 @@ per-host Origins over TCP Impulse -- the path from personal appliance to
 fleet."
 
 
+## Settled Decisions
+
+### ORIGIN-DRAFT-orchestration-D1 — Scope: personal / small fleet, transparency-first
+
+**Status:** Proposed
+
+**Context:** The target could be hyperscale or small fleet.
+
+**Decision:** The target is a homelab, edge cluster, or small-organization
+estate — a handful to dozens of Origin-speaking nodes — where the value is
+coherence and recursive transparency. Hyperscale is explicitly out of scope.
+
+**Alternatives:** None recorded.
+
+### ORIGIN-DRAFT-orchestration-D2 — Borrow, don't build for scheduling, networking, and storage
+
+**Status:** Proposed
+
+**Context:** Origin could reimplement scheduling/placement, networking (CNI),
+and storage (CSI), or delegate them to existing runtimes.
+
+**Decision:** Origin owns lifecycle, control, transparency, and dashboards.
+The hard, well-understood layers are delegated to existing runtimes (Podman,
+libvirt) through adapters, not reimplemented.
+
+**Alternatives:** Build native scheduler/networking/storage. Rejected: these
+are large, well-solved problems that would dominate the effort.
+
+
 ## Scope and Non-Goals
 
 **Scope (decided): personal / small fleet, transparency-first.** The target
@@ -146,6 +187,8 @@ not replace their isolation, networking, or storage.
 
 ## How It Extends the Existing Model
 
+Table: How fleet concepts map onto existing Origin primitives.
+
 | Fleet concept | Origin realization | Status |
 |---|---|---|
 | Run a container | `:image` orbital with a `podman run` argv | free today (Tier 1) |
@@ -184,6 +227,8 @@ ceiling, and is treated honestly as such (Goal 5).
 
 
 ## Barriers, Graded
+
+Table: Fleet-tier barriers, graded by difficulty.
 
 | Tier | Item | Assessment |
 |---|---|---|
@@ -244,6 +289,8 @@ The single largest *necessary* new piece. The plan:
 
 ## Prior Art
 
+Table: Prior art and what to draw from each.
+
 | System | What it is | Distance from this plan |
 |---|---|---|
 | **Distributed Erlang / OTP** | federated self-similar supervised nodes, uniform protocol, failover/takeover, global registry | closest in spirit; BEAM-only, within-instance layer, no VM/container/heterogeneous-node management |
@@ -263,25 +310,46 @@ one layer.
 
 ## Open Questions
 
-1. **Transport security model.** mTLS/identity/authZ specifics for
-   host-to-host Impulse, and how node identity is provisioned and rotated.
-2. **Guest-agent design.** The vsock guest-agent orbital that exposes a
-   guest's Impulse socket, and its trust relationship to the host.
-3. **Fleet root availability.** Whether/when to introduce HA/consensus for
-   the fleet root, or accept a single root with fast respawn at small scale.
-4. **Adapter set.** Which runtime adapters first -- Podman almost certainly,
-   then libvirt/QEMU; what each maps `describe`/`status`/`apply` onto.
-5. **Discovery and addressing.** How the hierarchical path addressing
-   (fleet/host/guest/orbital) and the service registry interoperate across
-   the network, and how unreachable subtrees are represented honestly.
-6. **Placement model.** Explicit operator placement vs. delegated-to-runtime
-   vs. a future native scheduler -- and where the line sits.
-7. **Borrowed-networking choice.** Whether a mesh (e.g. WireGuard) is
-   supervised as an orbital for cross-host reachability, and how it relates
-   to the Impulse transport.
-8. **Opaque-guest UX.** How non-Origin guests appear in the recursive
-   dashboards (lifecycle/health only) without implying transparency they
-   lack.
+### ORIGIN-DRAFT-orchestration-O1 — Transport security model
+
+mTLS/identity/authZ specifics for host-to-host Impulse, and how node
+identity is provisioned and rotated.
+
+### ORIGIN-DRAFT-orchestration-O2 — Guest-agent design
+
+The vsock guest-agent orbital that exposes a guest's Impulse socket, and its
+trust relationship to the host.
+
+### ORIGIN-DRAFT-orchestration-O3 — Fleet root availability
+
+Whether/when to introduce HA/consensus for the fleet root, or accept a
+single root with fast respawn at small scale.
+
+### ORIGIN-DRAFT-orchestration-O4 — Adapter set
+
+Which runtime adapters first -- Podman almost certainly, then libvirt/QEMU;
+what each maps `describe`/`status`/`apply` onto.
+
+### ORIGIN-DRAFT-orchestration-O5 — Discovery and addressing
+
+How the hierarchical path addressing (fleet/host/guest/orbital) and the
+service registry interoperate across the network, and how unreachable
+subtrees are represented honestly.
+
+### ORIGIN-DRAFT-orchestration-O6 — Placement model
+
+Explicit operator placement vs. delegated-to-runtime vs. a future native
+scheduler -- and where the line sits.
+
+### ORIGIN-DRAFT-orchestration-O7 — Borrowed-networking choice
+
+Whether a mesh (e.g. WireGuard) is supervised as an orbital for cross-host
+reachability, and how it relates to the Impulse transport.
+
+### ORIGIN-DRAFT-orchestration-O8 — Opaque-guest UX
+
+How non-Origin guests appear in the recursive dashboards (lifecycle/health
+only) without implying transparency they lack.
 
 
 ## Roadmap

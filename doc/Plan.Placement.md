@@ -12,6 +12,20 @@ relates-to:
   - ORIGIN-DRAFT-orchestration
   - ORIGIN-DRAFT-linux-service-manager
   - ORIGIN-DRAFT-control-vocabulary
+decisions:
+  - ORIGIN-DRAFT-placement-D1
+  - ORIGIN-DRAFT-placement-D2
+open-questions:
+  - ORIGIN-DRAFT-placement-O1
+  - ORIGIN-DRAFT-placement-O2
+  - ORIGIN-DRAFT-placement-O3
+  - ORIGIN-DRAFT-placement-O4
+  - ORIGIN-DRAFT-placement-O5
+  - ORIGIN-DRAFT-placement-O6
+  - ORIGIN-DRAFT-placement-O7
+  - ORIGIN-DRAFT-placement-O8
+  - ORIGIN-DRAFT-placement-O9
+  - ORIGIN-DRAFT-placement-O10
 ---
 
 # Origin Placement and Topology: Development Plan
@@ -34,10 +48,43 @@ Scopes the pure placement model and the topology DSL; the impure
 reconciler is sketched but deferred. No implementation has begun.
 
 
+## Settled Decisions
+
+### ORIGIN-DRAFT-placement-D1 — Placement is a pure function
+
+**Status:** Proposed
+
+**Context:** Placement could be a pure function or interleaved with
+enactment.
+
+**Decision:** Placement is a pure function isolating CL's strength from the
+impure reconciler. `place` takes a desired topology, a manifest, and
+optionally a current assignment, and returns an assignment and structured
+infeasibilities.
+
+**Alternatives:** Interleave placement with enactment. Rejected: mixing pure
+reasoning with side effects.
+
+### ORIGIN-DRAFT-placement-D2 — Filter-then-score baseline solver
+
+**Status:** Proposed
+
+**Context:** The solver could be optimal (SAT/SMT), heuristic, or learned.
+
+**Decision:** The chosen baseline is the Kubernetes-style two-phase greedy
+heuristic — adequate at small-fleet scale, idiomatic CL, and far simpler
+than an optimal solver.
+
+**Alternatives:** Constraint/optimization engine (Screamer, SAT/SMT).
+Deferred: expected to be unnecessary at the target scale.
+
+
 ## Problem
 
 "Scheduling and placement" bundles four distinct problems, and Origin's
 strengths apply unevenly across them:
+
+Table: The four problems placement bundles, with CL fit and difficulty.
 
 | # | Problem | What it is | CL fit | Difficulty (small fleet) |
 |---|---------|------------|--------|--------------------------|
@@ -226,6 +273,8 @@ using machinery built elsewhere.
 
 ## Barriers, Graded
 
+Table: Placement barriers, graded by difficulty.
+
 | Tier | Item | Assessment |
 |------|------|------------|
 | Nearly free | topology DSL, manifest, mutation algebra | pure data + macros; a CL strength |
@@ -248,6 +297,8 @@ pure/impure boundary or delegated outright.
 The `web-publisher` topology stratifies cleanly along the cattle/pet axis,
 which is exactly why it is illustrative:
 
+Table: The web-publisher topology stratified along the cattle/pet axis.
+
 | Tier | Kind | Placement | Mutation cost |
 |------|------|-----------|---------------|
 | `symbolic` | stateless, heavy | few, on `:high-cpu`, near workers | moderate |
@@ -268,6 +319,8 @@ and Origin meets a wall on some long before others. Node count is rarely the
 wall. What changes with scale is *structure* (flat vs. hierarchical),
 *control-plane availability* (when HA stops being deferrable), and
 *governance* (single-owner vs. multi-tenant/regulated).
+
+Table: Scale tiers and their structural requirements.
 
 | Tier | Nodes (order of magnitude) | Structure | Control-plane HA | Governance |
 |------|------|-----------|------------------|------------|
@@ -389,6 +442,8 @@ feasibility decision.
 
 ## Prior Art
 
+Table: Prior art and what to draw from each.
+
 | System / concept | What to draw from |
 |------------------|-------------------|
 | **Kubernetes scheduler** | the filter ("predicates") then score ("priorities") two-phase heuristic -- the baseline solver shape |
@@ -402,28 +457,57 @@ feasibility decision.
 
 ## Open Questions
 
-1. **DSL surface.** Final macro forms for `stateless`/`stateful` units,
-   constraints, edges, and the manifest; how roles/tiers compose.
-2. **Demand model.** Static `:demand` declarations vs. measured/profiled
-   demand, and how the placer treats uncertainty.
-3. **Scoring weights.** How balance, locality, and churn are weighted, and
-   whether weights are policy a user can express.
-4. **Infeasibility output.** The structured shape of "why not" and how it
-   suggests minimal manifest changes.
-5. **Pet redundancy boundary.** Exactly where Origin's placement of stateful
-   instances ends and the service's own replication begins.
-6. **Reconciler design.** The deferred impure layer: diffing, transition
-   plans (C1), and integration with Impulse and borrowed runtimes.
-7. **Re-placement triggers.** When `place` re-runs (manifest change, node
-   failure) and who authoritatively decides under partition.
-8. **Scale thresholds.** The node counts and fan-out at which hierarchy
-   becomes mandatory and control-plane HA stops being deferrable.
-9. **Multi-tenancy and governance.** Mapping labs / trust domains onto
-   subordinate Origin domains, with per-domain tier policy, audit, and
-   compliance attestation (e.g. for regulated medical research).
-10. **Learned-demand integration.** Feeding Origin's telemetry into a demand
-    predictor and a score-weight tuner without compromising the pure placer's
-    feasibility guarantees and explainability.
+### ORIGIN-DRAFT-placement-O1 — DSL surface
+
+Final macro forms for `stateless`/`stateful` units, constraints, edges, and
+the manifest; how roles/tiers compose.
+
+### ORIGIN-DRAFT-placement-O2 — Demand model
+
+Static `:demand` declarations vs. measured/profiled demand, and how the
+placer treats uncertainty.
+
+### ORIGIN-DRAFT-placement-O3 — Scoring weights
+
+How balance, locality, and churn are weighted, and whether weights are
+policy a user can express.
+
+### ORIGIN-DRAFT-placement-O4 — Infeasibility output
+
+The structured shape of "why not" and how it suggests minimal manifest
+changes.
+
+### ORIGIN-DRAFT-placement-O5 — Pet redundancy boundary
+
+Exactly where Origin's placement of stateful instances ends and the
+service's own replication begins.
+
+### ORIGIN-DRAFT-placement-O6 — Reconciler design
+
+The deferred impure layer: diffing, transition plans (C1), and integration
+with Impulse and borrowed runtimes.
+
+### ORIGIN-DRAFT-placement-O7 — Re-placement triggers
+
+When `place` re-runs (manifest change, node failure) and who
+authoritatively decides under partition.
+
+### ORIGIN-DRAFT-placement-O8 — Scale thresholds
+
+The node counts and fan-out at which hierarchy becomes mandatory and
+control-plane HA stops being deferrable.
+
+### ORIGIN-DRAFT-placement-O9 — Multi-tenancy and governance
+
+Mapping labs / trust domains onto subordinate Origin domains, with
+per-domain tier policy, audit, and compliance attestation (e.g. for
+regulated medical research).
+
+### ORIGIN-DRAFT-placement-O10 — Learned-demand integration
+
+Feeding Origin's telemetry into a demand predictor and a score-weight tuner
+without compromising the pure placer's feasibility guarantees and
+explainability.
 
 
 ## Roadmap

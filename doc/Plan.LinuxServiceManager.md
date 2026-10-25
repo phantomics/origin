@@ -15,6 +15,28 @@ relates-to:
   - ORIGIN-DRAFT-control-vocabulary
   - ORIGIN-DRAFT-orchestration
   - ORIGIN-DRAFT-placement
+decisions:
+  - ORIGIN-DRAFT-linux-service-manager-D1
+  - ORIGIN-DRAFT-linux-service-manager-D2
+  - ORIGIN-DRAFT-linux-service-manager-D3
+  - ORIGIN-DRAFT-linux-service-manager-D4
+  - ORIGIN-DRAFT-linux-service-manager-D5
+  - ORIGIN-DRAFT-linux-service-manager-D6
+  - ORIGIN-DRAFT-linux-service-manager-D7
+  - ORIGIN-DRAFT-linux-service-manager-D8
+  - ORIGIN-DRAFT-linux-service-manager-D9
+  - ORIGIN-DRAFT-linux-service-manager-D10
+  - ORIGIN-DRAFT-linux-service-manager-D11
+open-questions:
+  - ORIGIN-DRAFT-linux-service-manager-O1
+  - ORIGIN-DRAFT-linux-service-manager-O2
+  - ORIGIN-DRAFT-linux-service-manager-O3
+  - ORIGIN-DRAFT-linux-service-manager-O4
+  - ORIGIN-DRAFT-linux-service-manager-O5
+  - ORIGIN-DRAFT-linux-service-manager-O6
+  - ORIGIN-DRAFT-linux-service-manager-O7
+  - ORIGIN-DRAFT-linux-service-manager-O8
+  - ORIGIN-DRAFT-linux-service-manager-O9
 ---
 
 # Origin as a Linux Service Manager and Init: Development Plan
@@ -113,70 +135,115 @@ ordering with readiness, and the breadth of Tether-based service adapters.
 
 These were settled in discussion and are the spine of the build project.
 
-1. **Two-layer split: a stub is the literal PID 1; Origin core is its sole
-   child and the authoritative service manager.** Not Origin-as-literal-PID-1.
-   (See "Architecture" below; this is the keystone decision and it
-   dissolves the hardest barriers.)
+### ORIGIN-DRAFT-linux-service-manager-D1 — Two-layer split: stub PID 1, Origin core as service manager
 
-2. **Target system class: a personal / CL-centric appliance.** Headless or
-   single-purpose hosts where most services are CL orbitals and foreign
-   services are few. This scopes *out* the largest and least rewarding
-   work -- the systemd D-Bus/`logind` desktop-compatibility surface -- which
-   would otherwise dominate a general-purpose-distro init.
+**Status:** Proposed
 
-3. **Core stays SBCL; ECL is used only for orbitals.** Origin and Impulse
-   are ~100% SBCL today; a core port to ECL is real work and would land on
-   Origin's most load-bearing properties (threading, long-uptime GC). The
-   stub-PID-1 decision neutralizes ECL's advantages (embedding, `.o`
-   output, easy static linking), because Origin core starts only after the
-   real rootfs is mounted, where a normal environment exists. ECL remains
-   available *per orbital* via `:image` mode, where its lighter footprint
-   can pay off.
+**Context:** An init system fuses two jobs: PID 1 (the unkillable floor — reaping, signal handling, rootfs handoff) and the service manager (supervision, restart policy, dependency ordering, control plane, logging). Origin already provides the service-manager layer. The question is how to handle PID 1 duties without exposing the SBCL image to the hardest kernel-level constraints.
 
-4. **Distribution base: antiX with "init-diversity."** antiX (MX Linux's
-   progenitor) already presents init as a swappable choice -- sysvinit,
-   s6-rc, s6-66, OpenRC, dinit, runit -- on a Debian base. This is a
-   ready-made harness into which Origin slots as another init option,
-   rather than a from-scratch graft. (MX Linux 25.1+ offers only
-   sysvinit-or-systemd; runit-native distros like Void/Artix-runit are the
-   closest *conceptual* fit and the best template for the Tether set --
-   see below.)
+**Decision:** A tiny stub is the literal PID 1; Origin core runs as its sole child and the authoritative service manager. Not Origin-as-literal-PID-1. This is the keystone decision and it dissolves the hardest barriers. (See "Architecture" below.)
 
-5. **Origin replaces init and service management; the standalone
-   non-systemd components remain as orbitals it supervises.** Specifically
-   `seatd` (minimal, libc-only seat management; `libseat` auto-detects the
-   backend so wlroots compositors work), `elogind` (standalone
-   `org.freedesktop.login1`, needed only for heavier desktops like GNOME),
-   and `eudev`/`mdevd` (device management). Origin does not reinvent these;
-   it manages them.
+**Alternatives:** Origin as the literal PID 1; rejected because it would expose the SBCL image to reaping conflicts with SBCL's targeted `waitpid`, PID 1 signal semantics, and the never-exit requirement for a garbage-collected image.
 
-6. **First foreign orbital: nginx, in a container; Redis at Stage 1.5.**
-   nginx is the ForeignOrbitals worked example. Redis (a wire-protocol
-   control model, the opposite of nginx's files-and-signals) follows to
-   guard the Tether abstraction against being nginx-shaped. Device/seat
-   managers are deferred to the VM stages, since they need real devices a
-   container cannot cleanly provide.
+### ORIGIN-DRAFT-linux-service-manager-D2 — Target system class: personal / CL-centric appliance
 
-7. **Container runtime: Podman** (rootless, daemonless; fits the
-   non-systemd ethos).
+**Status:** Proposed
 
-8. **Zero-dependency core preserved; the JSON facility is an optional
-   core-adjacent module.** The nginx log parser needs JSON, but JSON is not
-   pulled into `origin` core. It lives in a separate optional module loaded
-   only when an in-core Tether needs it.
+**Context:** The scope of init-system work varies enormously depending on the target system class. A general-purpose desktop distribution demands the systemd D-Bus/`logind` desktop-compatibility surface, which would dominate development effort.
 
-9. **Recursion: design-for, apply-later.** Stage 1 is a single (root)
-   node, but Impulse addressing is kept path-shaped and the nginx Tether
-   is kept relocatable to a future subordinate node, so recursion is proven
-   incrementally without a rewrite.
+**Decision:** Target personal / CL-centric appliance hosts — headless or single-purpose systems where most services are CL orbitals and foreign services are few. This scopes out the largest and least rewarding work.
 
-10. **Node tree aligns with the cgroup v2 hierarchy** (a subordinate Origin
-    corresponds to a cgroup subtree) as a guiding principle, even though
-    cgroup integration itself is later work.
+**Alternatives:** General-purpose distribution init; rejected as the largest and least rewarding work.
 
-11. **Saved-core boot is elevated** ahead of deep recursion / boot-path
-    work, because recursion makes fast node-spawn a near-prerequisite for a
-    recursive init.
+### ORIGIN-DRAFT-linux-service-manager-D3 — Core stays SBCL; ECL is used only for orbitals
+
+**Status:** Proposed
+
+**Context:** Origin and Impulse are ~100% SBCL today; a core port to ECL is real work and would land on Origin's most load-bearing properties (threading, long-uptime GC). The stub-PID-1 decision neutralizes ECL's advantages (embedding, `.o` output, easy static linking), because Origin core starts only after the real rootfs is mounted, where a normal environment exists.
+
+**Decision:** Core stays SBCL. ECL remains available *per orbital* via `:image` mode, where its lighter footprint can pay off.
+
+**Alternatives:** ECL for the core; rejected due to port cost and threading/GC maturity concerns.
+
+### ORIGIN-DRAFT-linux-service-manager-D4 — Distribution base: antiX with init-diversity
+
+**Status:** Proposed
+
+**Context:** A build/test substrate is needed that supports swappable init systems on a Debian base. MX Linux 25.1+ offers only sysvinit-or-systemd. Runit-native distros like Void/Artix-runit are the closest conceptual fit and best Tether-set template.
+
+**Decision:** antiX with "init-diversity" — already presents init as a swappable choice (sysvinit, s6-rc, s6-66, OpenRC, dinit, runit) on a Debian base. Origin slots in as another init option rather than a from-scratch graft.
+
+**Alternatives:** MX Linux 25.1+ (limited to sysvinit-or-systemd); Void/Artix-runit (closest conceptual fit but not the build substrate).
+
+### ORIGIN-DRAFT-linux-service-manager-D5 — Origin replaces init and service management; standalone components remain as orbitals
+
+**Status:** Proposed
+
+**Context:** Some standalone non-systemd components (seat management, login/session tracking, device management) are well-maintained and minimal. Origin's role is to supervise them, not reinvent them.
+
+**Decision:** Origin replaces init and service management; the standalone non-systemd components remain as orbitals it supervises. Specifically `seatd` (minimal, libc-only seat management; `libseat` auto-detects the backend so wlroots compositors work), `elogind` (standalone `org.freedesktop.login1`, needed only for heavier desktops like GNOME), and `eudev`/`mdevd` (device management).
+
+**Alternatives:** Reinventing these components in Common Lisp; rejected as unnecessary duplication.
+
+### ORIGIN-DRAFT-linux-service-manager-D6 — First foreign orbital: nginx; Redis at Stage 1.5
+
+**Status:** Proposed
+
+**Context:** The Tether abstraction needs validation against at least two control models to guard against being shaped by one example. nginx offers a files-and-signals model; Redis offers a wire-protocol control model.
+
+**Decision:** nginx is the first foreign orbital (the ForeignOrbitals worked example), in a container. Redis follows at Stage 1.5. Device/seat managers are deferred to the VM stages, since they need real devices a container cannot cleanly provide.
+
+**Alternatives:** Device/seat managers first; deferred because they need real devices a container cannot cleanly provide.
+
+### ORIGIN-DRAFT-linux-service-manager-D7 — Container runtime: Podman
+
+**Status:** Proposed
+
+**Context:** A container runtime is needed for the prototyping stages that carry no boot risk.
+
+**Decision:** Podman — rootless, daemonless; fits the non-systemd ethos.
+
+**Alternatives:** Docker (daemon-based, more systemd-dependent); rejected for ideological and practical fit.
+
+### ORIGIN-DRAFT-linux-service-manager-D8 — Zero-dependency core; JSON facility is an optional module
+
+**Status:** Proposed
+
+**Context:** The nginx log parser needs JSON, but Origin core has a zero-dependency policy. Pulling JSON into core would violate this property.
+
+**Decision:** The JSON facility lives in a separate optional module loaded only when an in-core Tether needs it. The core remains zero-dependency.
+
+**Alternatives:** JSON in core; rejected to preserve the zero-dependency property.
+
+### ORIGIN-DRAFT-linux-service-manager-D9 — Recursion: design-for, apply-later
+
+**Status:** Proposed
+
+**Context:** Origin's recursive self-similar node model is its most distinguishing property, but full recursion at Stage 1 would add complexity before the fundamentals are proven.
+
+**Decision:** Stage 1 is a single (root) node, but Impulse addressing is kept path-shaped and the nginx Tether is kept relocatable to a future subordinate node, so recursion is proven incrementally without a rewrite.
+
+**Alternatives:** Full recursion at Stage 1; deferred to avoid premature complexity.
+
+### ORIGIN-DRAFT-linux-service-manager-D10 — Node tree aligns with the cgroup v2 hierarchy
+
+**Status:** Proposed
+
+**Context:** cgroup v2 provides a hierarchical resource-management tree. A subordinate Origin naturally maps to a cgroup subtree, with the parent allocating a slice and the node suballocating among its orbitals.
+
+**Decision:** Node tree aligns with the cgroup v2 hierarchy as a guiding principle, even though cgroup integration itself is later work.
+
+**Alternatives:** None recorded.
+
+### ORIGIN-DRAFT-linux-service-manager-D11 — Saved-core boot elevated ahead of deep recursion
+
+**Status:** Proposed
+
+**Context:** Subordinate Origins currently boot by quickload-at-boot (multi-second). Recursion makes fast node-spawn a near-prerequisite for a recursive init.
+
+**Decision:** Saved-core boot is elevated ahead of deep recursion / boot-path work.
+
+**Alternatives:** Defer saved-core boot until after recursion; rejected because recursion's utility depends on fast node spawn.
 
 
 ## Architecture: the two-layer split
@@ -201,6 +268,8 @@ plus Impulse control plane, supervising every real orbital.
          ├── [subsystem Origins]   (recursion; see below)
          └── [orbitals]            threads / cooperative / images / Tethers
 ```
+
+Description: A tree showing the two-layer architecture: a stub PID 1 at the root respawning its sole child, the Origin core, which supervises subsystem Origins and individual orbitals below it.
 
 This mirrors the README's own philosophy -- "the init system supervises the
 core; the core supervises the orbit" -- turned inward by one level. It is
@@ -263,10 +332,10 @@ B is early boot; C is service-manager completeness; D is operational.
 
 ### Group D -- operational / ecosystem
 
-- **D1. Durable logging.** The event log is in-memory and bounded; an init
+- **Durable logging.** The event log is in-memory and bounded; an init
   wants a persistent, early-boot-capable log (a journald-equivalent
   orbital).
-- **D2. Desktop / D-Bus compatibility.** Scoped *out* by Decision 2; for a
+- **Desktop / D-Bus compatibility.** Scoped *out* by ORIGIN-DRAFT-linux-service-manager-D2; for a
   CL-centric appliance with a light desktop, `seatd`+`turnstile` (or
   `elogind` only if GNOME is required) suffices, supervised as orbitals.
 
@@ -296,6 +365,8 @@ Origin's `process-status`/`process-alive-p`.
 **Finding 2 -- the stub-PID-1 choice makes the PID sets disjoint.** Because
 `waitpid` only reaps a caller's *own* direct children, responsibilities
 partition cleanly along parent boundaries:
+
+Table: Reaping responsibilities partitioned between stub and Origin core.
 
 | Reaper | Process | Reaps | Mechanism |
 |--------|---------|-------|-----------|
@@ -367,6 +438,8 @@ Origin's core supervision model is required.
 
 ## SBCL vs. ECL
 
+Table: SBCL vs. ECL comparison for the init role.
+
 | Dimension | SBCL | ECL | Weight for init |
 |---|---|---|---|
 | Port cost from today's code | zero | substantial | **Decisive** |
@@ -393,13 +466,15 @@ deployment is on antiX/MX.
 
 The standalone components Origin supervises rather than replaces:
 
+Table: Standalone components Origin supervises rather than replaces.
+
 | Function | Component | Notes |
 |---|---|---|
 | Seat management | `seatd` (+`libseat`) | minimal, libc-only; auto-detected backend; wlroots compositors work |
 | Login / `login1` D-Bus | `elogind` | only if a heavy desktop (GNOME) is required; can track sessions across double-fork-to-PID-1 |
 | Runtime dir / session tracking | `turnstile` | manages `XDG_RUNTIME_DIR`; usable with or without elogind |
 | Device management | `eudev` / `mdevd` | not systemd-udev |
-| Durable logging (D1) | a logging orbital | journald-equivalent; future work |
+| Durable logging | a logging orbital | journald-equivalent; future work |
 
 
 ## Dependency ordering and readiness (C1/C2)
@@ -503,6 +578,8 @@ interpreted by one monolithic PID 1 -- the "Organic" in the acronym.
          └── plain leaf orbitals      lightweight daemons (ECL where it pays)
 ```
 
+Description: A tree showing a suggested appliance topology: a stub PID 1 above a root Origin core, which supervises a System Origin (eudev, mounts, network), a Session Origin (with a nested Lexter Origin for windows), a Web Origin (nginx Tether), and plain leaf orbitals.
+
 This is the OriginManager "layered service model" (data / processing /
 presentation) with each layer now a live managed *node* rather than a
 static category, and the Lexter pattern as its first instance.
@@ -512,6 +589,8 @@ static category, and the Lexter pattern as its first instance.
 
 A bad init means an unbootable machine, so iteration is never on bare
 metal. Staging adds risk only after the prior stage is proven:
+
+Table: Prototyping stages, from container to bare metal.
 
 | Stage | Environment | Exercises | Boot risk |
 |---|---|---|---|
@@ -551,9 +630,11 @@ The one core change ForeignOrbitals justifies; small, additive, and
 generically useful (many daemons have a non-`TERM` graceful signal). Grounded
 in the current code:
 
+Table: Core changes for the configurable stop signal.
+
 | File | Change |
 |---|---|
-| `src/managed-process.lisp` | Add slot `image-stop-signal` (`:initarg :image-stop-signal`, `:initform sb-unix:sigterm`, `:accessor process-image-stop-signal`) in the image-state slot group (after the `image-error` slot, ~line 94). In `%stop-process-image` (line 492) replace the hardcoded `sb-unix:sigterm` (line 506) with `(process-image-stop-signal process)`. The `SIGKILL` fallback and `kill-process` (unconditional `SIGKILL`) are unchanged. |
+| `src/managed-process.lisp` | Add slot `image-stop-signal` (`:initarg :image-stop-signal`, `:initform sb-unix:sigterm`, `:accessor process-image-stop-signal`) in the image-state slot group (after the `image-error` slot in `src/managed-process.lisp@57e8988`). In `src/managed-process.lisp:%stop-process-image@57e8988` replace the hardcoded `sb-unix:sigterm` with `(process-image-stop-signal process)`. The `SIGKILL` fallback and `kill-process` (unconditional `SIGKILL`) are unchanged. |
 | `src/api.lisp` | Add `image-stop-signal` to `define-process`'s `&key` list, its `declare ignore`, and one docstring line. No other change: `define-process` already passes `&rest initargs` to `register-process`, which `make-instance`s the class, so the new initarg flows through automatically. |
 | `src/package.lisp` | Export `process-image-stop-signal` (and the `:image-stop-signal` initarg symbol). |
 | `tests/test-image.lisp` | Add checks: default is `SIGTERM`; a child that ignores `SIGTERM` but handles `SIGQUIT` stops gracefully via the configured signal; `SIGKILL` fallback still fires on a child that ignores both. Expect the existing 244 core checks to remain green. |
@@ -564,6 +645,8 @@ A separate ASDF system mirroring `impulse.asd`, `:depends-on ("origin")`
 only (Tier 2 needs no Impulse; the generic verbs drive it for free). Sources
 under `origin-nginx-src/`. Kept relocatable so a future "Web Origin"
 subordinate node can own it (topology (a) -> (b)).
+
+Table: nginx Tether build phases.
 
 | Phase | New file(s) | Content |
 |---|---|---|
@@ -613,36 +696,46 @@ deferred.
 
 To be resolved during the build project that follows this plan.
 
-1. **Stub language and form.** Assembler-framework output vs. minimal C;
-   whether the stub `execve`s Origin (Origin becomes PID 1's image) or keeps
-   itself PID 1 with Origin as a child (the chosen model). The two-layer
-   split assumes the latter.
-2. **Core-shutdown orphan policy.** When Origin core dies, should the stub
-   SIGTERM the entire orbital subtree before respawning a fresh core, or
-   re-adopt running orbitals? (Leaning toward terminate-and-respawn for an
-   appliance; ties to OrbitalImages "orphan handling on core crash.")
-3. **Readiness protocol shape** (C2). How an orbital signals "ready to
-   serve" vs. merely alive -- a notify-style fd, an Impulse `status :health`
-   field, or a per-Tether probe -- and how C1 consumes it.
-4. **Saved-core boot mechanism.** `save-lisp-and-die` cores per node type
-   vs. a shared core with per-node config, and how it interacts with
-   ocicl-distributed Tethers.
-5. **Hierarchical addressing grammar.** The concrete path/selector syntax
-   for recursive administration (ControlVocabulary open Q5), and how
-   request forwarding and `:partial` aggregation work across node hops.
-6. **`:gave-up` escalation path.** The Impulse message by which a node
-   reports terminal failure to its parent, and the parent's restart policy
-   for a whole subordinate node.
-7. **cgroup v2 delegation semantics.** Whether subordinate-Origin ==
-   cgroup-subtree is clean under cgroup v2 delegation rules, or forced.
-8. **Durable logging (D1).** The journald-equivalent logging orbital, and
-   how it captures early-boot logs before disk is writable.
-9. **Boot-critical Tether inventory.** Which services (from the runit
-   template) are on the appliance's critical boot path and need Tethers
-   first.
+### ORIGIN-DRAFT-linux-service-manager-O1 — Stub language and form
+
+Assembler-framework output vs. minimal C; whether the stub `execve`s Origin (Origin becomes PID 1's image) or keeps itself PID 1 with Origin as a child (the chosen model). The two-layer split assumes the latter.
+
+### ORIGIN-DRAFT-linux-service-manager-O2 — Core-shutdown orphan policy
+
+When Origin core dies, should the stub SIGTERM the entire orbital subtree before respawning a fresh core, or re-adopt running orbitals? (Leaning toward terminate-and-respawn for an appliance; ties to OrbitalImages "orphan handling on core crash.")
+
+### ORIGIN-DRAFT-linux-service-manager-O3 — Readiness protocol shape
+
+How an orbital signals "ready to serve" vs. merely alive (C2) -- a notify-style fd, an Impulse `status :health` field, or a per-Tether probe -- and how C1 consumes it.
+
+### ORIGIN-DRAFT-linux-service-manager-O4 — Saved-core boot mechanism
+
+`save-lisp-and-die` cores per node type vs. a shared core with per-node config, and how it interacts with ocicl-distributed Tethers.
+
+### ORIGIN-DRAFT-linux-service-manager-O5 — Hierarchical addressing grammar
+
+The concrete path/selector syntax for recursive administration (ControlVocabulary open Q5), and how request forwarding and `:partial` aggregation work across node hops.
+
+### ORIGIN-DRAFT-linux-service-manager-O6 — gave-up escalation path
+
+The Impulse message by which a node reports terminal failure to its parent, and the parent's restart policy for a whole subordinate node.
+
+### ORIGIN-DRAFT-linux-service-manager-O7 — cgroup v2 delegation semantics
+
+Whether subordinate-Origin == cgroup-subtree is clean under cgroup v2 delegation rules, or forced.
+
+### ORIGIN-DRAFT-linux-service-manager-O8 — Durable logging
+
+The journald-equivalent logging orbital, and how it captures early-boot logs before disk is writable.
+
+### ORIGIN-DRAFT-linux-service-manager-O9 — Boot-critical Tether inventory
+
+Which services (from the runit template) are on the appliance's critical boot path and need Tethers first.
 
 
 ## Prior Art
+
+Table: Prior art and what to draw from each.
 
 | System / pattern | What to draw from |
 |------------------|-------------------|

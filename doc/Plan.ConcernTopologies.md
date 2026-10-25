@@ -13,6 +13,16 @@ relates-to:
   - ORIGIN-DRAFT-orbital-images
   - ORIGIN-DRAFT-orchestration
   - ORIGIN-DRAFT-placement
+decisions:
+  - ORIGIN-DRAFT-concern-topologies-D1
+  - ORIGIN-DRAFT-concern-topologies-D2
+open-questions:
+  - ORIGIN-DRAFT-concern-topologies-O1
+  - ORIGIN-DRAFT-concern-topologies-O2
+  - ORIGIN-DRAFT-concern-topologies-O3
+  - ORIGIN-DRAFT-concern-topologies-O4
+  - ORIGIN-DRAFT-concern-topologies-O5
+  - ORIGIN-DRAFT-concern-topologies-O6
 ---
 
 # Concern Topologies: Development Plan
@@ -87,15 +97,32 @@ The machinery exists; concerns are a structured way to drive it.
 
 ## Settled Decisions
 
-1. **Logical overlays first (decided).** Concerns are traversal patterns
-   over a single topology, not physically separate routing networks.
-   Physical separation (separate Origin instances per concern with
-   independent fault domains) is a graduated escalation for cases where
-   fault isolation between concerns is a hard requirement, not the default.
+### ORIGIN-DRAFT-concern-topologies-D1 — Logical overlays first
 
-2. **Concerns as data, not infrastructure.** A concern is a declarative
-   datum (expressible in the topology DSL, Git-trackable, mutable), not a
-   new transport or protocol layer.
+**Status:** Proposed
+
+**Context:** Whether concerns should be physically separate routing
+networks or logical overlays on a single topology.
+
+**Decision:** Concerns are traversal patterns over a single topology, not
+physically separate routing networks. Physical separation (separate Origin
+instances per concern with independent fault domains) is a graduated
+escalation for cases where fault isolation between concerns is a hard
+requirement, not the default.
+
+**Alternatives:** None recorded.
+
+### ORIGIN-DRAFT-concern-topologies-D2 — Concerns as data, not infrastructure
+
+**Status:** Proposed
+
+**Context:** Whether concerns should be realized as new transport or
+protocol layers, or as declarative data objects.
+
+**Decision:** A concern is a declarative datum (expressible in the topology
+DSL, Git-trackable, mutable), not a new transport or protocol layer.
+
+**Alternatives:** None recorded.
 
 
 ## The Concern Model (sketch)
@@ -138,6 +165,8 @@ structured driver of the existing control plane.
 
 ## Illustrative Concerns
 
+Table: Illustrative concerns with their selectors, cadence, verbs, and density.
+
 | Concern | Selector | Cadence | Verbs | Density |
 |---------|----------|---------|-------|---------|
 | Security audit | `:high-churn` nodes | 5 min | `signal :security-scan`, `status :deployed-version` | dense on `:principal-logic`; sparse elsewhere |
@@ -151,6 +180,8 @@ structured driver of the existing control plane.
 
 The settled approach is logical overlays -- concern-shaped traversals over
 a single topology. The graduated escalation to physical separation:
+
+Table: Logical vs. physical overlays compared.
 
 | Property | Logical overlay (default) | Physical overlay (escalation) |
 |---|---|---|
@@ -189,6 +220,8 @@ new mechanism.
 
 ## Prior Art
 
+Table: Prior art and what to draw from each.
+
 | System / concept | What to draw from |
 |------------------|-------------------|
 | **Service mesh control planes (Istio, Linkerd)** | separate control-plane components (pilot, citadel, galley) with different concerns routing through the same data plane; the closest structural analog, but operating on network traffic rather than management verbs |
@@ -220,23 +253,37 @@ new mechanism.
 
 ## Open Questions
 
-1. **Concern DSL surface.** Final syntax for `define-concern`, its
-   relationship to `define-topology`, and how selectors compose with
-   placement labels.
-2. **Density model.** How "dense" and "sparse" are quantified (every cycle
-   vs. every Nth vs. probabilistic sampling), and whether density adapts
-   dynamically (e.g. increase security scan density after a failed check).
-3. **Event-driven concerns.** Concerns triggered by signals (focus change,
-   deploy event) rather than periodic cadence; how they integrate with
-   Impulse's planned `watch`/subscription mechanism.
-4. **Concern results and aggregation.** How scan results, health maps, and
-   compliance attestations are collected, stored, and rendered in the
-   dashboard surfaces.
-5. **Cross-concern interaction.** Whether concerns can depend on each
-   other (e.g. a deployment concern gates on the security concern's latest
-   scan results).
-6. **Physical-escalation criteria.** The specific conditions under which a
-   logical concern should graduate to a physically separate Origin instance.
+### ORIGIN-DRAFT-concern-topologies-O1 — Concern DSL surface
+
+Final syntax for `define-concern`, its relationship to `define-topology`,
+and how selectors compose with placement labels.
+
+### ORIGIN-DRAFT-concern-topologies-O2 — Density model
+
+How "dense" and "sparse" are quantified (every cycle vs. every Nth vs.
+probabilistic sampling), and whether density adapts dynamically (e.g.
+increase security scan density after a failed check).
+
+### ORIGIN-DRAFT-concern-topologies-O3 — Event-driven concerns
+
+Concerns triggered by signals (focus change, deploy event) rather than
+periodic cadence; how they integrate with Impulse's planned
+`watch`/subscription mechanism.
+
+### ORIGIN-DRAFT-concern-topologies-O4 — Concern results and aggregation
+
+How scan results, health maps, and compliance attestations are collected,
+stored, and rendered in the dashboard surfaces.
+
+### ORIGIN-DRAFT-concern-topologies-O5 — Cross-concern interaction
+
+Whether concerns can depend on each other (e.g. a deployment concern gates
+on the security concern's latest scan results).
+
+### ORIGIN-DRAFT-concern-topologies-O6 — Physical-escalation criteria
+
+The specific conditions under which a logical concern should graduate to a
+physically separate Origin instance.
 
 
 ## Roadmap

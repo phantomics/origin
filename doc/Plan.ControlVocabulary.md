@@ -13,6 +13,18 @@ relates-to:
   - ORIGIN-DRAFT-control-vocabulary-prior-art
   - ORIGIN-DRAFT-foreign-orbitals
   - ORIGIN-DRAFT-impulse-i
+decisions:
+  - ORIGIN-DRAFT-control-vocabulary-D1
+  - ORIGIN-DRAFT-control-vocabulary-D2
+  - ORIGIN-DRAFT-control-vocabulary-D3
+open-questions:
+  - ORIGIN-DRAFT-control-vocabulary-O1
+  - ORIGIN-DRAFT-control-vocabulary-O2
+  - ORIGIN-DRAFT-control-vocabulary-O3
+  - ORIGIN-DRAFT-control-vocabulary-O4
+  - ORIGIN-DRAFT-control-vocabulary-O5
+  - ORIGIN-DRAFT-control-vocabulary-O6
+  - ORIGIN-DRAFT-control-vocabulary-O7
 ---
 
 # Control Vocabulary: Development Plan
@@ -137,32 +149,51 @@ an arbitrary-evaluation channel.
    actions that anything in an Origin system can target and compose.
 
 
-## Settled Design Decisions
+## Settled Decisions
 
 These were settled in discussion and frame the design space below.
 
-### 1. Declarative default with an imperative delta form
+### ORIGIN-DRAFT-control-vocabulary-D1 — Declarative default with an imperative delta form
 
-The vocabulary supports both. The default invocation is **declarative** --
-"build (or bring to) an orbit with these orbitals and these
-characteristics" -- which is idempotent and composes with a future
+**Status:** Proposed
+
+**Context:** The vocabulary must support both whole-state declarations and
+incremental changes against a running configuration.
+
+**Decision:** The vocabulary supports both. The default invocation is
+**declarative** -- "build (or bring to) an orbit with these orbitals and
+these characteristics" -- which is idempotent and composes with a future
 "desired orbit" reconciler. A separate **delta** invocation expresses
 add/remove changes against an existing configuration ("open two more
 windows", "close this window"). Lifecycle verbs lean declarative; deltas
 are explicit so that idempotence is never ambiguous.
 
-### 2. Capability discovery (`describe`) is in the v1 core
+**Alternatives:** None recorded.
 
-Self-description is not a later add-on. From the first version, every
-orbital answers a `describe` query reporting the verbs and
+### ORIGIN-DRAFT-control-vocabulary-D2 — Capability discovery (describe) is in the v1 core
+
+**Status:** Proposed
+
+**Context:** Whether self-description should be part of the initial version
+or deferred.
+
+**Decision:** Self-description is not a later add-on. From the first
+version, every orbital answers a `describe` query reporting the verbs and
 sub-vocabularies it supports and their parameter/query schemas. This is
 what allows, for example, a "Lexter admin" surface to render its controls
 from discovered metadata instead of hardcoding the terminal vocabulary,
 and it keeps the protocol introspectable from day one.
 
-### 3. Messages are dispatched data, not evaluated code
+**Alternatives:** None recorded.
 
-The function-call surface a client uses (e.g.
+### ORIGIN-DRAFT-control-vocabulary-D3 — Messages are dispatched data, not evaluated code
+
+**Status:** Proposed
+
+**Context:** Whether control messages should be evaluated code or
+dispatched data, given the availability of arbitrary eval through Slynk.
+
+**Decision:** The function-call surface a client uses (e.g.
 `(origin-control:status :term-host :window :all :query '(:total-lines :pwd))`)
 is sugar that constructs a data envelope. The receiver reads that envelope
 and dispatches on its `:op` and its own type. The dichotomy the project
@@ -170,11 +201,15 @@ explicitly rejects is "structured vocabulary vs. arbitrary eval"; the
 resolution is *typed message dispatch over an S-expression transport*,
 which has the richness of the latter and the safety of the former.
 
+**Alternatives:** None recorded.
+
 
 ## Proposed Universal Verbs
 
 A plausible universal set, each tagged safe (read-only) or mutating. The
 final set is open; this is the working hypothesis.
+
+Table: Proposed universal verbs, each tagged safe or mutating.
 
 | Verb | Safe? | Meaning |
 |------|-------|---------|
@@ -261,64 +296,73 @@ dedicated plan, [ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md).
 It is recorded here only as a target that shapes the vocabulary.
 
 
-## Open Design Questions
+## Open Questions
 
 To be resolved during the design phase that follows this plan.
 
-1. **Read-only enforcement strength.** "Safe verbs never mutate" cannot be
-   kernel-enforced inside a shared image. The working approach is *by
-   construction* (safe verbs dispatch only to a query protocol that
-   returns data), *by contract*, and *audited* -- the same guarantee
-   HTTP's "safe methods" actually carry. Whether to add a stronger
-   mechanism (e.g. running safe handlers under a read-only dynamic guard)
-   is open.
+### ORIGIN-DRAFT-control-vocabulary-O1 — Read-only enforcement strength
 
-2. **Response and error envelope.** Reuse Origin's condition system: a
-   failed control operation returns a structured error built from
-   `origin-error` subtypes, not a string. Partial results matter for
-   fan-out targets like `:window :all`. A uniform success / error /
-   partial envelope shape is to be designed.
+"Safe verbs never mutate" cannot be kernel-enforced inside a shared image.
+The working approach is *by construction* (safe verbs dispatch only to a
+query protocol that returns data), *by contract*, and *audited* -- the same
+guarantee HTTP's "safe methods" actually carry. Whether to add a stronger
+mechanism (e.g. running safe handlers under a read-only dynamic guard) is
+open.
 
-3. **Streaming and subscription.** Logs and live status want push, not
-   poll. Whether `watch` is in the first version or a fast follow is open.
+### ORIGIN-DRAFT-control-vocabulary-O2 — Response and error envelope
 
-4. **Restart with state handoff.** The deepest verb. "Port over certain
-   data" requires the target to expose an export/import pair keyed by
-   *state kind*, where the kinds map onto the state taxonomy from the
-   founding design (configuration / application / session / binary /
-   ephemera). `restart :preserve '(:session :application)` would ask the
-   outgoing instance to serialize those strata and the incoming one to
-   ingest them. This is a milestone of its own, well beyond the other
-   verbs in depth.
+Reuse Origin's condition system: a failed control operation returns a
+structured error built from `origin-error` subtypes, not a string. Partial
+results matter for fan-out targets like `:window :all`. A uniform success /
+error / partial envelope shape is to be designed.
 
-5. **Addressing and selectors.** Targets are an orbital plus optional
-   sub-selectors (`:window :all`, `:window 2`). A general selector / path
-   grammar is to be defined.
+### ORIGIN-DRAFT-control-vocabulary-O3 — Streaming and subscription
 
-6. **Capability and permission tiers.** Read-only versus read-write versus
-   privileged (eval break-glass) connections, and how capability is
-   granted and checked.
+Logs and live status want push, not poll. Whether `watch` is in the first
+version or a fast follow is open.
 
-7. **Vocabulary versioning.** How sub-vocabularies declare and negotiate
-   versions, so a core and an orbital built at different times can
-   interoperate (compare LSP capability negotiation, NETCONF `hello`).
-   The experience of Microsoft's COM/DCOM (the Component Object Model, the
-   component-integration system underlying much of MS Windows) reinforces
-   the weight of this
-   question: COM invested heavily in interface immutability (once published,
-   a COM interface's binary layout never changes; new capabilities require
-   new interfaces), which was burdensome but prevented the version-mismatch
-   chaos that plagued the rest of the Windows ecosystem. The lesson is that
-   version negotiation and backward compatibility for sub-vocabularies
-   should be designed in early rather than retrofitted — the `hello`
-   handshake already exchanges version; the open question is how strictly
-   enforcement gates verb dispatch.
+### ORIGIN-DRAFT-control-vocabulary-O4 — Restart with state handoff
+
+The deepest verb. "Port over certain data" requires the target to expose an
+export/import pair keyed by *state kind*, where the kinds map onto the state
+taxonomy from the founding design (configuration / application / session /
+binary / ephemera). `restart :preserve '(:session :application)` would ask
+the outgoing instance to serialize those strata and the incoming one to
+ingest them. This is a milestone of its own, well beyond the other verbs in
+depth.
+
+### ORIGIN-DRAFT-control-vocabulary-O5 — Addressing and selectors
+
+Targets are an orbital plus optional sub-selectors (`:window :all`,
+`:window 2`). A general selector / path grammar is to be defined.
+
+### ORIGIN-DRAFT-control-vocabulary-O6 — Capability and permission tiers
+
+Read-only versus read-write versus privileged (eval break-glass) connections,
+and how capability is granted and checked.
+
+### ORIGIN-DRAFT-control-vocabulary-O7 — Vocabulary versioning
+
+How sub-vocabularies declare and negotiate versions, so a core and an
+orbital built at different times can interoperate (compare LSP capability
+negotiation, NETCONF `hello`). The experience of Microsoft's COM/DCOM (the
+Component Object Model, the component-integration system underlying much of
+MS Windows) reinforces the weight of this question: COM invested heavily in
+interface immutability (once published, a COM interface's binary layout
+never changes; new capabilities require new interfaces), which was
+burdensome but prevented the version-mismatch chaos that plagued the rest of
+the Windows ecosystem. The lesson is that version negotiation and backward
+compatibility for sub-vocabularies should be designed in early rather than
+retrofitted — the `hello` handshake already exchanges version; the open
+question is how strictly enforcement gates verb dispatch.
 
 
 ## Prior Art
 
 The two-tier, command/query-separated, self-describing shape recurs across
 decades of management protocols. The most relevant references:
+
+Table: Prior art and what to draw from each.
 
 | System | What to draw from |
 |--------|-------------------|
