@@ -1,3 +1,20 @@
+---
+id:            ORIGIN-DRAFT-concern-topologies
+title:         "Concern Topologies: Development Plan"
+genre:         Plan
+scope:         project
+project:       Origin
+language:      en
+status:        Draft
+provenance:
+  assistant:   opencode
+relates-to:
+  - ORIGIN-DRAFT-impulse-i
+  - ORIGIN-DRAFT-orbital-images
+  - ORIGIN-DRAFT-orchestration
+  - ORIGIN-DRAFT-placement
+---
+
 # Concern Topologies: Development Plan
 
 This document sets out the concept of **polytopological management** --
@@ -12,16 +29,16 @@ than routing all management through one uniform tree, concerns shape how
 the graph is traversed -- which nodes, at what cadence, with which verbs --
 adapting management intensity to the concern's actual distribution across
 the system. It assumes the Impulse control vocabulary
-([`DevLog.ImpulseI.md`](DevLog.ImpulseI.md)), the recursive node model
-([`DevLog.OrbitalImages.md`](DevLog.OrbitalImages.md)), the fleet tier
-([`DevPlan.Orchestration.md`](DevPlan.Orchestration.md)), and the topology
-DSL ([`DevPlan.Placement.md`](DevPlan.Placement.md)).
+([`Log.ImpulseI.md`](Log.ImpulseI.md)), the recursive node model
+([`Log.OrbitalImages.md`](Log.OrbitalImages.md)), the fleet tier
+([`Plan.Orchestration.md`](Plan.Orchestration.md)), and the topology
+DSL ([`Plan.Placement.md`](Plan.Placement.md)).
 
 **Date:** 2026-06-22
 
-**Status:** Conceptual / early planning. The logical-overlay approach is
-settled as the first realization; physical separation is a graduated
-escalation. No implementation has begun.
+The logical-overlay approach is settled as the first realization;
+physical separation is a graduated escalation. No implementation has
+begun.
 
 
 ## Problem

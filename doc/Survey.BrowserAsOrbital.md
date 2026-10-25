@@ -3,11 +3,16 @@ id:            ORIGIN-DRAFT-browser-as-orbital
 title:         The Browser as Orbital
 genre:         Survey
 scope:         project
-project:       origin
+project:       Origin
 language:      en
 status:        Draft
 provenance:
-  assistant:   claude
+  assistant:   opencode
+relates-to:
+  - ORIGIN-DRAFT-granularity-and-image
+  - ORIGIN-DRAFT-game-image
+  - ORIGIN-DRAFT-orbital-images
+  - ORIGIN-DRAFT-concern-topologies
 open-questions:
   - ORIGIN-O1
   - ORIGIN-O2
@@ -98,9 +103,7 @@ OS-grade manager that no OS supplied.
 
 ## Mapping browser mechanisms to Origin primitives
 
-**Table 1. Browser process-management mechanisms and their Origin
-equivalents.** Each browser mechanism corresponds to an Origin primitive
-already designed for a different purpose.
+Table: Browser process-management mechanisms and their Origin equivalents. Each browser mechanism corresponds to an Origin primitive already designed for a different purpose.
 
 | Browser mechanism | Origin primitive |
 |---|---|
@@ -607,9 +610,7 @@ process-level site isolation necessary (see `cites`).
 
 ## Prior Art
 
-**Table 2. External prior art for a browser expressed as managed orbitals.**
-What each comparator contributes to, or contrasts with, the approach this
-Survey explores.
+Table: External prior art for a browser expressed as managed orbitals. What each comparator contributes to, or contrasts with, the approach this Survey explores.
 
 | System | What to draw from |
 |---|---|

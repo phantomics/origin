@@ -1,7 +1,24 @@
+---
+id:            ORIGIN-DRAFT-impulse-ii
+title:         "Impulse, Part II: Development Log"
+genre:         Log
+scope:         project
+project:       Origin
+component:     impulse
+language:      en
+status:        Draft
+provenance:
+  assistant:   opencode
+relates-to:
+  - ORIGIN-DRAFT-impulse-i
+  - ORIGIN-DRAFT-impulse-iii
+  - ORIGIN-DRAFT-control-vocabulary-prior-art
+---
+
 # Impulse, Part II (Phases 4-6): Development Log
 
 This document continues the chronicle of **Impulse** -- Origin's structured
-control vocabulary -- begun in `DevLog.ImpulseI.md`, which covered the MVP
+control vocabulary -- begun in `Log.ImpulseI.md`, which covered the MVP
 (Phases 1-3: the envelope and verb model, effect/tier enforcement and the
 structured response envelope, and the hardened codec and Unix-socket
 transport). Part II builds the declarative tier and the streaming tier on

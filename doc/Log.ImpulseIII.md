@@ -1,8 +1,25 @@
+---
+id:            ORIGIN-DRAFT-impulse-iii
+title:         "Impulse, Part III: Development Log"
+genre:         Log
+scope:         project
+project:       Origin
+component:     impulse
+language:      en
+status:        Draft
+provenance:
+  assistant:   opencode
+relates-to:
+  - ORIGIN-DRAFT-impulse-i
+  - ORIGIN-DRAFT-impulse-ii
+  - ORIGIN-DRAFT-foreign-orbitals
+---
+
 # Impulse, Part III (Phases 7-9): Development Log
 
-This document continues the Impulse chronicle from `DevLog.ImpulseI.md` (the
+This document continues the Impulse chronicle from `Log.ImpulseI.md` (the
 MVP -- envelope, verb model, hardened codec, Unix-socket transport) and
-`DevLog.ImpulseII.md` (the declarative, selector, and streaming tiers). Part III
+`Log.ImpulseII.md` (the declarative, selector, and streaming tiers). Part III
 turns from the *universal* control plane to its *specializations*:
 
 - **Phase 7** -- the first typed sub-vocabulary: `:lexter-host`, the Lexter
@@ -170,7 +187,7 @@ A small, generic core change that Phase 8 depends on, landed ahead of the
 adapter so the adapter builds on stable core. Origin's `:image` `stop`
 previously hardcoded `SIGTERM` for the graceful phase -- which for nginx is the
 *abrupt* path; nginx's graceful-shutdown signal is `SIGQUIT`. As planned in
-`DevPlan.ForeignOrbitals.md`:
+`Plan.ForeignOrbitals.md`:
 
 - A new `image-stop-signal` slot on `managed-process` (default
   `sb-unix:sigterm`, accessor `process-image-stop-signal`), settable via
@@ -198,7 +215,7 @@ orbital, confirming the configured signal, not `SIGTERM`, was sent. Origin core:
 ### Goal
 
 The first **Tether** -- "Technology-Eliding Typed Host Endpoint Resolver", the
-foreign-orbital adapter framework (`DevPlan.ForeignOrbitals.md`). A Tether is a
+foreign-orbital adapter framework (`Plan.ForeignOrbitals.md`). A Tether is a
 Common Lisp adapter that owns a non-CL process and makes it a first-class Origin
 orbital: it spawns and supervises the process as an `:image` orbital, compiles
 its configuration from S-expressions, validates and reloads it, and answers the

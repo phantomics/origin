@@ -1,3 +1,22 @@
+---
+id:            ORIGIN-DRAFT-orchestration
+title:         "Origin as a Recursive Orchestrator: Development Plan"
+genre:         Plan
+scope:         project
+project:       Origin
+language:      en
+status:        Draft
+provenance:
+  assistant:   opencode
+relates-to:
+  - ORIGIN-DRAFT-orbital-images
+  - ORIGIN-DRAFT-impulse-i
+  - ORIGIN-DRAFT-foreign-orbitals
+  - ORIGIN-DRAFT-linux-service-manager
+  - ORIGIN-DRAFT-user-facing-surfaces
+  - ORIGIN-DRAFT-placement
+---
+
 # Origin as a Recursive Orchestrator (Fleet Tier): Development Plan
 
 This document sets out how Origin's recursive, self-similar node model
@@ -10,18 +29,18 @@ Origin is a subordinate node speaking the same control vocabulary. The
 result is a single coherent system spanning host service management
 (systemd's job), fleet orchestration (Kubernetes' job), and an
 administrative console -- unified by recursion rather than by bolting three
-stacks together. It assumes [`DevLog.OrbitalImages.md`](DevLog.OrbitalImages.md)
-(the `:image` mode and smart children), [`DevLog.ImpulseI.md`](DevLog.ImpulseI.md)
+stacks together. It assumes [`Log.OrbitalImages.md`](Log.OrbitalImages.md)
+(the `:image` mode and smart children), [`Log.ImpulseI.md`](Log.ImpulseI.md)
 (the carrier-agnostic control vocabulary and its socket transport),
-[`DevPlan.ForeignOrbitals.md`](DevPlan.ForeignOrbitals.md) (the adapter
+[`Plan.ForeignOrbitals.md`](Plan.ForeignOrbitals.md) (the adapter
 model), and the appliance framing of
-[`DevPlan.LinuxServiceManager.md`](DevPlan.LinuxServiceManager.md).
+[`Plan.LinuxServiceManager.md`](Plan.LinuxServiceManager.md).
 
 **Date:** 2026-06-19
 
-**Status:** Conceptual / early planning. Transparency-first and
-borrow-not-build by decision (see Scope). No implementation has begun;
-this is foundation for a future build conversation.
+Transparency-first and borrow-not-build by decision (see Scope). No
+implementation has begun; this is foundation for a future build
+conversation.
 
 
 ## Problem
@@ -63,7 +82,7 @@ new abstraction:
   transport and answering the same `describe`/`status`/`apply` vocabulary as
   any orbital.
 
-The `DevPlan.LinuxServiceManager.md` plan already anticipated this: "the
+The `Plan.LinuxServiceManager.md` plan already anticipated this: "the
 same recursion that yields per-session and per-subsystem Origins extends to
 per-host Origins over TCP Impulse -- the path from personal appliance to
 fleet."
@@ -120,7 +139,7 @@ not replace their isolation, networking, or storage.
    what it cannot.
 
 6. **Recursive dashboards.** The format-neutral surface model
-   (see [`DevPlan.UserFacingSurfaces.md`](DevPlan.UserFacingSurfaces.md))
+   (see [`Plan.UserFacingSurfaces.md`](Plan.UserFacingSurfaces.md))
    renders the fleet view, the host view, and the in-guest view from the
    same described data at every level.
 

@@ -1,3 +1,22 @@
+---
+id:            ORIGIN-DRAFT-impulse-i
+title:         "Impulse, Part I: Development Log"
+genre:         Log
+scope:         project
+project:       Origin
+component:     impulse
+language:      en
+status:        Draft
+provenance:
+  assistant:   opencode
+relates-to:
+  - ORIGIN-DRAFT-control-vocabulary
+  - ORIGIN-DRAFT-control-vocabulary-prior-art
+  - ORIGIN-DRAFT-foreign-orbitals
+  - ORIGIN-DRAFT-impulse-ii
+  - ORIGIN-DRAFT-orbital-images
+---
+
 # Impulse, Part I (Phases 1-3): Development Log
 
 This document chronicles the construction of **Impulse** -- *Interactive
@@ -23,14 +42,14 @@ full; **Phases 2 and 3** will be appended as they are built.
 Impulse rests on an unusually long planning effort, recorded in three
 companion documents that this log assumes:
 
-- `DevPlan.ControlVocabulary.md` -- the goals, the two-tier shape, the
+- `Plan.ControlVocabulary.md` -- the goals, the two-tier shape, the
   command/query-separation principle, the "data, not code" stance, and
   the nine design goals.
 - `Eval.ControlVocabulary.PriorArt.md` -- an eleven-technology prior-art
   evaluation (SNMP, z/OS MODIFY, JMX, HTTP, GraphQL, NETCONF, Erlang/OTP,
   LSP, Plan 9, Kubernetes, D-Bus/systemd) that resolved the verb space
   and settled the design by independent-invention convergence.
-- `DevPlan.ForeignOrbitals.md` -- the adapter-orbital model that keeps the
+- `Plan.ForeignOrbitals.md` -- the adapter-orbital model that keeps the
   lexicon honest by requiring every verb to be answerable by a CL adapter
   on behalf of a non-Lisp process.
 
@@ -585,5 +604,5 @@ control).
 The committed roadmap beyond Part I -- declarative `apply` with staged
 validation, fleet selectors, `watch` and operation progress/cancel, the
 Lexter and nginx sub-vocabularies, and state handoff -- is recorded in
-`DevPlan.ControlVocabulary.md` and `DevPlan.ForeignOrbitals.md`, and will be
+`Plan.ControlVocabulary.md` and `Plan.ForeignOrbitals.md`, and will be
 chronicled in a Part II log.

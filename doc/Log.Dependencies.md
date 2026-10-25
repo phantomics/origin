@@ -1,3 +1,19 @@
+---
+id:            ORIGIN-DRAFT-dependencies
+title:         "Orbital Dependencies: Development Log"
+genre:         Log
+scope:         project
+project:       Origin
+component:     core
+language:      en
+status:        Draft
+provenance:
+  assistant:   opencode
+relates-to:
+  - ORIGIN-DRAFT-impulse-ii
+  - ORIGIN-DRAFT-orbital-images
+---
+
 # Orbital Dependencies & Ordered Lifecycle: Development Log
 
 This document chronicles the addition of a **dependency graph and ordered

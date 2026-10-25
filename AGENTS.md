@@ -34,8 +34,8 @@ Project-specific facts the skills cannot infer:
   `~/src/lisp/compass`; otherwise `~/src/lisp/compass/bin/compass`
 - Federated repositories: COMPASS (`../compass`), CLASSIC (`../classic`), LEXTER
   (`../../chat/lexter`), as listed in `compass.sexp`
-- Migration: most documents in `doc/` predate Compass and have no
-  front-matter yet; run checks with `compass check --skip-unmarked`
+- Migration: complete; all documents carry front-matter and `compass check`
+  runs without `--skip-unmarked`
 
 Essentials (full rules in Compass.md): every document opens with a §7 YAML
 front-matter block; genre and status use the controlled vocabularies; decision

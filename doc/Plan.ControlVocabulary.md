@@ -1,3 +1,20 @@
+---
+id:            ORIGIN-DRAFT-control-vocabulary
+title:         "Control Vocabulary: Development Plan"
+genre:         Plan
+scope:         project
+project:       Origin
+component:     impulse
+language:      en
+status:        Draft
+provenance:
+  assistant:   opencode
+relates-to:
+  - ORIGIN-DRAFT-control-vocabulary-prior-art
+  - ORIGIN-DRAFT-foreign-orbitals
+  - ORIGIN-DRAFT-impulse-i
+---
+
 # Control Vocabulary: Development Plan
 
 This document sets out the goals, design principles, and design space for
@@ -10,8 +27,6 @@ the basis for the design and research to follow. Concrete wire formats,
 envelopes, and protocol details are deliberately left open.
 
 **Date:** 2026-06-17
-
-**Status:** Planning. No implementation has begun.
 
 
 ## Problem
@@ -242,7 +257,7 @@ Two tiers are envisioned, only the first of which is an initial goal:
 The depth of this -- adapter structure, the nginx worked example
 (a CLI-referenced config generated into an ephemeral `/tmp` prefix,
 reloaded via SIGHUP), and the per-program effort -- is covered in a
-dedicated plan, [`DevPlan.ForeignOrbitals.md`](DevPlan.ForeignOrbitals.md).
+dedicated plan, [`Plan.ForeignOrbitals.md`](Plan.ForeignOrbitals.md).
 It is recorded here only as a target that shapes the vocabulary.
 
 
@@ -363,7 +378,7 @@ Indicative sequencing; each milestone is to be designed in its own right.
    the deepest and last milestone.
 
 A parallel track, designed in
-[`DevPlan.ForeignOrbitals.md`](DevPlan.ForeignOrbitals.md), applies the
+[`Plan.ForeignOrbitals.md`](Plan.ForeignOrbitals.md), applies the
 vocabulary to non-CL software via adapter orbitals -- Tier 2 (Lisp-authored
 config and log processing) first, with nginx as the worked example, and
 Tier 3 (full vocabulary participation) as a later step.

@@ -1,3 +1,22 @@
+---
+id:            ORIGIN-DRAFT-linux-service-manager
+title:         "Origin as a Linux Service Manager: Development Plan"
+genre:         Plan
+scope:         project
+project:       Origin
+language:      en
+status:        Draft
+provenance:
+  assistant:   opencode
+relates-to:
+  - ORIGIN-DRAFT-orbital-images
+  - ORIGIN-DRAFT-impulse-i
+  - ORIGIN-DRAFT-foreign-orbitals
+  - ORIGIN-DRAFT-control-vocabulary
+  - ORIGIN-DRAFT-orchestration
+  - ORIGIN-DRAFT-placement
+---
+
 # Origin as a Linux Service Manager and Init: Development Plan
 
 This document chronicles the design thinking, decisions, and foundational
@@ -15,15 +34,15 @@ plane.
 
 **Date:** 2026-06-19
 
-**Status:** Planning / foundational. No implementation has begun. This
-plan precedes and frames a build project to be carried out in another
-conversation. It assumes the machinery recorded in
-[`DevLog.OrbitalImages.md`](DevLog.OrbitalImages.md) (the `:image`
-execution mode and "smart children"), [`DevLog.ImpulseI.md`](DevLog.ImpulseI.md)
-(the structured control plane, Parts I Phases 1-3), and the two companion
-plans [`DevPlan.ForeignOrbitals.md`](DevPlan.ForeignOrbitals.md) and
-[`DevPlan.ControlVocabulary.md`](DevPlan.ControlVocabulary.md), with which
-this plan deliberately converges.
+This plan precedes and frames a build project to be carried out in
+another conversation. It assumes the machinery recorded in
+[Log.OrbitalImages.md](Log.OrbitalImages.md) (the `:image` execution
+mode and "smart children"),
+[Log.ImpulseI.md](Log.ImpulseI.md) (the structured control plane,
+Parts I Phases 1-3), and the two companion plans
+[Plan.ForeignOrbitals.md](Plan.ForeignOrbitals.md) and
+[Plan.ControlVocabulary.md](Plan.ControlVocabulary.md), with which this
+plan deliberately converges.
 
 
 ## Problem

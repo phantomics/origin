@@ -1,16 +1,33 @@
-# Conceptual Foundations: Granularity and the Image Model
+---
+id:            ORIGIN-DRAFT-granularity-and-image
+title:         "Granularity and the Image Model: Survey"
+genre:         Survey
+scope:         project
+project:       Origin
+language:      en
+status:        Draft
+provenance:
+  assistant:   opencode
+relates-to:
+  - ORIGIN-DRAFT-orbital-images
+  - ORIGIN-DRAFT-user-facing-surfaces
+  - ORIGIN-DRAFT-linux-service-manager
+  - ORIGIN-DRAFT-game-image
+---
+
+# Granularity and the Image Model: Survey
 
 This document records the reasoning that led to Origin's architecture:
 why a Common Lisp image-based runtime demands a different
 kind of process manager than Unix provides, and how that difference sublimates
 into the design principles governing the project. It is reflective rather
 than prescriptive: it captures the *why* behind the decisions recorded in
-the DevPlans and DevLogs.
+the Plans and Logs.
 
 **Date:** 2026-06-21
 
 
-## The origin story
+## The Origin Story
 
 Origin began with a practical problem: Lexter, a desktop terminal emulator
 application, needed a way to launch new terminal windows. On a conventional
@@ -104,7 +121,7 @@ This bimodality is *mutually reinforcing* with Origin's design:
 The taskbar button stops being "spin up a CL image" and becomes "send a
 spawn-a-window message to the image that is already running" -- which is
 the declarative, idempotent launcher idea (see
-[`DevPlan.UserFacingSurfaces.md`](DevPlan.UserFacingSurfaces.md)), traced
+[`Plan.UserFacingSurfaces.md`](Plan.UserFacingSurfaces.md)), traced
 to its root cause.
 
 
@@ -164,7 +181,7 @@ or a GPU driver takes the whole image down, where a Unix process crash is
 contained for free. A large part of Origin's machinery -- the
 supervision/restart core, the cooperative and `:image` modes, the
 stub-PID-1 floor described in
-[`DevPlan.LinuxServiceManager.md`](DevPlan.LinuxServiceManager.md) -- is
+[`Plan.LinuxServiceManager.md`](Plan.LinuxServiceManager.md) -- is
 really a way to **buy back, selectively, the isolation Unix gives for
 free**, paying the process cost only for the units that warrant it.
 
@@ -244,7 +261,7 @@ tradition's substrate (Unix/Linux), so that OS-level isolation and
 heterogeneity remain available as the coarse fallback while the fine, live,
 interactive granularity serves the homogeneous CL case. The recursive
 self-similar node model (see
-[`DevLog.OrbitalImages.md`](DevLog.OrbitalImages.md)) extends this hybrid
+[`Log.OrbitalImages.md`](Log.OrbitalImages.md)) extends this hybrid
 across process and machine boundaries without changing the vocabulary.
 
 

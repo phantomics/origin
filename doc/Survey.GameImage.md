@@ -1,4 +1,23 @@
-# Concept: Dedicated Game Images
+---
+id:            ORIGIN-DRAFT-game-image
+title:         "Dedicated Game Images: Survey"
+genre:         Survey
+scope:         project
+project:       Origin
+language:      en
+status:        Draft
+provenance:
+  assistant:   opencode
+relates-to:
+  - ORIGIN-DRAFT-orbital-images
+  - ORIGIN-DRAFT-user-facing-surfaces
+  - ORIGIN-DRAFT-linux-service-manager
+  - ORIGIN-DRAFT-granularity-and-image
+  - ORIGIN-DRAFT-concern-topologies
+  - ORIGIN-DRAFT-placement
+---
+
+# Dedicated Game Images: Survey
 
 This document explores the idea of running heavyweight CL games in
 dedicated Origin images -- specialized execution contexts tuned for the
@@ -7,17 +26,15 @@ crash isolation, and a non-invasive alternative to conventional anti-cheat
 technology. It is a conceptual sketch, not a build plan; it records why
 the idea is natural within Origin's model and where the genuine limits lie.
 It assumes the `:image` execution mode
-([`DevLog.OrbitalImages.md`](DevLog.OrbitalImages.md)), the focus-driven
+([`Log.OrbitalImages.md`](Log.OrbitalImages.md)), the focus-driven
 workload management direction
-([`DevPlan.UserFacingSurfaces.md`](DevPlan.UserFacingSurfaces.md)), the
+([`Plan.UserFacingSurfaces.md`](Plan.UserFacingSurfaces.md)), the
 cgroup alignment principle
-([`DevPlan.LinuxServiceManager.md`](DevPlan.LinuxServiceManager.md)), and
+([`Plan.LinuxServiceManager.md`](Plan.LinuxServiceManager.md)), and
 Impulse's `describe`/`status` vocabulary
-([`DevLog.ImpulseI.md`](DevLog.ImpulseI.md)).
+([`Log.ImpulseI.md`](Log.ImpulseI.md)).
 
 **Date:** 2026-06-23
-
-**Status:** Conceptual. No implementation has begun.
 
 
 ## Motivation
@@ -219,7 +236,7 @@ The game image is a natural composition of existing capabilities:
   placement if running on a fleet (e.g. a cloud gaming scenario).
 - **ConcernTopologies:** an integrity/anti-cheat concern could drive
   periodic attestation queries to game images at concern-shaped cadence.
-- **Concept.GranularityAndImage:** the game image is the sharpest example
+- **Survey.GranularityAndImage:** the game image is the sharpest example
   of the granularity-as-a-parameter principle -- the most demanding
   workload, given its own image for isolation and tuning, managed by the
   same lifecycle protocol as a lightweight thread-orbital.

@@ -1,3 +1,20 @@
+---
+id:            ORIGIN-DRAFT-user-facing-surfaces
+title:         "Origin User-Facing Surfaces: Development Plan"
+genre:         Plan
+scope:         project
+project:       Origin
+language:      en
+status:        Draft
+provenance:
+  assistant:   opencode
+relates-to:
+  - ORIGIN-DRAFT-impulse-i
+  - ORIGIN-DRAFT-orbital-images
+  - ORIGIN-DRAFT-control-vocabulary
+  - ORIGIN-DRAFT-linux-service-manager
+---
+
 # Origin User-Facing Surfaces: Development Plan
 
 This document sets out the concept of bringing Origin's service-management
@@ -6,17 +23,17 @@ of *launching* an application and the act of *observing and controlling* it
 are the same surface, rendered at a depth chosen by the user. It is an
 early, deliberately general plan -- it fixes the thesis, the abstractions,
 and the design direction, but not the specific tools, which require further
-refinement. It assumes the machinery of [`DevLog.ImpulseI.md`](DevLog.ImpulseI.md)
+refinement. It assumes the machinery of [`Log.ImpulseI.md`](Log.ImpulseI.md)
 (the `describe`/`status`/`apply` control vocabulary), the recursion model
-of [`DevLog.OrbitalImages.md`](DevLog.OrbitalImages.md), the workload and
-dependency directions in [`DevPlan.ControlVocabulary.md`](DevPlan.ControlVocabulary.md),
-and the appliance framing in [`DevPlan.LinuxServiceManager.md`](DevPlan.LinuxServiceManager.md).
+of [`Log.OrbitalImages.md`](Log.OrbitalImages.md), the workload and
+dependency directions in [`Plan.ControlVocabulary.md`](Plan.ControlVocabulary.md),
+and the appliance framing in [`Plan.LinuxServiceManager.md`](Plan.LinuxServiceManager.md).
 
 **Date:** 2026-06-19
 
-**Status:** Conceptual / early planning. More exploratory than the
-service-manager plan; intended to capture the idea and its grounding before
-any tool selection. No implementation has begun.
+More exploratory than the service-manager plan; intended to capture the
+idea and its grounding before any tool selection. No implementation has
+begun.
 
 
 ## Problem
