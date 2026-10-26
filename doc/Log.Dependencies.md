@@ -1,12 +1,16 @@
 ---
-id:            ORIGIN-DRAFT-dependencies
+id:            ORIGIN-0009
 title:         "Orbital Dependencies & Ordered Lifecycle: Development Log"
 genre:         Log
 scope:         project
 project:       Origin
 component:     core
 language:      en
-status:        Draft
+status:        Implemented
+authors:
+  - Andrew Sengul
+approved-by:   Andrew Sengul
+reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:

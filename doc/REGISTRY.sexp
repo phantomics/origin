@@ -97,3 +97,4 @@
 (:id "ORIGIN-D56" :kind :decision :draft "ORIGIN-DRAFT-impulse-ii-D11" :host "ORIGIN-0008" :date "2026-10-25" :by "Andrew Sengul")
 (:id "ORIGIN-D57" :kind :decision :draft "ORIGIN-DRAFT-impulse-ii-D12" :host "ORIGIN-0008" :date "2026-10-25" :by "Andrew Sengul")
 (:id "ORIGIN-D58" :kind :decision :draft "ORIGIN-DRAFT-impulse-ii-D13" :host "ORIGIN-0008" :date "2026-10-25" :by "Andrew Sengul")
+(:id "ORIGIN-0009" :kind :document :draft "ORIGIN-DRAFT-dependencies" :path "doc/Log.Dependencies.md" :date "2026-10-25" :by "Andrew Sengul")

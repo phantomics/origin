@@ -139,7 +139,7 @@ restructured: Repo column folded into path (Lexter rows prefixed
 `lexter/`), caption naming commits. `Table:` captions on both tables.
 `Description:` paragraph after the ASCII tree.
 
-**[ORIGIN-DRAFT-dependencies](Log.Dependencies.md).** Design Decisions
+**[ORIGIN-0009](Log.Dependencies.md).** Design Decisions
 section added with a migration note: no decisions were recorded as
 numbered items in the original text. Code references qualified to full
 paths and pinned to `2622b17`. Tests → Verification. Files table built

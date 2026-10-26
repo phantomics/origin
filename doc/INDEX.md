@@ -18,10 +18,10 @@ Table: Documents in the ORIGIN namespace.
 | [ORIGIN-0006](Log.ImpulseI.md) | Impulse, Part I (Phases 1-3): Development Log | Log | project | Implemented | impulse |
 | [ORIGIN-0007](Plan.LinuxServiceManager.md) | Origin as a Linux Service Manager and Init: Development Plan | Plan | project | Accepted | — |
 | [ORIGIN-0008](Log.ImpulseII.md) | Impulse, Part II (Phases 4-6): Development Log | Log | project | Implemented | impulse |
+| [ORIGIN-0009](Log.Dependencies.md) | Orbital Dependencies & Ordered Lifecycle: Development Log | Log | project | Implemented | core |
 | [ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md) | The Browser as Orbital: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-compass-migration-log](Log.CompassMigration.md) | Compass Migration: Development Log | Log | project | Draft | — |
 | [ORIGIN-DRAFT-concern-topologies](Plan.ConcernTopologies.md) | Concern Topologies: Development Plan | Plan | project | Draft | — |
-| [ORIGIN-DRAFT-dependencies](Log.Dependencies.md) | Orbital Dependencies & Ordered Lifecycle: Development Log | Log | project | Draft | core |
 | [ORIGIN-DRAFT-game-image](Survey.GameImage.md) | Dedicated Game Images: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-granularity-and-image](Survey.GranularityAndImage.md) | Granularity and the Image Model: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-impulse-iii](Log.ImpulseIII.md) | Impulse, Part III (Phases 7-9): Development Log | Log | project | Draft | impulse |
