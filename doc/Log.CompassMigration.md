@@ -9,7 +9,7 @@ status:        Draft
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-compass-migration
+  - ORIGIN-0001
 ---
 
 # Compass Migration: Development Log
@@ -17,7 +17,7 @@ relates-to:
 This document records the migration of Origin's documentation corpus to
 the Compass standard (version 0.4.0), carried out in three phases plus a
 batch-0 fixup, following the plan in
-[ORIGIN-DRAFT-compass-migration](Plan.CompassMigration.md). It is the
+[ORIGIN-0001](Plan.CompassMigration.md). It is the
 Origin counterpart of Classic's migration log
 ([CLASSIC-0036](../../classic/doc/Log.CompassMigration.md)), adapted to
 Origin's specific corpus. The migration changed how the documents are
@@ -44,9 +44,9 @@ caption.
 ## Design Decisions
 
 The migration followed the nine decisions in
-[ORIGIN-DRAFT-compass-migration](Plan.CompassMigration.md)
-(ORIGIN-DRAFT-compass-migration-D1 through
-ORIGIN-DRAFT-compass-migration-D9). No additional decisions were needed
+[ORIGIN-0001](Plan.CompassMigration.md)
+(ORIGIN-D1 through
+ORIGIN-D9). No additional decisions were needed
 during the build; the plan's decisions covered every case that arose. The
 one clarification made during execution:
 
@@ -54,7 +54,7 @@ one clarification made during execution:
 carried substantive content (dependency framing, tier descriptions) were
 kept as opening paragraphs with the `**Status:**` label removed, rather
 than deleted entirely. This was the practical application of
-ORIGIN-DRAFT-compass-migration-D7, whose text was updated to record it.
+ORIGIN-D7, whose text was updated to record it.
 
 
 ## Implementation
@@ -103,13 +103,13 @@ Gate: `compass check` (without `--skip-unmarked`) reported 0 errors.
 Several Phase 2 shortfalls were corrected:
 
 - **Id-keyed links.** 30 links with file-name text rewritten to use the
-  target's identifier (ORIGIN-DRAFT-compass-migration-D7, following
+  target's identifier (ORIGIN-D7, following
   CLASSIC-D107). 17 backtick-only mentions converted to id-keyed links.
 - **Reverted a historical path.** The Files table in
-  [ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md) had its
+  [ORIGIN-0002](Log.OrbitalImages.md) had its
   `doc/DevLog.OrbitalImages.md` row incorrectly renamed; reverted to the
   name the file had at the time of the commit
-  (ORIGIN-DRAFT-compass-migration-D6).
+  (ORIGIN-D6).
 - **GameImage open questions.** The five open questions in
   [ORIGIN-DRAFT-game-image](Survey.GameImage.md) converted to
   `ORIGIN-DRAFT-game-image-O1` through `-O5` records. Spine headings
@@ -117,9 +117,9 @@ Several Phase 2 shortfalls were corrected:
 - **Title/H1 alignment.** Nine `title:` fields updated to match their
   H1 headings exactly.
 - **Plan updates.** Version target 0.3.0 → 0.4.0; Lexter commits
-  Lexter commits identified in the ORIGIN-DRAFT-compass-migration-D6
+  Lexter commits identified in the ORIGIN-D6
   table; `created`/`updated` dropped from the Phase 2 table;
-  ORIGIN-DRAFT-compass-migration-D7 updated to describe
+  ORIGIN-D7 updated to describe
   status-paragraph handling; ORIGIN-DRAFT-compass-migration-O3 removed
   (resolved by the user's decision on provenance).
 
@@ -129,8 +129,8 @@ as Classic did (CLASSIC-D111).
 
 ### Batch 1 — Core Logs (`1830df6`)
 
-**[ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md).** Nine decision
-records (ORIGIN-DRAFT-orbital-images-D1 through -D9) extracted from the
+**[ORIGIN-0002](Log.OrbitalImages.md).** Nine decision
+records (ORIGIN-D10 through -D9) extracted from the
 seven pre-implementation decisions and two build-time decisions. Code
 references pinned to `ab349e7` (Origin) and `c8acd7c` (Lexter, with
 `LEXTER:` prefix).
@@ -153,12 +153,12 @@ at H3 directly inside the phase section (replacing the `### Design
 Decisions` heading), per the agreed approach of records at H3 within each
 phase.
 
-**[ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md).** 13 records (ORIGIN-DRAFT-impulse-i-D1 through -D13).
+**[ORIGIN-0006](Log.ImpulseI.md).** 13 records (ORIGIN-D22 through -D13).
 Phase 1's Design Decisions, Tests, Files, and Metrics demoted from H2 to
 H3, matching Phases 2–3. Phase headings `--` → `—`. Tests → Verification
 (×3). `Table:` captions on all 7 tables.
 
-**[ORIGIN-DRAFT-impulse-ii](Log.ImpulseII.md).** 13 records (ORIGIN-DRAFT-impulse-ii-D1 through -D13).
+**[ORIGIN-0008](Log.ImpulseII.md).** 13 records (ORIGIN-D46 through -D13).
 Three new Files tables built from git (Phases 4–6). Tests → Verification
 (×3). `Table:` captions on all 6 tables. Intro dashes `--` → `—`.
 
@@ -171,12 +171,12 @@ prior-art tables.
 
 22 decision records and 55 open-question records across seven Plans.
 
-**[ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md).** 3
+**[ORIGIN-0004](Plan.ControlVocabulary.md).** 3
 D-records from the existing `### N.` decisions; 7 O-records. "Settled
 Design Decisions" → "Settled Decisions"; "Open Design Questions" → "Open
 Questions". 2 table captions.
 
-**[ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md).** 11
+**[ORIGIN-0007](Plan.LinuxServiceManager.md).** 11
 D-records from the existing numbered decisions; 9 O-records. Bare
 line-number references symbol-pinned at `@57e8988`. Barrier labels
 rewritten to avoid `ref/short-record` warnings. 7 table captions.
@@ -196,13 +196,13 @@ O-records. 5 table captions.
 D-records extracted from "Direction (settled)" markers. 8 O-records.
 "Direction" → "Roadmap". 4 table captions.
 
-**[ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md).** No explicit
+**[ORIGIN-0005](Plan.ForeignOrbitals.md).** No explicit
 decision markers in the text, so no D-records. 7 O-records. 3 table
 captions.
 
 ### Batch 4 — Surveys and Eval (`10f267b`)
 
-**[ORIGIN-DRAFT-control-vocabulary-prior-art](Eval.ControlVocabulary.PriorArt.md).**
+**[ORIGIN-0003](Eval.ControlVocabulary.PriorArt.md).**
 Spine headings capitalised ("The Shared Scenario", "The Rubric"). 7
 `Table:` captions.
 
@@ -280,5 +280,5 @@ Table: Files added or changed during the Compass migration.
 
 What remains is the steward's: reviewing statuses, accepting decision
 records, and numbering with `compass assign`
-(ORIGIN-DRAFT-compass-migration-O1). The migration changed structure, not
+(ORIGIN-O6). The migration changed structure, not
 substance; no document's content claims were altered.

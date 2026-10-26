@@ -1,28 +1,32 @@
 ---
-id:            ORIGIN-DRAFT-compass-migration
+id:            ORIGIN-0001
 title:         "Compass Migration: Development Plan"
 genre:         Plan
 scope:         project
 project:       Origin
 language:      en
-status:        Draft
+status:        Implemented
+authors:
+  - Andrew Sengul
+approved-by:   Andrew Sengul
+reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:
   - ORIGIN-DRAFT-browser-as-orbital
 decisions:
-  - ORIGIN-DRAFT-compass-migration-D1
-  - ORIGIN-DRAFT-compass-migration-D2
-  - ORIGIN-DRAFT-compass-migration-D3
-  - ORIGIN-DRAFT-compass-migration-D4
-  - ORIGIN-DRAFT-compass-migration-D5
-  - ORIGIN-DRAFT-compass-migration-D6
-  - ORIGIN-DRAFT-compass-migration-D7
-  - ORIGIN-DRAFT-compass-migration-D8
-  - ORIGIN-DRAFT-compass-migration-D9
+  - ORIGIN-D1
+  - ORIGIN-D2
+  - ORIGIN-D3
+  - ORIGIN-D4
+  - ORIGIN-D5
+  - ORIGIN-D6
+  - ORIGIN-D7
+  - ORIGIN-D8
+  - ORIGIN-D9
 open-questions:
-  - ORIGIN-DRAFT-compass-migration-O1
-  - ORIGIN-DRAFT-compass-migration-O2
+  - ORIGIN-O6
+  - ORIGIN-O7
 cites:
   - title:    Compass Standard v0.4.0
     locator:  COMPASS-0001
@@ -93,9 +97,9 @@ The corpus has no generated `INDEX.md`, no CI workflow, and no
 
 ## Settled Decisions
 
-### ORIGIN-DRAFT-compass-migration-D1 — Keep ORIGIN-O1 through ORIGIN-O5 canonical
+### ORIGIN-D1 — Keep ORIGIN-O1 through ORIGIN-O5 canonical
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The ledger allocates ORIGIN-O1 through ORIGIN-O5 as canonical numbers for
 the open questions in `Survey.BrowserAsOrbital.md`, which is still
@@ -110,9 +114,9 @@ them. The next allocation is O6.
   `-O5`. Rejected: the numbers stay allocated in the ledger regardless, so
   renaming them creates orphaned entries with no benefit.
 
-### ORIGIN-DRAFT-compass-migration-D2 — Every other record gets a per-document provisional identifier
+### ORIGIN-D2 — Every other record gets a per-document provisional identifier
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** About 130 decisions and open questions across 15 documents
 need identifiers. None has been accepted.
@@ -126,9 +130,9 @@ the steward accepts each document.
 - Number them canonically now. Rejected: canonical numbers are assigned at
   acceptance by the steward (§13), and these documents are drafts.
 
-### ORIGIN-DRAFT-compass-migration-D3 — Every migrated document is status Draft
+### ORIGIN-D3 — Every migrated document is status Draft
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** An assistant never sets an authoritative status (`Accepted`,
 `Implemented`, `Design-Record`, `Current`) or `approved-by` (§6). Every
@@ -145,9 +149,9 @@ or `Accepted` where a document warrants it, after reviewing it.
   a Log eligible for `compass assign`, and that eligibility is the
   steward's to grant.
 
-### ORIGIN-DRAFT-compass-migration-D4 — Multi-phase Logs keep their Phase sections
+### ORIGIN-D4 — Multi-phase Logs keep their Phase sections
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The three Impulse Logs each record several phases, already
 structured as `## Phase N — …` sections. Compass permits phased Logs with
@@ -161,9 +165,9 @@ its own commit.
   under CLASSIC-D100). Rejected: the Phase headings are the established
   structure and the Compass Log shape explicitly permits them.
 
-### ORIGIN-DRAFT-compass-migration-D5 — Decision records add no content
+### ORIGIN-D5 — Decision records add no content
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** About 70 numbered decisions need to become ADR-shaped records.
 Many state their alternatives in prose; some do not.
@@ -178,9 +182,9 @@ stays after them. Any statement added to a historical Log is marked
 - Reconstruct missing alternatives from the code and history. Rejected: it
   would put claims in a historical record that its author never made.
 
-### ORIGIN-DRAFT-compass-migration-D6 — Code references pin to each Log's work commits
+### ORIGIN-D6 — Code references pin to each Log's work commits
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** A Log's code references must be commit-pinned (§9). Origin's
 Logs name files as they stood when the work was done. Some paths are Lexter
@@ -209,9 +213,9 @@ symbol-pinned references (e.g.
 - Pin to the current `HEAD` and update the paths. Rejected: it rewrites
   history.
 
-### ORIGIN-DRAFT-compass-migration-D7 — Links are fixed; stale content is not refreshed
+### ORIGIN-D7 — Links are fixed; stale content is not refreshed
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** About 45 links name files by their pre-rename paths. In-body
 `**Status:**` lines would compete with front-matter status.
@@ -229,9 +233,9 @@ content is not refreshed.
 - Refresh stale content in the same effort. Rejected: it multiplies the
   size of the change and mixes structural edits with content edits.
 
-### ORIGIN-DRAFT-compass-migration-D8 — CI and code owners mirror Classic
+### ORIGIN-D8 — CI and code owners mirror Classic
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Classic enforces its standard with a CI workflow that builds
 the toolchain at a pinned revision and checks the corpus against the base
@@ -247,9 +251,9 @@ the steward in GitHub settings.
 - No CI for now. Rejected: the uniqueness of numbers depends on a check
   that cannot be bypassed.
 
-### ORIGIN-DRAFT-compass-migration-D9 — Provenance is assistant: opencode
+### ORIGIN-D9 — Provenance is assistant: opencode
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Classic's migration documents record `assistant: opencode`.
 Origin's browser Survey records `assistant: claude`.
@@ -270,7 +274,7 @@ is edited in this migration (for `Table:` captions and `relates-to`), uses
    `--skip-unmarked` instruction (after Phase 2 lands); update the
    migration note.
 2. **Add CI and code owners**
-   (ORIGIN-DRAFT-compass-migration-D8).
+   (ORIGIN-D8).
    `.github/workflows/compass-check.yml` and `.github/CODEOWNERS`.
 3. **Generate the index** with `compass index`.
 4. **Gate:** `compass check --skip-unmarked` reports no errors, and
@@ -302,18 +306,18 @@ is edited in this migration (for `Table:` captions and `relates-to`), uses
    | `Survey.GameImage.md` | Survey | project | — |
 
    Each takes a provisional `id`, `status: Draft`
-   (ORIGIN-DRAFT-compass-migration-D3), `project: Origin`,
+   (ORIGIN-D3), `project: Origin`,
    `language: en`, and `provenance: { assistant: opencode }`
-   (ORIGIN-DRAFT-compass-migration-D9). `relates-to`
+   (ORIGIN-D9). `relates-to`
    is populated where documents cite each other. `created` and `updated`
    are omitted; the toolchain derives them from Git
-   (ORIGIN-DRAFT-compass-migration-D7).
+   (ORIGIN-D7).
 
 2. **Fix stale links** (~45 across 14 documents). Every link from one
    document to another becomes an id-keyed Markdown link to the document's
-   current name (ORIGIN-DRAFT-compass-migration-D7).
+   current name (ORIGIN-D7).
 3. **Remove in-body `**Status:**` lines**; keep `**Date:**` lines
-   (ORIGIN-DRAFT-compass-migration-D7).
+   (ORIGIN-D7).
 4. **Reshape the two older Surveys.** `Survey.GranularityAndImage.md` and
    `Survey.GameImage.md`: set H1 to `<Topic>: Survey`, capitalise spine
    headings, and turn their open-question numbered lists into
@@ -321,7 +325,7 @@ is edited in this migration (for `Table:` captions and `relates-to`), uses
 5. **Fill the browser Survey's `relates-to`** now that every document has
    an id. Update its `Table:` captions from `**Table N. …**` to the
    `Table:` form. Update its provenance to `opencode`
-   (ORIGIN-DRAFT-compass-migration-D9).
+   (ORIGIN-D9).
 6. **Gate:** `compass check` without `--skip-unmarked` reports no errors;
    `AGENTS.md` drops the `--skip-unmarked` instruction; the index is
    regenerated.
@@ -331,14 +335,14 @@ is edited in this migration (for `Table:` captions and `relates-to`), uses
 Committed in batches by component, each batch checked before the next.
 
 1. **Decision records**
-   (ORIGIN-DRAFT-compass-migration-D5). Each becomes
+   (ORIGIN-D5). Each becomes
    `### ORIGIN-DRAFT-<slug>-D<n> — <title>`, mirrored into `decisions:`,
    with status `Proposed`.
 2. **Open-question records.** Each becomes
    `### ORIGIN-DRAFT-<slug>-O<n> — <title>`, mirrored into
    `open-questions:`.
 3. **Pinned code references**
-   (ORIGIN-DRAFT-compass-migration-D6). Each Log's
+   (ORIGIN-D6). Each Log's
    paths become `path:symbol@revision`, pinned to the commits in the table
    above. Lexter paths take the `LEXTER:` prefix. The bare line references
    in `Plan.LinuxServiceManager.md` become symbol-pinned.
@@ -391,13 +395,13 @@ Outside this plan:
 
 ## Open Questions
 
-### ORIGIN-DRAFT-compass-migration-O1 — Which documents are numbered first
+### ORIGIN-O6 — Which documents are numbered first
 
 Once the migration lands, every document and record has a provisional
 identifier. Should the steward number the corpus at once, in path order, or
 document by document as each is reviewed and accepted?
 
-### ORIGIN-DRAFT-compass-migration-O2 — A compiled README
+### ORIGIN-O7 — A compiled README
 
 Compass lets a repository README be compiled from a template that includes
 sections of the corpus by identifier (§10). Origin's README combines a
@@ -427,4 +431,4 @@ Table: Prior work in the federation and what this plan draws from each.
 5. Phase 4: `Log.CompassMigration.md`, recording the work.
 6. The steward reviews statuses, accepts records, and numbers with
    `compass assign`
-   (ORIGIN-DRAFT-compass-migration-O1).
+   (ORIGIN-O6).

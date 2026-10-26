@@ -1,34 +1,38 @@
 ---
-id:            ORIGIN-DRAFT-impulse-i
+id:            ORIGIN-0006
 title:         "Impulse, Part I (Phases 1-3): Development Log"
 genre:         Log
 scope:         project
 project:       Origin
 component:     impulse
 language:      en
-status:        Draft
+status:        Implemented
+authors:
+  - Andrew Sengul
+approved-by:   Andrew Sengul
+reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-control-vocabulary
-  - ORIGIN-DRAFT-control-vocabulary-prior-art
-  - ORIGIN-DRAFT-foreign-orbitals
-  - ORIGIN-DRAFT-impulse-ii
-  - ORIGIN-DRAFT-orbital-images
+  - ORIGIN-0004
+  - ORIGIN-0003
+  - ORIGIN-0005
+  - ORIGIN-0008
+  - ORIGIN-0002
 decisions:
-  - ORIGIN-DRAFT-impulse-i-D1
-  - ORIGIN-DRAFT-impulse-i-D2
-  - ORIGIN-DRAFT-impulse-i-D3
-  - ORIGIN-DRAFT-impulse-i-D4
-  - ORIGIN-DRAFT-impulse-i-D5
-  - ORIGIN-DRAFT-impulse-i-D6
-  - ORIGIN-DRAFT-impulse-i-D7
-  - ORIGIN-DRAFT-impulse-i-D8
-  - ORIGIN-DRAFT-impulse-i-D9
-  - ORIGIN-DRAFT-impulse-i-D10
-  - ORIGIN-DRAFT-impulse-i-D11
-  - ORIGIN-DRAFT-impulse-i-D12
-  - ORIGIN-DRAFT-impulse-i-D13
+  - ORIGIN-D22
+  - ORIGIN-D23
+  - ORIGIN-D24
+  - ORIGIN-D25
+  - ORIGIN-D26
+  - ORIGIN-D27
+  - ORIGIN-D28
+  - ORIGIN-D29
+  - ORIGIN-D30
+  - ORIGIN-D31
+  - ORIGIN-D32
+  - ORIGIN-D33
+  - ORIGIN-D34
 ---
 
 # Impulse, Part I (Phases 1-3): Development Log
@@ -56,14 +60,14 @@ full; **Phases 2 and 3** will be appended as they are built.
 Impulse rests on an unusually long planning effort, recorded in three
 companion documents that this log assumes:
 
-- [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md) -- the goals, the two-tier shape, the
+- [ORIGIN-0004](Plan.ControlVocabulary.md) -- the goals, the two-tier shape, the
   command/query-separation principle, the "data, not code" stance, and
   the nine design goals.
-- [ORIGIN-DRAFT-control-vocabulary-prior-art](Eval.ControlVocabulary.PriorArt.md) -- an eleven-technology prior-art
+- [ORIGIN-0003](Eval.ControlVocabulary.PriorArt.md) -- an eleven-technology prior-art
   evaluation (SNMP, z/OS MODIFY, JMX, HTTP, GraphQL, NETCONF, Erlang/OTP,
   LSP, Plan 9, Kubernetes, D-Bus/systemd) that resolved the verb space
   and settled the design by independent-invention convergence.
-- [ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md) -- the adapter-orbital model that keeps the
+- [ORIGIN-0005](Plan.ForeignOrbitals.md) -- the adapter-orbital model that keeps the
   lexicon honest by requiring every verb to be answerable by a CL adapter
   on behalf of a non-Lisp process.
 
@@ -205,7 +209,7 @@ in-image path.
 ### Prior-art lineage (Phase 1)
 
 Each implemented feature and the reference technologies it descends from
-(full evaluation in [ORIGIN-DRAFT-control-vocabulary-prior-art](Eval.ControlVocabulary.PriorArt.md)):
+(full evaluation in [ORIGIN-0003](Eval.ControlVocabulary.PriorArt.md)):
 
 Table: Implemented features and their reference lineage.
 
@@ -221,9 +225,9 @@ Table: Implemented features and their reference lineage.
 | Data-not-code dispatch (datum dispatched, never eval'd) | 9P (write = command, no eval surface); SNMP (closed by MIB) | the security spine |
 
 
-### ORIGIN-DRAFT-impulse-i-D1 — A separate impulse system, not part of core
+### ORIGIN-D22 — A separate impulse system, not part of core
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:**
 Impulse is the meta-OS's control layer, but it is not needed to manage
@@ -238,9 +242,9 @@ system.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-i-D2 — Control type by registry, not by class
+### ORIGIN-D23 — Control type by registry, not by class
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:**
 Sub-vocabularies (Lexter windows, nginx) need a way to claim a richer set
@@ -257,9 +261,9 @@ from the first phase.
   orbital model with the control model and would not work for foreign
   orbitals, whose "orbital" is a generic image.
 
-### ORIGIN-DRAFT-impulse-i-D3 — The dispatcher never signals
+### ORIGIN-D24 — The dispatcher never signals
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:**
 A control request can fail in many ways, and several of them (unknown verb,
@@ -274,9 +278,9 @@ day one, not bolted on later.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-i-D4 — Effect and tier enforced in Phase 1, not deferred
+### ORIGIN-D25 — Effect and tier enforced in Phase 1, not deferred
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:**
 The plan placed CQS enforcement in Phase 2.
@@ -292,9 +296,9 @@ and per-connection contexts rather than the core CQS gate.
 - Defer to Phase 2 as planned. Not chosen: the verb model made immediate
   enforcement nearly free.
 
-### ORIGIN-DRAFT-impulse-i-D5 — Register all verbs now; advertise only the implemented ones
+### ORIGIN-D26 — Register all verbs now; advertise only the implemented ones
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:**
 The full universal verb set needs to be visible to `describe` and the tier
@@ -447,9 +451,9 @@ Table: Implemented features and their reference lineage.
 | Fan-out `:partial` envelope | HTTP 206 Partial Content; SNMP table-walk + error-index; GraphQL partial data+errors | per-target outcome survives partial failure |
 | Per-connection context (tier + label) | LSP connect-time session identity (seed) | audit records who issued a mutation |
 
-### ORIGIN-DRAFT-impulse-i-D6 — Serialization by call-next-method, not a registry or :around
+### ORIGIN-D27 — Serialization by call-next-method, not a registry or :around
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:**
 An initial `:around` design double-counted the base keys.
@@ -462,9 +466,9 @@ no central table, and a new condition participates by defining one method.
 **Alternatives:**
 - An `:around` design. Rejected: double-counted the base keys.
 
-### ORIGIN-DRAFT-impulse-i-D7 — Check verb and tier once; capture per-target outcomes
+### ORIGIN-D28 — Check verb and tier once; capture per-target outcomes
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:**
 Effect and tier are properties of the verb and the connection, not of the
@@ -478,9 +482,9 @@ envelope is for.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-i-D8 — Fan-out reuses single-target dispatch
+### ORIGIN-D29 — Fan-out reuses single-target dispatch
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:**
 Single and fan-out dispatch share the same verb logic.
@@ -623,9 +627,9 @@ Table: Implemented features and their reference lineage.
 | Impulse separate from Slynk (eval = privileged break-glass) | the effect-ladder operational law (eval is a separate, privileged tier) | structured plane is the default; eval the locked cabinet |
 | Transport reuses `dispatch` unchanged (carrier-agnostic) | Impulse goal G8 (same envelope in-image and over IPC) | the envelope is defined over the datum, not the carrier |
 
-### ORIGIN-DRAFT-impulse-i-D9 — Validation is the guarantee; the readtable is defense in depth
+### ORIGIN-D30 — Validation is the guarantee; the readtable is defense in depth
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:**
 The codec is where untrusted bytes become Lisp data, and multiple defense
@@ -640,9 +644,9 @@ cannot be crossed.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-i-D10 — Keyword-only, enforced symmetrically
+### ORIGIN-D31 — Keyword-only, enforced symmetrically
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:**
 The wire format needs a policy for symbol handling.
@@ -656,9 +660,9 @@ now mechanical.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-i-D11 — Length-prefixed framing over character streams
+### ORIGIN-D32 — Length-prefixed framing over character streams
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:**
 Message boundaries must be unambiguous on a socket stream.
@@ -672,9 +676,9 @@ socket stream.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-i-D12 — Tier pinned by the listener, negotiated down by the client
+### ORIGIN-D33 — Tier pinned by the listener, negotiated down by the client
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:**
 Socket file permissions are the coarse auth (who can open it at all); the
@@ -687,9 +691,9 @@ This is enough for a single-host nexus without per-user identity (Q6).
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-i-D13 — Transport reuses dispatch unchanged
+### ORIGIN-D34 — Transport reuses dispatch unchanged
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:**
 The envelope, the verb model, and the error/partial responses need to work
@@ -767,5 +771,5 @@ control).
 The committed roadmap beyond Part I -- declarative `apply` with staged
 validation, fleet selectors, `watch` and operation progress/cancel, the
 Lexter and nginx sub-vocabularies, and state handoff -- is recorded in
-[ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md) and [ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md), and will be
+[ORIGIN-0004](Plan.ControlVocabulary.md) and [ORIGIN-0005](Plan.ForeignOrbitals.md), and will be
 chronicled in a Part II log.

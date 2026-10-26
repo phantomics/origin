@@ -10,9 +10,9 @@ status:        Draft
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-impulse-i
-  - ORIGIN-DRAFT-impulse-ii
-  - ORIGIN-DRAFT-foreign-orbitals
+  - ORIGIN-0006
+  - ORIGIN-0008
+  - ORIGIN-0005
 decisions:
   - ORIGIN-DRAFT-impulse-iii-D1
   - ORIGIN-DRAFT-impulse-iii-D2
@@ -33,9 +33,9 @@ decisions:
 
 # Impulse, Part III (Phases 7-9): Development Log
 
-This document continues the Impulse chronicle from [ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md) (the
+This document continues the Impulse chronicle from [ORIGIN-0006](Log.ImpulseI.md) (the
 MVP -- envelope, verb model, hardened codec, Unix-socket transport) and
-[ORIGIN-DRAFT-impulse-ii](Log.ImpulseII.md) (the declarative, selector, and streaming tiers). Part III
+[ORIGIN-0008](Log.ImpulseII.md) (the declarative, selector, and streaming tiers). Part III
 turns from the *universal* control plane to its *specializations*:
 
 - **Phase 7** -- the first typed sub-vocabulary: `:lexter-host`, the Lexter
@@ -244,7 +244,7 @@ A small, generic core change that Phase 8 depends on, landed ahead of the
 adapter so the adapter builds on stable core. Origin's `:image` `stop`
 previously hardcoded `SIGTERM` for the graceful phase -- which for nginx is the
 *abrupt* path; nginx's graceful-shutdown signal is `SIGQUIT`. As planned in
-[ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md):
+[ORIGIN-0005](Plan.ForeignOrbitals.md):
 
 - A new `image-stop-signal` slot on `managed-process` (default
   `sb-unix:sigterm`, accessor `process-image-stop-signal`), settable via
@@ -283,7 +283,7 @@ Table: Files added or changed in commit `cf288c4`.
 ### Goal
 
 The first **Tether** -- "Technology-Eliding Typed Host Endpoint Resolver", the
-foreign-orbital adapter framework ([ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md)). A Tether is a
+foreign-orbital adapter framework ([ORIGIN-0005](Plan.ForeignOrbitals.md)). A Tether is a
 Common Lisp adapter that owns a non-CL process and makes it a first-class Origin
 orbital: it spawns and supervises the process as an `:image` orbital, compiles
 its configuration from S-expressions, validates and reloads it, and answers the

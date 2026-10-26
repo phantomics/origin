@@ -9,9 +9,9 @@ status:        Draft
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-orbital-images
+  - ORIGIN-0002
   - ORIGIN-DRAFT-user-facing-surfaces
-  - ORIGIN-DRAFT-linux-service-manager
+  - ORIGIN-0007
   - ORIGIN-DRAFT-game-image
 ---
 
@@ -183,7 +183,7 @@ or a GPU driver takes the whole image down, where a Unix process crash is
 contained for free. A large part of Origin's machinery -- the
 supervision/restart core, the cooperative and `:image` modes, the
 stub-PID-1 floor described in
-[ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md) -- is
+[ORIGIN-0007](Plan.LinuxServiceManager.md) -- is
 really a way to **buy back, selectively, the isolation Unix gives for
 free**, paying the process cost only for the units that warrant it.
 
@@ -263,7 +263,7 @@ tradition's substrate (Unix/Linux), so that OS-level isolation and
 heterogeneity remain available as the coarse fallback while the fine, live,
 interactive granularity serves the homogeneous CL case. The recursive
 self-similar node model (see
-[ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md)) extends this hybrid
+[ORIGIN-0002](Log.OrbitalImages.md)) extends this hybrid
 across process and machine boundaries without changing the vocabulary.
 
 

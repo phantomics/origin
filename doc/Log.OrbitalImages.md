@@ -1,27 +1,31 @@
 ---
-id:            ORIGIN-DRAFT-orbital-images
+id:            ORIGIN-0002
 title:         "Orbital Images (:image Execution Mode): Development Log"
 genre:         Log
 scope:         project
 project:       Origin
 component:     core
 language:      en
-status:        Draft
+status:        Implemented
+authors:
+  - Andrew Sengul
+approved-by:   Andrew Sengul
+reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-impulse-i
-  - ORIGIN-DRAFT-linux-service-manager
+  - ORIGIN-0006
+  - ORIGIN-0007
 decisions:
-  - ORIGIN-DRAFT-orbital-images-D1
-  - ORIGIN-DRAFT-orbital-images-D2
-  - ORIGIN-DRAFT-orbital-images-D3
-  - ORIGIN-DRAFT-orbital-images-D4
-  - ORIGIN-DRAFT-orbital-images-D5
-  - ORIGIN-DRAFT-orbital-images-D6
-  - ORIGIN-DRAFT-orbital-images-D7
-  - ORIGIN-DRAFT-orbital-images-D8
-  - ORIGIN-DRAFT-orbital-images-D9
+  - ORIGIN-D10
+  - ORIGIN-D11
+  - ORIGIN-D12
+  - ORIGIN-D13
+  - ORIGIN-D14
+  - ORIGIN-D15
+  - ORIGIN-D16
+  - ORIGIN-D17
+  - ORIGIN-D18
 ---
 
 # Orbital Images (`:image` Execution Mode): Development Log
@@ -104,7 +108,7 @@ Description: A tree showing the core Origin supervisor spawning an `:image` orbi
 Seven questions were settled before implementation; two more during the
 build.
 
-### ORIGIN-DRAFT-orbital-images-D1 — Boot strategy: quickload-at-boot
+### ORIGIN-D10 — Boot strategy: quickload-at-boot
 
 **Status:** Proposed
 
@@ -119,9 +123,9 @@ Saved cores for fast respawn are a roadmap item.
 - Pre-saved core images. Deferred: adds a build artifact and core
   management that v1 does not need.
 
-### ORIGIN-DRAFT-orbital-images-D2 — Control channel: Slynk for humans, OS-level for lifecycle
+### ORIGIN-D11 — Control channel: Slynk for humans, OS-level for lifecycle
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The parent needs to control children. The question is what
 control channel to use in v1.
@@ -136,23 +140,23 @@ channel (S-expression IPC) is deferred.
   verbs work without one, and the IPC design is better informed by
   experience with the OS-level path.
 
-### ORIGIN-DRAFT-orbital-images-D3 — Cross-image status: deferred
+### ORIGIN-D12 — Cross-image status: deferred
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The parent could surface a child's internal Origin state
 (its own orbitals, their statuses) alongside the OS-process-level status.
 
 **Decision:** Deferred. The parent tracks OS-process-level status
 (running/crashed/stopped/PID). Surfacing a child's internal state
-requires the query channel (ORIGIN-DRAFT-orbital-images-D2).
+requires the query channel (ORIGIN-D11).
 
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-orbital-images-D4 — Child configuration: an evaluated config file
+### ORIGIN-D13 — Child configuration: an evaluated config file
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Children need to know what to run — which cooperative
 terminals to host, with what parameters.
@@ -165,9 +169,9 @@ port to the child via sequential `--eval` forms on the SBCL command line.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-orbital-images-D5 — Code placement: core stays pure
+### ORIGIN-D14 — Code placement: core stays pure
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The `:image` mode could live in Origin core or in the Lexter
 launcher layer.
@@ -181,9 +185,9 @@ neither Lexter nor Slynk.
 - Put the boot recipe in core. Rejected: it would make core depend on
   Lexter and Slynk.
 
-### ORIGIN-DRAFT-orbital-images-D6 — Slynk (not Swank) is the interactivity server
+### ORIGIN-D15 — Slynk (not Swank) is the interactivity server
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Two Emacs-to-Lisp interactivity servers exist: Swank (the
 original, for SLIME) and Slynk (the SLY fork).
@@ -193,9 +197,9 @@ original, for SLIME) and Slynk (the SLY fork).
 **Alternatives:**
 - Swank. Not chosen.
 
-### ORIGIN-DRAFT-orbital-images-D7 — Smart children
+### ORIGIN-D16 — Smart children
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** A spawned image could be a dumb single-process worker or a
 full management peer.
@@ -210,9 +214,9 @@ process.
 - Dumb children only. Rejected: it forecloses the recursive self-similar
   node model that multi-image supervision motivates.
 
-### ORIGIN-DRAFT-orbital-images-D8 — Graceful shutdown: SIGTERM only for v1
+### ORIGIN-D17 — Graceful shutdown: SIGTERM only for v1
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Settled during the build. A richer graceful shutdown
 (evaluating a form in the child before signalling) needs a control path
@@ -224,9 +228,9 @@ Lisp-level graceful quit waits for the IPC channel.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-orbital-images-D9 — Output handling in core, not a wrapper
+### ORIGIN-D18 — Output handling in core, not a wrapper
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Settled during the build. Child stdout/stderr need to be
 captured.

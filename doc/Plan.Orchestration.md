@@ -9,10 +9,10 @@ status:        Draft
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-orbital-images
-  - ORIGIN-DRAFT-impulse-i
-  - ORIGIN-DRAFT-foreign-orbitals
-  - ORIGIN-DRAFT-linux-service-manager
+  - ORIGIN-0002
+  - ORIGIN-0006
+  - ORIGIN-0005
+  - ORIGIN-0007
   - ORIGIN-DRAFT-user-facing-surfaces
   - ORIGIN-DRAFT-placement
 decisions:
@@ -41,12 +41,12 @@ Origin is a subordinate node speaking the same control vocabulary. The
 result is a single coherent system spanning host service management
 (systemd's job), fleet orchestration (Kubernetes' job), and an
 administrative console -- unified by recursion rather than by bolting three
-stacks together. It assumes [ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md)
-(the `:image` mode and smart children), [ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md)
+stacks together. It assumes [ORIGIN-0002](Log.OrbitalImages.md)
+(the `:image` mode and smart children), [ORIGIN-0006](Log.ImpulseI.md)
 (the carrier-agnostic control vocabulary and its socket transport),
-[ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md) (the adapter
+[ORIGIN-0005](Plan.ForeignOrbitals.md) (the adapter
 model), and the appliance framing of
-[ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md).
+[ORIGIN-0007](Plan.LinuxServiceManager.md).
 
 **Date:** 2026-06-19
 
@@ -94,7 +94,7 @@ new abstraction:
   transport and answering the same `describe`/`status`/`apply` vocabulary as
   any orbital.
 
-The [ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md) plan already anticipated this: "the
+The [ORIGIN-0007](Plan.LinuxServiceManager.md) plan already anticipated this: "the
 same recursion that yields per-session and per-subsystem Origins extends to
 per-host Origins over TCP Impulse -- the path from personal appliance to
 fleet."

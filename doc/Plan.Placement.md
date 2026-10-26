@@ -10,8 +10,8 @@ provenance:
   assistant:   opencode
 relates-to:
   - ORIGIN-DRAFT-orchestration
-  - ORIGIN-DRAFT-linux-service-manager
-  - ORIGIN-DRAFT-control-vocabulary
+  - ORIGIN-0007
+  - ORIGIN-0004
 decisions:
   - ORIGIN-DRAFT-placement-D1
   - ORIGIN-DRAFT-placement-D2
@@ -39,8 +39,8 @@ reality toward a placement, treated as a separate concern). It is the
 companion to [ORIGIN-DRAFT-orchestration](Plan.Orchestration.md), which
 covers the fleet tier and the borrow-not-build stance, and it reuses the
 dependency-ordering direction (C1) noted in
-[ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md) and the
-declarative `apply` of [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md).
+[ORIGIN-0007](Plan.LinuxServiceManager.md) and the
+declarative `apply` of [ORIGIN-0004](Plan.ControlVocabulary.md).
 
 **Date:** 2026-06-19
 

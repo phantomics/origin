@@ -9,8 +9,8 @@ status:        Draft
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-impulse-i
-  - ORIGIN-DRAFT-orbital-images
+  - ORIGIN-0006
+  - ORIGIN-0002
   - ORIGIN-DRAFT-orchestration
   - ORIGIN-DRAFT-placement
 decisions:
@@ -39,8 +39,8 @@ than routing all management through one uniform tree, concerns shape how
 the graph is traversed -- which nodes, at what cadence, with which verbs --
 adapting management intensity to the concern's actual distribution across
 the system. It assumes the Impulse control vocabulary
-([ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md)), the recursive node model
-([ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md)), the fleet tier
+([ORIGIN-0006](Log.ImpulseI.md)), the recursive node model
+([ORIGIN-0002](Log.OrbitalImages.md)), the fleet tier
 ([ORIGIN-DRAFT-orchestration](Plan.Orchestration.md)), and the topology
 DSL ([ORIGIN-DRAFT-placement](Plan.Placement.md)).
 

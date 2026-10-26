@@ -1,5 +1,5 @@
 ---
-id:            ORIGIN-DRAFT-control-vocabulary-prior-art
+id:            ORIGIN-0003
 title:         "Control Vocabulary: Prior-Art Evaluation"
 genre:         Eval
 subtype:       prior-art
@@ -7,18 +7,18 @@ scope:         project
 project:       Origin
 component:     impulse
 language:      en
-status:        Draft
+status:        Accepted
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-control-vocabulary
-  - ORIGIN-DRAFT-foreign-orbitals
+  - ORIGIN-0004
+  - ORIGIN-0005
 ---
 
 # Control Vocabulary: Prior-Art Evaluation
 
 This document evaluates the control vocabularies of the prior-art technologies
-named in [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md). For each, it renders a small subset of
+named in [ORIGIN-0004](Plan.ControlVocabulary.md). For each, it renders a small subset of
 the technology's grammar as Common Lisp forms, grounds the rendition in a shared
 Origin scenario, and scores the ergonomics against a rubric drawn from the
 DevPlan's design goals. The aim is not to specify Origin's vocabulary but to
@@ -1910,7 +1910,7 @@ reflections above into design conclusions for Impulse. It does three things:
 resolves the verb-classification question raised in the Erlang reflection,
 states the cross-survey decisions where independent invention has effectively
 settled the design, and -- crucially -- pressure-tests the result against the
-foreign-orbital adapter requirements from [ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md), so that
+foreign-orbital adapter requirements from [ORIGIN-0005](Plan.ForeignOrbitals.md), so that
 Impulse is shaped by a real non-Lisp target (nginx) and not only by the native
 Lexter case.
 

@@ -11,7 +11,7 @@ provenance:
 relates-to:
   - ORIGIN-DRAFT-granularity-and-image
   - ORIGIN-DRAFT-game-image
-  - ORIGIN-DRAFT-orbital-images
+  - ORIGIN-0002
   - ORIGIN-DRAFT-concern-topologies
 open-questions:
   - ORIGIN-O1

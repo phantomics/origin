@@ -1,26 +1,30 @@
 ---
-id:            ORIGIN-DRAFT-foreign-orbitals
+id:            ORIGIN-0005
 title:         "Foreign Orbitals: Development Plan"
 genre:         Plan
 scope:         project
 project:       Origin
 component:     tether
 language:      en
-status:        Draft
+status:        Implemented
+authors:
+  - Andrew Sengul
+approved-by:   Andrew Sengul
+reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-control-vocabulary
+  - ORIGIN-0004
   - ORIGIN-DRAFT-impulse-iii
-  - ORIGIN-DRAFT-linux-service-manager
+  - ORIGIN-0007
 open-questions:
-  - ORIGIN-DRAFT-foreign-orbitals-O1
-  - ORIGIN-DRAFT-foreign-orbitals-O2
-  - ORIGIN-DRAFT-foreign-orbitals-O3
-  - ORIGIN-DRAFT-foreign-orbitals-O4
-  - ORIGIN-DRAFT-foreign-orbitals-O5
-  - ORIGIN-DRAFT-foreign-orbitals-O6
-  - ORIGIN-DRAFT-foreign-orbitals-O7
+  - ORIGIN-O15
+  - ORIGIN-O16
+  - ORIGIN-O17
+  - ORIGIN-O18
+  - ORIGIN-O19
+  - ORIGIN-O20
+  - ORIGIN-O21
 ---
 
 # Foreign Orbitals: Development Plan
@@ -41,7 +45,7 @@ Tier 2 (Lisp-authored configuration and structured logs) is the current
 plan and is buildable on the existing `:image` mode without Impulse.
 Tier 3 (full participation in the Impulse control lexicon) is sketched
 here and depends on
-[ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md). This plan is
+[ORIGIN-0004](Plan.ControlVocabulary.md). This plan is
 deliberately written *before* Impulse is implemented, so that a real
 foreign adapter's demands inform the lexicon's design rather than only
 the native Lexter case.
@@ -147,7 +151,7 @@ in-image supervision of its internals) that its process boundary forbids.
 This constraint flows back to Impulse: the lexicon and its
 handler-registration must be implementable by an Tethter *on behalf of* a
 process that cannot answer for itself -- the design constraint already
-recorded in [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md).
+recorded in [ORIGIN-0004](Plan.ControlVocabulary.md).
 
 
 ## Tiers
@@ -344,7 +348,7 @@ nginx-specific knowledge above the Tether.
 ## Impulse Requirements Surfaced by nginx
 
 Because this plan precedes Impulse, the nginx example is a requirements
-source for [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md). Concrete demands it places on
+source for [ORIGIN-0004](Plan.ControlVocabulary.md). Concrete demands it places on
 the lexicon:
 
 1. **Validation before apply.** `configure`/`apply` must support a
@@ -424,46 +428,46 @@ Table: Prior art and what to draw from each.
 
 ## Open Questions
 
-### ORIGIN-DRAFT-foreign-orbitals-O1 — Config atomicity and rollback
+### ORIGIN-O15 — Config atomicity and rollback
 
 On a failed reload after a config swap, how does the Tether roll back --
 keep the previous validated config and re-place it, or rely on
 validate-before-swap to make rollback unnecessary? (Leaning on
 validate-before-swap, with the previous config retained for safety.)
 
-### ORIGIN-DRAFT-foreign-orbitals-O2 — JSON facility placement
+### ORIGIN-O16 — JSON facility placement
 
 Does the core-usable JSON reader/writer live in Origin core proper, or in
 an optional core-adjacent module loaded only when an in-core Tether needs
 it? The zero-dependency runtime principle argues against pulling JSON into
 the base image unconditionally.
 
-### ORIGIN-DRAFT-foreign-orbitals-O3 — Secrets in generated config
+### ORIGIN-O17 — Secrets in generated config
 
 TLS keys, upstream credentials, and the like in generated nginx config --
 how are they sourced and kept out of logs, the event log, and
 world-readable `/tmp` files (permissions, a secrets indirection)?
 
-### ORIGIN-DRAFT-foreign-orbitals-O4 — Log rotation
+### ORIGIN-O18 — Log rotation
 
 Reopening logs is `USR1`; does the Tether own rotation (rename + USR1) or
 defer to an external rotator? Ephemeral `/tmp` instances may not need
 rotation at all.
 
-### ORIGIN-DRAFT-foreign-orbitals-O5 — Health versus readiness
+### ORIGIN-O19 — Health versus readiness
 
 For nginx, "the master is alive" (`:image` liveness) differs from "it is
 serving" (stub_status reachable on the configured port). The Tether should
 distinguish them, feeding the health/readiness sub-vocabulary discussion in
 Impulse.
 
-### ORIGIN-DRAFT-foreign-orbitals-O6 — Typed config sharing
+### ORIGIN-O20 — Typed config sharing
 
 How much of the typed configuration layer is nginx-specific versus shareable
 (e.g. a generic TLS-policy or upstream-set notion)? Resolved empirically as
 more Tethers appear.
 
-### ORIGIN-DRAFT-foreign-orbitals-O7 — State handoff relevance
+### ORIGIN-O21 — State handoff relevance
 
 nginx is effectively stateless across restarts; which foreign programs
 (databases, session stores) make `restart`-with-state-handoff meaningful,

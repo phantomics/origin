@@ -1,38 +1,42 @@
 ---
-id:            ORIGIN-DRAFT-impulse-ii
+id:            ORIGIN-0008
 title:         "Impulse, Part II (Phases 4-6): Development Log"
 genre:         Log
 scope:         project
 project:       Origin
 component:     impulse
 language:      en
-status:        Draft
+status:        Implemented
+authors:
+  - Andrew Sengul
+approved-by:   Andrew Sengul
+reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-impulse-i
+  - ORIGIN-0006
   - ORIGIN-DRAFT-impulse-iii
-  - ORIGIN-DRAFT-control-vocabulary-prior-art
+  - ORIGIN-0003
 decisions:
-  - ORIGIN-DRAFT-impulse-ii-D1
-  - ORIGIN-DRAFT-impulse-ii-D2
-  - ORIGIN-DRAFT-impulse-ii-D3
-  - ORIGIN-DRAFT-impulse-ii-D4
-  - ORIGIN-DRAFT-impulse-ii-D5
-  - ORIGIN-DRAFT-impulse-ii-D6
-  - ORIGIN-DRAFT-impulse-ii-D7
-  - ORIGIN-DRAFT-impulse-ii-D8
-  - ORIGIN-DRAFT-impulse-ii-D9
-  - ORIGIN-DRAFT-impulse-ii-D10
-  - ORIGIN-DRAFT-impulse-ii-D11
-  - ORIGIN-DRAFT-impulse-ii-D12
-  - ORIGIN-DRAFT-impulse-ii-D13
+  - ORIGIN-D46
+  - ORIGIN-D47
+  - ORIGIN-D48
+  - ORIGIN-D49
+  - ORIGIN-D50
+  - ORIGIN-D51
+  - ORIGIN-D52
+  - ORIGIN-D53
+  - ORIGIN-D54
+  - ORIGIN-D55
+  - ORIGIN-D56
+  - ORIGIN-D57
+  - ORIGIN-D58
 ---
 
 # Impulse, Part II (Phases 4-6): Development Log
 
 This document continues the chronicle of **Impulse** — Origin's structured
-control vocabulary — begun in [ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md), which covered the MVP
+control vocabulary — begun in [ORIGIN-0006](Log.ImpulseI.md), which covered the MVP
 (Phases 1-3: the envelope and verb model, effect/tier enforcement and the
 structured response envelope, and the hardened codec and Unix-socket
 transport). Part II builds the declarative tier and the streaming tier on
@@ -48,7 +52,7 @@ top of that MVP:
 
 As in Part I, the log is written in installments and each phase closes with
 a prior-art lineage table (full evaluation in
-[ORIGIN-DRAFT-control-vocabulary-prior-art](Eval.ControlVocabulary.PriorArt.md)).
+[ORIGIN-0003](Eval.ControlVocabulary.PriorArt.md)).
 
 **Date:** 2026-06-20 (Phase 4)
 
@@ -136,9 +140,9 @@ answer). It also reports a `:config-schema` -- the writable parameters with
 type and access -- so a tool can render an editor from discovered metadata,
 and the status schema gained the `:health` leaf.
 
-### ORIGIN-DRAFT-impulse-ii-D1 — Spec in an Impulse-side registry, not on the orbital
+### ORIGIN-D46 — Spec in an Impulse-side registry, not on the orbital
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The declared spec could live on `managed-process` or in Impulse.
 
@@ -147,9 +151,9 @@ and the status schema gained the `:health` leaf.
 **Alternatives:**
 - On the orbital. Rejected: would not work for foreign orbitals.
 
-### ORIGIN-DRAFT-impulse-ii-D2 — Declared-vs-observed folded into status :view, not a new verb
+### ORIGIN-D47 — Declared-vs-observed folded into status :view, not a new verb
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Declared-vs-observed state could be a new verb or a view on `status`.
 
@@ -158,9 +162,9 @@ and the status schema gained the `:health` leaf.
 **Alternatives:**
 - A new verb. Not chosen: keeps the verb set at ten.
 
-### ORIGIN-DRAFT-impulse-ii-D3 — One high-level apply, not separate edit/validate/commit verbs
+### ORIGIN-D48 — One high-level apply, not separate edit/validate/commit verbs
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The declarative workflow could use NETCONF-literal separate verbs or one combined verb.
 
@@ -169,9 +173,9 @@ and the status schema gained the `:health` leaf.
 **Alternatives:**
 - Separate edit/validate/commit verbs. Not chosen: simpler for the one-shot scope.
 
-### ORIGIN-DRAFT-impulse-ii-D4 — Health via a generic with a liveness default
+### ORIGIN-D49 — Health via a generic with a liveness default
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Readiness needs a seam for typed/foreign orbitals to refine later.
 
@@ -289,9 +293,9 @@ target selector. This is the boundary the survey flagged as the Lexter trap;
 keeping the two grammars in different places enforces it structurally, ahead
 of the Lexter sub-vocabulary.
 
-### ORIGIN-DRAFT-impulse-ii-D5 — Labels in an Impulse-side registry, like specs
+### ORIGIN-D50 — Labels in an Impulse-side registry, like specs
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Consistent with Phase 4, fleet metadata (labels) is a control-plane concept that needs a home.
 
@@ -300,9 +304,9 @@ of the Lexter sub-vocabulary.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-ii-D6 — One predicate grammar, two uses
+### ORIGIN-D51 — One predicate grammar, two uses
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The predicate matcher could be one grammar shared between target selection and result filtering, or two separate grammars.
 
@@ -311,9 +315,9 @@ of the Lexter sub-vocabulary.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-ii-D7 — selectors.lisp loads before dispatch.lisp
+### ORIGIN-D52 — selectors.lisp loads before dispatch.lisp
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The selector helpers depend only on the registry, the orbit, and the envelope accessors — not on dispatch.
 
@@ -322,9 +326,9 @@ of the Lexter sub-vocabulary.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-ii-D8 — Field arguments refine, they do not re-dispatch
+### ORIGIN-D53 — Field arguments refine, they do not re-dispatch
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Field arguments could re-dispatch per target or post-process the already-collected results.
 
@@ -457,9 +461,9 @@ share one connection with ordinary traffic:
   want to stream or cancel before the final reply); `session-request` is the
   sync convenience over them.
 
-### ORIGIN-DRAFT-impulse-ii-D9 — The connection's sink is the only transport coupling
+### ORIGIN-D54 — The connection's sink is the only transport coupling
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The streaming tier needs a transport interface.
 
@@ -468,9 +472,9 @@ share one connection with ordinary traffic:
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-ii-D10 — watch is poll-based over the event log, by choice
+### ORIGIN-D55 — watch is poll-based over the event log, by choice
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** `watch` could use a push hook in Origin core or poll the event log.
 
@@ -479,9 +483,9 @@ share one connection with ordinary traffic:
 **Alternatives:**
 - A push hook in Origin core. Not chosen for v1: a push hook can replace the poll later behind the same `subscription` API.
 
-### ORIGIN-DRAFT-impulse-ii-D11 — The request id is the cancellation/unwatch token (LSP model)
+### ORIGIN-D56 — The request id is the cancellation/unwatch token (LSP model)
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Cancel and unwatch must be actionable while a worker is mid-dispatch.
 
@@ -490,9 +494,9 @@ share one connection with ordinary traffic:
 **Alternatives:**
 - Dispatched verbs. Not chosen: a dispatched verb queued behind the read loop's frame could not guarantee timely delivery.
 
-### ORIGIN-DRAFT-impulse-ii-D12 — One worker thread per non-control request
+### ORIGIN-D57 — One worker thread per non-control request
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The read loop must stay responsive to a cancel during a long operation.
 
@@ -501,9 +505,9 @@ share one connection with ordinary traffic:
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-ii-D13 — streams.lisp loads before api/codec/transport
+### ORIGIN-D58 — streams.lisp loads before api/codec/transport
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** `streams.lisp` depends only on dispatch (for the `:watch` handler and `*context*`) and the event log — not on the codec or socket.
 

@@ -9,10 +9,10 @@ status:        Draft
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-impulse-i
-  - ORIGIN-DRAFT-orbital-images
-  - ORIGIN-DRAFT-control-vocabulary
-  - ORIGIN-DRAFT-linux-service-manager
+  - ORIGIN-0006
+  - ORIGIN-0002
+  - ORIGIN-0004
+  - ORIGIN-0007
 decisions:
   - ORIGIN-DRAFT-user-facing-surfaces-D1
   - ORIGIN-DRAFT-user-facing-surfaces-D2
@@ -35,11 +35,11 @@ of *launching* an application and the act of *observing and controlling* it
 are the same surface, rendered at a depth chosen by the user. It is an
 early, deliberately general plan -- it fixes the thesis, the abstractions,
 and the design direction, but not the specific tools, which require further
-refinement. It assumes the machinery of [ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md)
+refinement. It assumes the machinery of [ORIGIN-0006](Log.ImpulseI.md)
 (the `describe`/`status`/`apply` control vocabulary), the recursion model
-of [ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md), the workload and
-dependency directions in [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md),
-and the appliance framing in [ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md).
+of [ORIGIN-0002](Log.OrbitalImages.md), the workload and
+dependency directions in [ORIGIN-0004](Plan.ControlVocabulary.md),
+and the appliance framing in [ORIGIN-0007](Plan.LinuxServiceManager.md).
 
 **Date:** 2026-06-19
 

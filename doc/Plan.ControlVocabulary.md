@@ -1,30 +1,34 @@
 ---
-id:            ORIGIN-DRAFT-control-vocabulary
+id:            ORIGIN-0004
 title:         "Control Vocabulary: Development Plan"
 genre:         Plan
 scope:         project
 project:       Origin
 component:     impulse
 language:      en
-status:        Draft
+status:        Implemented
+authors:
+  - Andrew Sengul
+approved-by:   Andrew Sengul
+reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-control-vocabulary-prior-art
-  - ORIGIN-DRAFT-foreign-orbitals
-  - ORIGIN-DRAFT-impulse-i
+  - ORIGIN-0003
+  - ORIGIN-0005
+  - ORIGIN-0006
 decisions:
-  - ORIGIN-DRAFT-control-vocabulary-D1
-  - ORIGIN-DRAFT-control-vocabulary-D2
-  - ORIGIN-DRAFT-control-vocabulary-D3
+  - ORIGIN-D19
+  - ORIGIN-D20
+  - ORIGIN-D21
 open-questions:
-  - ORIGIN-DRAFT-control-vocabulary-O1
-  - ORIGIN-DRAFT-control-vocabulary-O2
-  - ORIGIN-DRAFT-control-vocabulary-O3
-  - ORIGIN-DRAFT-control-vocabulary-O4
-  - ORIGIN-DRAFT-control-vocabulary-O5
-  - ORIGIN-DRAFT-control-vocabulary-O6
-  - ORIGIN-DRAFT-control-vocabulary-O7
+  - ORIGIN-O8
+  - ORIGIN-O9
+  - ORIGIN-O10
+  - ORIGIN-O11
+  - ORIGIN-O12
+  - ORIGIN-O13
+  - ORIGIN-O14
 ---
 
 # Control Vocabulary: Development Plan
@@ -153,9 +157,9 @@ an arbitrary-evaluation channel.
 
 These were settled in discussion and frame the design space below.
 
-### ORIGIN-DRAFT-control-vocabulary-D1 — Declarative default with an imperative delta form
+### ORIGIN-D19 — Declarative default with an imperative delta form
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The vocabulary must support both whole-state declarations and
 incremental changes against a running configuration.
@@ -170,9 +174,9 @@ are explicit so that idempotence is never ambiguous.
 
 **Alternatives:** None recorded.
 
-### ORIGIN-DRAFT-control-vocabulary-D2 — Capability discovery (describe) is in the v1 core
+### ORIGIN-D20 — Capability discovery (describe) is in the v1 core
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Whether self-description should be part of the initial version
 or deferred.
@@ -186,9 +190,9 @@ and it keeps the protocol introspectable from day one.
 
 **Alternatives:** None recorded.
 
-### ORIGIN-DRAFT-control-vocabulary-D3 — Messages are dispatched data, not evaluated code
+### ORIGIN-D21 — Messages are dispatched data, not evaluated code
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Whether control messages should be evaluated code or
 dispatched data, given the availability of arbitrary eval through Slynk.
@@ -292,7 +296,7 @@ Two tiers are envisioned, only the first of which is an initial goal:
 The depth of this -- adapter structure, the nginx worked example
 (a CLI-referenced config generated into an ephemeral `/tmp` prefix,
 reloaded via SIGHUP), and the per-program effort -- is covered in a
-dedicated plan, [ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md).
+dedicated plan, [ORIGIN-0005](Plan.ForeignOrbitals.md).
 It is recorded here only as a target that shapes the vocabulary.
 
 
@@ -300,7 +304,7 @@ It is recorded here only as a target that shapes the vocabulary.
 
 To be resolved during the design phase that follows this plan.
 
-### ORIGIN-DRAFT-control-vocabulary-O1 — Read-only enforcement strength
+### ORIGIN-O8 — Read-only enforcement strength
 
 "Safe verbs never mutate" cannot be kernel-enforced inside a shared image.
 The working approach is *by construction* (safe verbs dispatch only to a
@@ -309,19 +313,19 @@ guarantee HTTP's "safe methods" actually carry. Whether to add a stronger
 mechanism (e.g. running safe handlers under a read-only dynamic guard) is
 open.
 
-### ORIGIN-DRAFT-control-vocabulary-O2 — Response and error envelope
+### ORIGIN-O9 — Response and error envelope
 
 Reuse Origin's condition system: a failed control operation returns a
 structured error built from `origin-error` subtypes, not a string. Partial
 results matter for fan-out targets like `:window :all`. A uniform success /
 error / partial envelope shape is to be designed.
 
-### ORIGIN-DRAFT-control-vocabulary-O3 — Streaming and subscription
+### ORIGIN-O10 — Streaming and subscription
 
 Logs and live status want push, not poll. Whether `watch` is in the first
 version or a fast follow is open.
 
-### ORIGIN-DRAFT-control-vocabulary-O4 — Restart with state handoff
+### ORIGIN-O11 — Restart with state handoff
 
 The deepest verb. "Port over certain data" requires the target to expose an
 export/import pair keyed by *state kind*, where the kinds map onto the state
@@ -331,17 +335,17 @@ the outgoing instance to serialize those strata and the incoming one to
 ingest them. This is a milestone of its own, well beyond the other verbs in
 depth.
 
-### ORIGIN-DRAFT-control-vocabulary-O5 — Addressing and selectors
+### ORIGIN-O12 — Addressing and selectors
 
 Targets are an orbital plus optional sub-selectors (`:window :all`,
 `:window 2`). A general selector / path grammar is to be defined.
 
-### ORIGIN-DRAFT-control-vocabulary-O6 — Capability and permission tiers
+### ORIGIN-O13 — Capability and permission tiers
 
 Read-only versus read-write versus privileged (eval break-glass) connections,
 and how capability is granted and checked.
 
-### ORIGIN-DRAFT-control-vocabulary-O7 — Vocabulary versioning
+### ORIGIN-O14 — Vocabulary versioning
 
 How sub-vocabularies declare and negotiate versions, so a core and an
 orbital built at different times can interoperate (compare LSP capability
@@ -422,7 +426,7 @@ Indicative sequencing; each milestone is to be designed in its own right.
    the deepest and last milestone.
 
 A parallel track, designed in
-[ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md), applies the
+[ORIGIN-0005](Plan.ForeignOrbitals.md), applies the
 vocabulary to non-CL software via adapter orbitals -- Tier 2 (Lisp-authored
 config and log processing) first, with nginx as the worked example, and
 Tier 3 (full vocabulary participation) as a later step.

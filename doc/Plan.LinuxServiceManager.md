@@ -1,42 +1,46 @@
 ---
-id:            ORIGIN-DRAFT-linux-service-manager
+id:            ORIGIN-0007
 title:         "Origin as a Linux Service Manager and Init: Development Plan"
 genre:         Plan
 scope:         project
 project:       Origin
 language:      en
-status:        Draft
+status:        Accepted
+authors:
+  - Andrew Sengul
+approved-by:   Andrew Sengul
+reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-orbital-images
-  - ORIGIN-DRAFT-impulse-i
-  - ORIGIN-DRAFT-foreign-orbitals
-  - ORIGIN-DRAFT-control-vocabulary
+  - ORIGIN-0002
+  - ORIGIN-0006
+  - ORIGIN-0005
+  - ORIGIN-0004
   - ORIGIN-DRAFT-orchestration
   - ORIGIN-DRAFT-placement
 decisions:
-  - ORIGIN-DRAFT-linux-service-manager-D1
-  - ORIGIN-DRAFT-linux-service-manager-D2
-  - ORIGIN-DRAFT-linux-service-manager-D3
-  - ORIGIN-DRAFT-linux-service-manager-D4
-  - ORIGIN-DRAFT-linux-service-manager-D5
-  - ORIGIN-DRAFT-linux-service-manager-D6
-  - ORIGIN-DRAFT-linux-service-manager-D7
-  - ORIGIN-DRAFT-linux-service-manager-D8
-  - ORIGIN-DRAFT-linux-service-manager-D9
-  - ORIGIN-DRAFT-linux-service-manager-D10
-  - ORIGIN-DRAFT-linux-service-manager-D11
+  - ORIGIN-D35
+  - ORIGIN-D36
+  - ORIGIN-D37
+  - ORIGIN-D38
+  - ORIGIN-D39
+  - ORIGIN-D40
+  - ORIGIN-D41
+  - ORIGIN-D42
+  - ORIGIN-D43
+  - ORIGIN-D44
+  - ORIGIN-D45
 open-questions:
-  - ORIGIN-DRAFT-linux-service-manager-O1
-  - ORIGIN-DRAFT-linux-service-manager-O2
-  - ORIGIN-DRAFT-linux-service-manager-O3
-  - ORIGIN-DRAFT-linux-service-manager-O4
-  - ORIGIN-DRAFT-linux-service-manager-O5
-  - ORIGIN-DRAFT-linux-service-manager-O6
-  - ORIGIN-DRAFT-linux-service-manager-O7
-  - ORIGIN-DRAFT-linux-service-manager-O8
-  - ORIGIN-DRAFT-linux-service-manager-O9
+  - ORIGIN-O22
+  - ORIGIN-O23
+  - ORIGIN-O24
+  - ORIGIN-O25
+  - ORIGIN-O26
+  - ORIGIN-O27
+  - ORIGIN-O28
+  - ORIGIN-O29
+  - ORIGIN-O30
 ---
 
 # Origin as a Linux Service Manager and Init: Development Plan
@@ -58,12 +62,12 @@ plane.
 
 This plan precedes and frames a build project to be carried out in
 another conversation. It assumes the machinery recorded in
-[ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md) (the `:image` execution
+[ORIGIN-0002](Log.OrbitalImages.md) (the `:image` execution
 mode and "smart children"),
-[ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md) (the structured control plane,
+[ORIGIN-0006](Log.ImpulseI.md) (the structured control plane,
 Parts I Phases 1-3), and the two companion plans
-[ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md) and
-[ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md), with which this
+[ORIGIN-0005](Plan.ForeignOrbitals.md) and
+[ORIGIN-0004](Plan.ControlVocabulary.md), with which this
 plan deliberately converges.
 
 
@@ -135,9 +139,9 @@ ordering with readiness, and the breadth of Tether-based service adapters.
 
 These were settled in discussion and are the spine of the build project.
 
-### ORIGIN-DRAFT-linux-service-manager-D1 — Two-layer split: stub PID 1, Origin core as service manager
+### ORIGIN-D35 — Two-layer split: stub PID 1, Origin core as service manager
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** An init system fuses two jobs: PID 1 (the unkillable floor — reaping, signal handling, rootfs handoff) and the service manager (supervision, restart policy, dependency ordering, control plane, logging). Origin already provides the service-manager layer. The question is how to handle PID 1 duties without exposing the SBCL image to the hardest kernel-level constraints.
 
@@ -145,9 +149,9 @@ These were settled in discussion and are the spine of the build project.
 
 **Alternatives:** Origin as the literal PID 1; rejected because it would expose the SBCL image to reaping conflicts with SBCL's targeted `waitpid`, PID 1 signal semantics, and the never-exit requirement for a garbage-collected image.
 
-### ORIGIN-DRAFT-linux-service-manager-D2 — Target system class: personal / CL-centric appliance
+### ORIGIN-D36 — Target system class: personal / CL-centric appliance
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The scope of init-system work varies enormously depending on the target system class. A general-purpose desktop distribution demands the systemd D-Bus/`logind` desktop-compatibility surface, which would dominate development effort.
 
@@ -155,9 +159,9 @@ These were settled in discussion and are the spine of the build project.
 
 **Alternatives:** General-purpose distribution init; rejected as the largest and least rewarding work.
 
-### ORIGIN-DRAFT-linux-service-manager-D3 — Core stays SBCL; ECL is used only for orbitals
+### ORIGIN-D37 — Core stays SBCL; ECL is used only for orbitals
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Origin and Impulse are ~100% SBCL today; a core port to ECL is real work and would land on Origin's most load-bearing properties (threading, long-uptime GC). The stub-PID-1 decision neutralizes ECL's advantages (embedding, `.o` output, easy static linking), because Origin core starts only after the real rootfs is mounted, where a normal environment exists.
 
@@ -165,9 +169,9 @@ These were settled in discussion and are the spine of the build project.
 
 **Alternatives:** ECL for the core; rejected due to port cost and threading/GC maturity concerns.
 
-### ORIGIN-DRAFT-linux-service-manager-D4 — Distribution base: antiX with init-diversity
+### ORIGIN-D38 — Distribution base: antiX with init-diversity
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** A build/test substrate is needed that supports swappable init systems on a Debian base. MX Linux 25.1+ offers only sysvinit-or-systemd. Runit-native distros like Void/Artix-runit are the closest conceptual fit and best Tether-set template.
 
@@ -175,9 +179,9 @@ These were settled in discussion and are the spine of the build project.
 
 **Alternatives:** MX Linux 25.1+ (limited to sysvinit-or-systemd); Void/Artix-runit (closest conceptual fit but not the build substrate).
 
-### ORIGIN-DRAFT-linux-service-manager-D5 — Origin replaces init and service management; standalone components remain as orbitals
+### ORIGIN-D39 — Origin replaces init and service management; standalone components remain as orbitals
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Some standalone non-systemd components (seat management, login/session tracking, device management) are well-maintained and minimal. Origin's role is to supervise them, not reinvent them.
 
@@ -185,9 +189,9 @@ These were settled in discussion and are the spine of the build project.
 
 **Alternatives:** Reinventing these components in Common Lisp; rejected as unnecessary duplication.
 
-### ORIGIN-DRAFT-linux-service-manager-D6 — First foreign orbital: nginx; Redis at Stage 1.5
+### ORIGIN-D40 — First foreign orbital: nginx; Redis at Stage 1.5
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The Tether abstraction needs validation against at least two control models to guard against being shaped by one example. nginx offers a files-and-signals model; Redis offers a wire-protocol control model.
 
@@ -195,9 +199,9 @@ These were settled in discussion and are the spine of the build project.
 
 **Alternatives:** Device/seat managers first; deferred because they need real devices a container cannot cleanly provide.
 
-### ORIGIN-DRAFT-linux-service-manager-D7 — Container runtime: Podman
+### ORIGIN-D41 — Container runtime: Podman
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** A container runtime is needed for the prototyping stages that carry no boot risk.
 
@@ -205,9 +209,9 @@ These were settled in discussion and are the spine of the build project.
 
 **Alternatives:** Docker (daemon-based, more systemd-dependent); rejected for ideological and practical fit.
 
-### ORIGIN-DRAFT-linux-service-manager-D8 — Zero-dependency core; JSON facility is an optional module
+### ORIGIN-D42 — Zero-dependency core; JSON facility is an optional module
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The nginx log parser needs JSON, but Origin core has a zero-dependency policy. Pulling JSON into core would violate this property.
 
@@ -215,9 +219,9 @@ These were settled in discussion and are the spine of the build project.
 
 **Alternatives:** JSON in core; rejected to preserve the zero-dependency property.
 
-### ORIGIN-DRAFT-linux-service-manager-D9 — Recursion: design-for, apply-later
+### ORIGIN-D43 — Recursion: design-for, apply-later
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Origin's recursive self-similar node model is its most distinguishing property, but full recursion at Stage 1 would add complexity before the fundamentals are proven.
 
@@ -225,9 +229,9 @@ These were settled in discussion and are the spine of the build project.
 
 **Alternatives:** Full recursion at Stage 1; deferred to avoid premature complexity.
 
-### ORIGIN-DRAFT-linux-service-manager-D10 — Node tree aligns with the cgroup v2 hierarchy
+### ORIGIN-D44 — Node tree aligns with the cgroup v2 hierarchy
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** cgroup v2 provides a hierarchical resource-management tree. A subordinate Origin naturally maps to a cgroup subtree, with the parent allocating a slice and the node suballocating among its orbitals.
 
@@ -235,9 +239,9 @@ These were settled in discussion and are the spine of the build project.
 
 **Alternatives:** None recorded.
 
-### ORIGIN-DRAFT-linux-service-manager-D11 — Saved-core boot elevated ahead of deep recursion
+### ORIGIN-D45 — Saved-core boot elevated ahead of deep recursion
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Subordinate Origins currently boot by quickload-at-boot (multi-second). Recursion makes fast node-spawn a near-prerequisite for a recursive init.
 
@@ -335,7 +339,7 @@ B is early boot; C is service-manager completeness; D is operational.
 - **Durable logging.** The event log is in-memory and bounded; an init
   wants a persistent, early-boot-capable log (a journald-equivalent
   orbital).
-- **Desktop / D-Bus compatibility.** Scoped *out* by ORIGIN-DRAFT-linux-service-manager-D2; for a
+- **Desktop / D-Bus compatibility.** Scoped *out* by ORIGIN-D36; for a
   CL-centric appliance with a light desktop, `seatd`+`turnstile` (or
   `elogind` only if GNOME is required) suffices, supervised as orbitals.
 
@@ -696,39 +700,39 @@ deferred.
 
 To be resolved during the build project that follows this plan.
 
-### ORIGIN-DRAFT-linux-service-manager-O1 — Stub language and form
+### ORIGIN-O22 — Stub language and form
 
 Assembler-framework output vs. minimal C; whether the stub `execve`s Origin (Origin becomes PID 1's image) or keeps itself PID 1 with Origin as a child (the chosen model). The two-layer split assumes the latter.
 
-### ORIGIN-DRAFT-linux-service-manager-O2 — Core-shutdown orphan policy
+### ORIGIN-O23 — Core-shutdown orphan policy
 
 When Origin core dies, should the stub SIGTERM the entire orbital subtree before respawning a fresh core, or re-adopt running orbitals? (Leaning toward terminate-and-respawn for an appliance; ties to OrbitalImages "orphan handling on core crash.")
 
-### ORIGIN-DRAFT-linux-service-manager-O3 — Readiness protocol shape
+### ORIGIN-O24 — Readiness protocol shape
 
 How an orbital signals "ready to serve" vs. merely alive (C2) -- a notify-style fd, an Impulse `status :health` field, or a per-Tether probe -- and how C1 consumes it.
 
-### ORIGIN-DRAFT-linux-service-manager-O4 — Saved-core boot mechanism
+### ORIGIN-O25 — Saved-core boot mechanism
 
 `save-lisp-and-die` cores per node type vs. a shared core with per-node config, and how it interacts with ocicl-distributed Tethers.
 
-### ORIGIN-DRAFT-linux-service-manager-O5 — Hierarchical addressing grammar
+### ORIGIN-O26 — Hierarchical addressing grammar
 
 The concrete path/selector syntax for recursive administration (ControlVocabulary open Q5), and how request forwarding and `:partial` aggregation work across node hops.
 
-### ORIGIN-DRAFT-linux-service-manager-O6 — gave-up escalation path
+### ORIGIN-O27 — gave-up escalation path
 
 The Impulse message by which a node reports terminal failure to its parent, and the parent's restart policy for a whole subordinate node.
 
-### ORIGIN-DRAFT-linux-service-manager-O7 — cgroup v2 delegation semantics
+### ORIGIN-O28 — cgroup v2 delegation semantics
 
 Whether subordinate-Origin == cgroup-subtree is clean under cgroup v2 delegation rules, or forced.
 
-### ORIGIN-DRAFT-linux-service-manager-O8 — Durable logging
+### ORIGIN-O29 — Durable logging
 
 The journald-equivalent logging orbital, and how it captures early-boot logs before disk is writable.
 
-### ORIGIN-DRAFT-linux-service-manager-O9 — Boot-critical Tether inventory
+### ORIGIN-O30 — Boot-critical Tether inventory
 
 Which services (from the runit template) are on the appliance's critical boot path and need Tethers first.
 

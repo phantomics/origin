@@ -10,69 +10,90 @@ Table: Documents in the ORIGIN namespace.
 
 | ID | Title | Genre | Scope | Status | Component |
 |---|---|---|---|---|---|
+| [ORIGIN-0001](Plan.CompassMigration.md) | Compass Migration: Development Plan | Plan | project | Implemented | — |
+| [ORIGIN-0002](Log.OrbitalImages.md) | Orbital Images (:image Execution Mode): Development Log | Log | project | Implemented | core |
+| [ORIGIN-0003](Eval.ControlVocabulary.PriorArt.md) | Control Vocabulary: Prior-Art Evaluation | Eval (prior-art) | project | Accepted | impulse |
+| [ORIGIN-0004](Plan.ControlVocabulary.md) | Control Vocabulary: Development Plan | Plan | project | Implemented | impulse |
+| [ORIGIN-0005](Plan.ForeignOrbitals.md) | Foreign Orbitals: Development Plan | Plan | project | Implemented | tether |
+| [ORIGIN-0006](Log.ImpulseI.md) | Impulse, Part I (Phases 1-3): Development Log | Log | project | Implemented | impulse |
+| [ORIGIN-0007](Plan.LinuxServiceManager.md) | Origin as a Linux Service Manager and Init: Development Plan | Plan | project | Accepted | — |
+| [ORIGIN-0008](Log.ImpulseII.md) | Impulse, Part II (Phases 4-6): Development Log | Log | project | Implemented | impulse |
 | [ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md) | The Browser as Orbital: Survey | Survey | project | Draft | — |
-| [ORIGIN-DRAFT-compass-migration](Plan.CompassMigration.md) | Compass Migration: Development Plan | Plan | project | Draft | — |
 | [ORIGIN-DRAFT-compass-migration-log](Log.CompassMigration.md) | Compass Migration: Development Log | Log | project | Draft | — |
 | [ORIGIN-DRAFT-concern-topologies](Plan.ConcernTopologies.md) | Concern Topologies: Development Plan | Plan | project | Draft | — |
-| [ORIGIN-DRAFT-control-vocabulary](Plan.ControlVocabulary.md) | Control Vocabulary: Development Plan | Plan | project | Draft | impulse |
-| [ORIGIN-DRAFT-control-vocabulary-prior-art](Eval.ControlVocabulary.PriorArt.md) | Control Vocabulary: Prior-Art Evaluation | Eval (prior-art) | project | Draft | impulse |
 | [ORIGIN-DRAFT-dependencies](Log.Dependencies.md) | Orbital Dependencies & Ordered Lifecycle: Development Log | Log | project | Draft | core |
-| [ORIGIN-DRAFT-foreign-orbitals](Plan.ForeignOrbitals.md) | Foreign Orbitals: Development Plan | Plan | project | Draft | tether |
 | [ORIGIN-DRAFT-game-image](Survey.GameImage.md) | Dedicated Game Images: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-granularity-and-image](Survey.GranularityAndImage.md) | Granularity and the Image Model: Survey | Survey | project | Draft | — |
-| [ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md) | Impulse, Part I (Phases 1-3): Development Log | Log | project | Draft | impulse |
-| [ORIGIN-DRAFT-impulse-ii](Log.ImpulseII.md) | Impulse, Part II (Phases 4-6): Development Log | Log | project | Draft | impulse |
 | [ORIGIN-DRAFT-impulse-iii](Log.ImpulseIII.md) | Impulse, Part III (Phases 7-9): Development Log | Log | project | Draft | impulse |
-| [ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md) | Origin as a Linux Service Manager and Init: Development Plan | Plan | project | Draft | — |
-| [ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md) | Orbital Images (:image Execution Mode): Development Log | Log | project | Draft | core |
 | [ORIGIN-DRAFT-orchestration](Plan.Orchestration.md) | Origin as a Recursive Orchestrator (Fleet Tier): Development Plan | Plan | project | Draft | — |
 | [ORIGIN-DRAFT-placement](Plan.Placement.md) | Origin Placement and Topology: Development Plan | Plan | project | Draft | — |
+| [ORIGIN-DRAFT-power-management](Survey.PowerManagement.md) | Power Management: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md) | Origin User-Facing Surfaces: Development Plan | Plan | project | Draft | — |
 
 Table: Decision, open-question, and memo records in the ORIGIN namespace.
 
 | ID | Kind | Title | Status | Host |
 |---|---|---|---|---|
-| [ORIGIN-DRAFT-compass-migration-D1](Plan.CompassMigration.md#origin-draft-compass-migration-d1--keep-origin-o1-through-origin-o5-canonical) | Decision | Keep ORIGIN-O1 through ORIGIN-O5 canonical | Proposed | ORIGIN-DRAFT-compass-migration |
-| [ORIGIN-DRAFT-compass-migration-D2](Plan.CompassMigration.md#origin-draft-compass-migration-d2--every-other-record-gets-a-per-document-provisional-identifier) | Decision | Every other record gets a per-document provisional identifier | Proposed | ORIGIN-DRAFT-compass-migration |
-| [ORIGIN-DRAFT-compass-migration-D3](Plan.CompassMigration.md#origin-draft-compass-migration-d3--every-migrated-document-is-status-draft) | Decision | Every migrated document is status Draft | Proposed | ORIGIN-DRAFT-compass-migration |
-| [ORIGIN-DRAFT-compass-migration-D4](Plan.CompassMigration.md#origin-draft-compass-migration-d4--multi-phase-logs-keep-their-phase-sections) | Decision | Multi-phase Logs keep their Phase sections | Proposed | ORIGIN-DRAFT-compass-migration |
-| [ORIGIN-DRAFT-compass-migration-D5](Plan.CompassMigration.md#origin-draft-compass-migration-d5--decision-records-add-no-content) | Decision | Decision records add no content | Proposed | ORIGIN-DRAFT-compass-migration |
-| [ORIGIN-DRAFT-compass-migration-D6](Plan.CompassMigration.md#origin-draft-compass-migration-d6--code-references-pin-to-each-logs-work-commits) | Decision | Code references pin to each Log's work commits | Proposed | ORIGIN-DRAFT-compass-migration |
-| [ORIGIN-DRAFT-compass-migration-D7](Plan.CompassMigration.md#origin-draft-compass-migration-d7--links-are-fixed-stale-content-is-not-refreshed) | Decision | Links are fixed; stale content is not refreshed | Proposed | ORIGIN-DRAFT-compass-migration |
-| [ORIGIN-DRAFT-compass-migration-D8](Plan.CompassMigration.md#origin-draft-compass-migration-d8--ci-and-code-owners-mirror-classic) | Decision | CI and code owners mirror Classic | Proposed | ORIGIN-DRAFT-compass-migration |
-| [ORIGIN-DRAFT-compass-migration-D9](Plan.CompassMigration.md#origin-draft-compass-migration-d9--provenance-is-assistant-opencode) | Decision | Provenance is assistant: opencode | Proposed | ORIGIN-DRAFT-compass-migration |
+| [ORIGIN-D1](Plan.CompassMigration.md#origin-d1--keep-origin-o1-through-origin-o5-canonical) | Decision | Keep ORIGIN-O1 through ORIGIN-O5 canonical | Accepted | ORIGIN-0001 |
+| [ORIGIN-D2](Plan.CompassMigration.md#origin-d2--every-other-record-gets-a-per-document-provisional-identifier) | Decision | Every other record gets a per-document provisional identifier | Accepted | ORIGIN-0001 |
+| [ORIGIN-D3](Plan.CompassMigration.md#origin-d3--every-migrated-document-is-status-draft) | Decision | Every migrated document is status Draft | Accepted | ORIGIN-0001 |
+| [ORIGIN-D4](Plan.CompassMigration.md#origin-d4--multi-phase-logs-keep-their-phase-sections) | Decision | Multi-phase Logs keep their Phase sections | Accepted | ORIGIN-0001 |
+| [ORIGIN-D5](Plan.CompassMigration.md#origin-d5--decision-records-add-no-content) | Decision | Decision records add no content | Accepted | ORIGIN-0001 |
+| [ORIGIN-D6](Plan.CompassMigration.md#origin-d6--code-references-pin-to-each-logs-work-commits) | Decision | Code references pin to each Log's work commits | Accepted | ORIGIN-0001 |
+| [ORIGIN-D7](Plan.CompassMigration.md#origin-d7--links-are-fixed-stale-content-is-not-refreshed) | Decision | Links are fixed; stale content is not refreshed | Accepted | ORIGIN-0001 |
+| [ORIGIN-D8](Plan.CompassMigration.md#origin-d8--ci-and-code-owners-mirror-classic) | Decision | CI and code owners mirror Classic | Accepted | ORIGIN-0001 |
+| [ORIGIN-D9](Plan.CompassMigration.md#origin-d9--provenance-is-assistant-opencode) | Decision | Provenance is assistant: opencode | Accepted | ORIGIN-0001 |
+| [ORIGIN-D10](Log.OrbitalImages.md#origin-d10--boot-strategy-quickload-at-boot) | Decision | Boot strategy: quickload-at-boot | Proposed | ORIGIN-0002 |
+| [ORIGIN-D11](Log.OrbitalImages.md#origin-d11--control-channel-slynk-for-humans-os-level-for-lifecycle) | Decision | Control channel: Slynk for humans, OS-level for lifecycle | Accepted | ORIGIN-0002 |
+| [ORIGIN-D12](Log.OrbitalImages.md#origin-d12--cross-image-status-deferred) | Decision | Cross-image status: deferred | Accepted | ORIGIN-0002 |
+| [ORIGIN-D13](Log.OrbitalImages.md#origin-d13--child-configuration-an-evaluated-config-file) | Decision | Child configuration: an evaluated config file | Accepted | ORIGIN-0002 |
+| [ORIGIN-D14](Log.OrbitalImages.md#origin-d14--code-placement-core-stays-pure) | Decision | Code placement: core stays pure | Accepted | ORIGIN-0002 |
+| [ORIGIN-D15](Log.OrbitalImages.md#origin-d15--slynk-not-swank-is-the-interactivity-server) | Decision | Slynk (not Swank) is the interactivity server | Accepted | ORIGIN-0002 |
+| [ORIGIN-D16](Log.OrbitalImages.md#origin-d16--smart-children) | Decision | Smart children | Accepted | ORIGIN-0002 |
+| [ORIGIN-D17](Log.OrbitalImages.md#origin-d17--graceful-shutdown-sigterm-only-for-v1) | Decision | Graceful shutdown: SIGTERM only for v1 | Accepted | ORIGIN-0002 |
+| [ORIGIN-D18](Log.OrbitalImages.md#origin-d18--output-handling-in-core-not-a-wrapper) | Decision | Output handling in core, not a wrapper | Accepted | ORIGIN-0002 |
+| [ORIGIN-D19](Plan.ControlVocabulary.md#origin-d19--declarative-default-with-an-imperative-delta-form) | Decision | Declarative default with an imperative delta form | Accepted | ORIGIN-0004 |
+| [ORIGIN-D20](Plan.ControlVocabulary.md#origin-d20--capability-discovery-describe-is-in-the-v1-core) | Decision | Capability discovery (describe) is in the v1 core | Accepted | ORIGIN-0004 |
+| [ORIGIN-D21](Plan.ControlVocabulary.md#origin-d21--messages-are-dispatched-data-not-evaluated-code) | Decision | Messages are dispatched data, not evaluated code | Accepted | ORIGIN-0004 |
+| [ORIGIN-D22](Log.ImpulseI.md#origin-d22--a-separate-impulse-system-not-part-of-core) | Decision | A separate impulse system, not part of core | Accepted | ORIGIN-0006 |
+| [ORIGIN-D23](Log.ImpulseI.md#origin-d23--control-type-by-registry-not-by-class) | Decision | Control type by registry, not by class | Accepted | ORIGIN-0006 |
+| [ORIGIN-D24](Log.ImpulseI.md#origin-d24--the-dispatcher-never-signals) | Decision | The dispatcher never signals | Accepted | ORIGIN-0006 |
+| [ORIGIN-D25](Log.ImpulseI.md#origin-d25--effect-and-tier-enforced-in-phase-1-not-deferred) | Decision | Effect and tier enforced in Phase 1, not deferred | Accepted | ORIGIN-0006 |
+| [ORIGIN-D26](Log.ImpulseI.md#origin-d26--register-all-verbs-now-advertise-only-the-implemented-ones) | Decision | Register all verbs now; advertise only the implemented ones | Accepted | ORIGIN-0006 |
+| [ORIGIN-D27](Log.ImpulseI.md#origin-d27--serialization-by-call-next-method-not-a-registry-or-around) | Decision | Serialization by call-next-method, not a registry or :around | Accepted | ORIGIN-0006 |
+| [ORIGIN-D28](Log.ImpulseI.md#origin-d28--check-verb-and-tier-once-capture-per-target-outcomes) | Decision | Check verb and tier once; capture per-target outcomes | Accepted | ORIGIN-0006 |
+| [ORIGIN-D29](Log.ImpulseI.md#origin-d29--fan-out-reuses-single-target-dispatch) | Decision | Fan-out reuses single-target dispatch | Accepted | ORIGIN-0006 |
+| [ORIGIN-D30](Log.ImpulseI.md#origin-d30--validation-is-the-guarantee-the-readtable-is-defense-in-depth) | Decision | Validation is the guarantee; the readtable is defense in depth | Accepted | ORIGIN-0006 |
+| [ORIGIN-D31](Log.ImpulseI.md#origin-d31--keyword-only-enforced-symmetrically) | Decision | Keyword-only, enforced symmetrically | Accepted | ORIGIN-0006 |
+| [ORIGIN-D32](Log.ImpulseI.md#origin-d32--length-prefixed-framing-over-character-streams) | Decision | Length-prefixed framing over character streams | Accepted | ORIGIN-0006 |
+| [ORIGIN-D33](Log.ImpulseI.md#origin-d33--tier-pinned-by-the-listener-negotiated-down-by-the-client) | Decision | Tier pinned by the listener, negotiated down by the client | Accepted | ORIGIN-0006 |
+| [ORIGIN-D34](Log.ImpulseI.md#origin-d34--transport-reuses-dispatch-unchanged) | Decision | Transport reuses dispatch unchanged | Accepted | ORIGIN-0006 |
+| [ORIGIN-D35](Plan.LinuxServiceManager.md#origin-d35--two-layer-split-stub-pid-1-origin-core-as-service-manager) | Decision | Two-layer split: stub PID 1, Origin core as service manager | Accepted | ORIGIN-0007 |
+| [ORIGIN-D36](Plan.LinuxServiceManager.md#origin-d36--target-system-class-personal--cl-centric-appliance) | Decision | Target system class: personal / CL-centric appliance | Accepted | ORIGIN-0007 |
+| [ORIGIN-D37](Plan.LinuxServiceManager.md#origin-d37--core-stays-sbcl-ecl-is-used-only-for-orbitals) | Decision | Core stays SBCL; ECL is used only for orbitals | Accepted | ORIGIN-0007 |
+| [ORIGIN-D38](Plan.LinuxServiceManager.md#origin-d38--distribution-base-antix-with-init-diversity) | Decision | Distribution base: antiX with init-diversity | Accepted | ORIGIN-0007 |
+| [ORIGIN-D39](Plan.LinuxServiceManager.md#origin-d39--origin-replaces-init-and-service-management-standalone-components-remain-as-orbitals) | Decision | Origin replaces init and service management; standalone components remain as orbitals | Accepted | ORIGIN-0007 |
+| [ORIGIN-D40](Plan.LinuxServiceManager.md#origin-d40--first-foreign-orbital-nginx-redis-at-stage-15) | Decision | First foreign orbital: nginx; Redis at Stage 1.5 | Accepted | ORIGIN-0007 |
+| [ORIGIN-D41](Plan.LinuxServiceManager.md#origin-d41--container-runtime-podman) | Decision | Container runtime: Podman | Accepted | ORIGIN-0007 |
+| [ORIGIN-D42](Plan.LinuxServiceManager.md#origin-d42--zero-dependency-core-json-facility-is-an-optional-module) | Decision | Zero-dependency core; JSON facility is an optional module | Accepted | ORIGIN-0007 |
+| [ORIGIN-D43](Plan.LinuxServiceManager.md#origin-d43--recursion-design-for-apply-later) | Decision | Recursion: design-for, apply-later | Accepted | ORIGIN-0007 |
+| [ORIGIN-D44](Plan.LinuxServiceManager.md#origin-d44--node-tree-aligns-with-the-cgroup-v2-hierarchy) | Decision | Node tree aligns with the cgroup v2 hierarchy | Accepted | ORIGIN-0007 |
+| [ORIGIN-D45](Plan.LinuxServiceManager.md#origin-d45--saved-core-boot-elevated-ahead-of-deep-recursion) | Decision | Saved-core boot elevated ahead of deep recursion | Accepted | ORIGIN-0007 |
+| [ORIGIN-D46](Log.ImpulseII.md#origin-d46--spec-in-an-impulse-side-registry-not-on-the-orbital) | Decision | Spec in an Impulse-side registry, not on the orbital | Accepted | ORIGIN-0008 |
+| [ORIGIN-D47](Log.ImpulseII.md#origin-d47--declared-vs-observed-folded-into-status-view-not-a-new-verb) | Decision | Declared-vs-observed folded into status :view, not a new verb | Accepted | ORIGIN-0008 |
+| [ORIGIN-D48](Log.ImpulseII.md#origin-d48--one-high-level-apply-not-separate-editvalidatecommit-verbs) | Decision | One high-level apply, not separate edit/validate/commit verbs | Accepted | ORIGIN-0008 |
+| [ORIGIN-D49](Log.ImpulseII.md#origin-d49--health-via-a-generic-with-a-liveness-default) | Decision | Health via a generic with a liveness default | Accepted | ORIGIN-0008 |
+| [ORIGIN-D50](Log.ImpulseII.md#origin-d50--labels-in-an-impulse-side-registry-like-specs) | Decision | Labels in an Impulse-side registry, like specs | Accepted | ORIGIN-0008 |
+| [ORIGIN-D51](Log.ImpulseII.md#origin-d51--one-predicate-grammar-two-uses) | Decision | One predicate grammar, two uses | Accepted | ORIGIN-0008 |
+| [ORIGIN-D52](Log.ImpulseII.md#origin-d52--selectorslisp-loads-before-dispatchlisp) | Decision | selectors.lisp loads before dispatch.lisp | Accepted | ORIGIN-0008 |
+| [ORIGIN-D53](Log.ImpulseII.md#origin-d53--field-arguments-refine-they-do-not-re-dispatch) | Decision | Field arguments refine, they do not re-dispatch | Accepted | ORIGIN-0008 |
+| [ORIGIN-D54](Log.ImpulseII.md#origin-d54--the-connections-sink-is-the-only-transport-coupling) | Decision | The connection's sink is the only transport coupling | Accepted | ORIGIN-0008 |
+| [ORIGIN-D55](Log.ImpulseII.md#origin-d55--watch-is-poll-based-over-the-event-log-by-choice) | Decision | watch is poll-based over the event log, by choice | Accepted | ORIGIN-0008 |
+| [ORIGIN-D56](Log.ImpulseII.md#origin-d56--the-request-id-is-the-cancellationunwatch-token-lsp-model) | Decision | The request id is the cancellation/unwatch token (LSP model) | Accepted | ORIGIN-0008 |
+| [ORIGIN-D57](Log.ImpulseII.md#origin-d57--one-worker-thread-per-non-control-request) | Decision | One worker thread per non-control request | Accepted | ORIGIN-0008 |
+| [ORIGIN-D58](Log.ImpulseII.md#origin-d58--streamslisp-loads-before-apicodectransport) | Decision | streams.lisp loads before api/codec/transport | Accepted | ORIGIN-0008 |
 | [ORIGIN-DRAFT-concern-topologies-D1](Plan.ConcernTopologies.md#origin-draft-concern-topologies-d1--logical-overlays-first) | Decision | Logical overlays first | Proposed | ORIGIN-DRAFT-concern-topologies |
 | [ORIGIN-DRAFT-concern-topologies-D2](Plan.ConcernTopologies.md#origin-draft-concern-topologies-d2--concerns-as-data-not-infrastructure) | Decision | Concerns as data, not infrastructure | Proposed | ORIGIN-DRAFT-concern-topologies |
-| [ORIGIN-DRAFT-control-vocabulary-D1](Plan.ControlVocabulary.md#origin-draft-control-vocabulary-d1--declarative-default-with-an-imperative-delta-form) | Decision | Declarative default with an imperative delta form | Proposed | ORIGIN-DRAFT-control-vocabulary |
-| [ORIGIN-DRAFT-control-vocabulary-D2](Plan.ControlVocabulary.md#origin-draft-control-vocabulary-d2--capability-discovery-describe-is-in-the-v1-core) | Decision | Capability discovery (describe) is in the v1 core | Proposed | ORIGIN-DRAFT-control-vocabulary |
-| [ORIGIN-DRAFT-control-vocabulary-D3](Plan.ControlVocabulary.md#origin-draft-control-vocabulary-d3--messages-are-dispatched-data-not-evaluated-code) | Decision | Messages are dispatched data, not evaluated code | Proposed | ORIGIN-DRAFT-control-vocabulary |
-| [ORIGIN-DRAFT-impulse-i-D1](Log.ImpulseI.md#origin-draft-impulse-i-d1--a-separate-impulse-system-not-part-of-core) | Decision | A separate impulse system, not part of core | Proposed | ORIGIN-DRAFT-impulse-i |
-| [ORIGIN-DRAFT-impulse-i-D2](Log.ImpulseI.md#origin-draft-impulse-i-d2--control-type-by-registry-not-by-class) | Decision | Control type by registry, not by class | Proposed | ORIGIN-DRAFT-impulse-i |
-| [ORIGIN-DRAFT-impulse-i-D3](Log.ImpulseI.md#origin-draft-impulse-i-d3--the-dispatcher-never-signals) | Decision | The dispatcher never signals | Proposed | ORIGIN-DRAFT-impulse-i |
-| [ORIGIN-DRAFT-impulse-i-D4](Log.ImpulseI.md#origin-draft-impulse-i-d4--effect-and-tier-enforced-in-phase-1-not-deferred) | Decision | Effect and tier enforced in Phase 1, not deferred | Proposed | ORIGIN-DRAFT-impulse-i |
-| [ORIGIN-DRAFT-impulse-i-D5](Log.ImpulseI.md#origin-draft-impulse-i-d5--register-all-verbs-now-advertise-only-the-implemented-ones) | Decision | Register all verbs now; advertise only the implemented ones | Proposed | ORIGIN-DRAFT-impulse-i |
-| [ORIGIN-DRAFT-impulse-i-D6](Log.ImpulseI.md#origin-draft-impulse-i-d6--serialization-by-call-next-method-not-a-registry-or-around) | Decision | Serialization by call-next-method, not a registry or :around | Proposed | ORIGIN-DRAFT-impulse-i |
-| [ORIGIN-DRAFT-impulse-i-D7](Log.ImpulseI.md#origin-draft-impulse-i-d7--check-verb-and-tier-once-capture-per-target-outcomes) | Decision | Check verb and tier once; capture per-target outcomes | Proposed | ORIGIN-DRAFT-impulse-i |
-| [ORIGIN-DRAFT-impulse-i-D8](Log.ImpulseI.md#origin-draft-impulse-i-d8--fan-out-reuses-single-target-dispatch) | Decision | Fan-out reuses single-target dispatch | Proposed | ORIGIN-DRAFT-impulse-i |
-| [ORIGIN-DRAFT-impulse-i-D9](Log.ImpulseI.md#origin-draft-impulse-i-d9--validation-is-the-guarantee-the-readtable-is-defense-in-depth) | Decision | Validation is the guarantee; the readtable is defense in depth | Proposed | ORIGIN-DRAFT-impulse-i |
-| [ORIGIN-DRAFT-impulse-i-D10](Log.ImpulseI.md#origin-draft-impulse-i-d10--keyword-only-enforced-symmetrically) | Decision | Keyword-only, enforced symmetrically | Proposed | ORIGIN-DRAFT-impulse-i |
-| [ORIGIN-DRAFT-impulse-i-D11](Log.ImpulseI.md#origin-draft-impulse-i-d11--length-prefixed-framing-over-character-streams) | Decision | Length-prefixed framing over character streams | Proposed | ORIGIN-DRAFT-impulse-i |
-| [ORIGIN-DRAFT-impulse-i-D12](Log.ImpulseI.md#origin-draft-impulse-i-d12--tier-pinned-by-the-listener-negotiated-down-by-the-client) | Decision | Tier pinned by the listener, negotiated down by the client | Proposed | ORIGIN-DRAFT-impulse-i |
-| [ORIGIN-DRAFT-impulse-i-D13](Log.ImpulseI.md#origin-draft-impulse-i-d13--transport-reuses-dispatch-unchanged) | Decision | Transport reuses dispatch unchanged | Proposed | ORIGIN-DRAFT-impulse-i |
-| [ORIGIN-DRAFT-impulse-ii-D1](Log.ImpulseII.md#origin-draft-impulse-ii-d1--spec-in-an-impulse-side-registry-not-on-the-orbital) | Decision | Spec in an Impulse-side registry, not on the orbital | Proposed | ORIGIN-DRAFT-impulse-ii |
-| [ORIGIN-DRAFT-impulse-ii-D2](Log.ImpulseII.md#origin-draft-impulse-ii-d2--declared-vs-observed-folded-into-status-view-not-a-new-verb) | Decision | Declared-vs-observed folded into status :view, not a new verb | Proposed | ORIGIN-DRAFT-impulse-ii |
-| [ORIGIN-DRAFT-impulse-ii-D3](Log.ImpulseII.md#origin-draft-impulse-ii-d3--one-high-level-apply-not-separate-editvalidatecommit-verbs) | Decision | One high-level apply, not separate edit/validate/commit verbs | Proposed | ORIGIN-DRAFT-impulse-ii |
-| [ORIGIN-DRAFT-impulse-ii-D4](Log.ImpulseII.md#origin-draft-impulse-ii-d4--health-via-a-generic-with-a-liveness-default) | Decision | Health via a generic with a liveness default | Proposed | ORIGIN-DRAFT-impulse-ii |
-| [ORIGIN-DRAFT-impulse-ii-D5](Log.ImpulseII.md#origin-draft-impulse-ii-d5--labels-in-an-impulse-side-registry-like-specs) | Decision | Labels in an Impulse-side registry, like specs | Proposed | ORIGIN-DRAFT-impulse-ii |
-| [ORIGIN-DRAFT-impulse-ii-D6](Log.ImpulseII.md#origin-draft-impulse-ii-d6--one-predicate-grammar-two-uses) | Decision | One predicate grammar, two uses | Proposed | ORIGIN-DRAFT-impulse-ii |
-| [ORIGIN-DRAFT-impulse-ii-D7](Log.ImpulseII.md#origin-draft-impulse-ii-d7--selectorslisp-loads-before-dispatchlisp) | Decision | selectors.lisp loads before dispatch.lisp | Proposed | ORIGIN-DRAFT-impulse-ii |
-| [ORIGIN-DRAFT-impulse-ii-D8](Log.ImpulseII.md#origin-draft-impulse-ii-d8--field-arguments-refine-they-do-not-re-dispatch) | Decision | Field arguments refine, they do not re-dispatch | Proposed | ORIGIN-DRAFT-impulse-ii |
-| [ORIGIN-DRAFT-impulse-ii-D9](Log.ImpulseII.md#origin-draft-impulse-ii-d9--the-connections-sink-is-the-only-transport-coupling) | Decision | The connection's sink is the only transport coupling | Proposed | ORIGIN-DRAFT-impulse-ii |
-| [ORIGIN-DRAFT-impulse-ii-D10](Log.ImpulseII.md#origin-draft-impulse-ii-d10--watch-is-poll-based-over-the-event-log-by-choice) | Decision | watch is poll-based over the event log, by choice | Proposed | ORIGIN-DRAFT-impulse-ii |
-| [ORIGIN-DRAFT-impulse-ii-D11](Log.ImpulseII.md#origin-draft-impulse-ii-d11--the-request-id-is-the-cancellationunwatch-token-lsp-model) | Decision | The request id is the cancellation/unwatch token (LSP model) | Proposed | ORIGIN-DRAFT-impulse-ii |
-| [ORIGIN-DRAFT-impulse-ii-D12](Log.ImpulseII.md#origin-draft-impulse-ii-d12--one-worker-thread-per-non-control-request) | Decision | One worker thread per non-control request | Proposed | ORIGIN-DRAFT-impulse-ii |
-| [ORIGIN-DRAFT-impulse-ii-D13](Log.ImpulseII.md#origin-draft-impulse-ii-d13--streamslisp-loads-before-apicodectransport) | Decision | streams.lisp loads before api/codec/transport | Proposed | ORIGIN-DRAFT-impulse-ii |
 | [ORIGIN-DRAFT-impulse-iii-D1](Log.ImpulseIII.md#origin-draft-impulse-iii-d1--sub-vocabulary-lives-in-the-lexter-repo-only-a-generic-registration-api-is-added-to-impulse) | Decision | Sub-vocabulary lives in the Lexter repo; only a generic registration API is added to Impulse | Proposed | ORIGIN-DRAFT-impulse-iii |
 | [ORIGIN-DRAFT-impulse-iii-D2](Log.ImpulseIII.md#origin-draft-impulse-iii-d2--configure-via-validate-speccommit-spec-specialization-not-a-new-verb-handler) | Decision | configure via validate-spec/commit-spec specialization, not a new verb handler | Proposed | ORIGIN-DRAFT-impulse-iii |
 | [ORIGIN-DRAFT-impulse-iii-D3](Log.ImpulseIII.md#origin-draft-impulse-iii-d3--live-apply-where-safe-rebuild-spec-always) | Decision | Live-apply where safe; rebuild-spec always | Proposed | ORIGIN-DRAFT-impulse-iii |
@@ -88,26 +109,6 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-DRAFT-impulse-iii-D13](Log.ImpulseIII.md#origin-draft-impulse-iii-d13--carrier-agnostic-datum) | Decision | Carrier-agnostic datum | Proposed | ORIGIN-DRAFT-impulse-iii |
 | [ORIGIN-DRAFT-impulse-iii-D14](Log.ImpulseIII.md#origin-draft-impulse-iii-d14--versioned-and-fail-safe) | Decision | Versioned and fail-safe | Proposed | ORIGIN-DRAFT-impulse-iii |
 | [ORIGIN-DRAFT-impulse-iii-D15](Log.ImpulseIII.md#origin-draft-impulse-iii-d15--preserve-selector-on-restart) | Decision | :preserve selector on restart | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-linux-service-manager-D1](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-d1--two-layer-split-stub-pid-1-origin-core-as-service-manager) | Decision | Two-layer split: stub PID 1, Origin core as service manager | Proposed | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-D2](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-d2--target-system-class-personal--cl-centric-appliance) | Decision | Target system class: personal / CL-centric appliance | Proposed | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-D3](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-d3--core-stays-sbcl-ecl-is-used-only-for-orbitals) | Decision | Core stays SBCL; ECL is used only for orbitals | Proposed | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-D4](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-d4--distribution-base-antix-with-init-diversity) | Decision | Distribution base: antiX with init-diversity | Proposed | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-D5](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-d5--origin-replaces-init-and-service-management-standalone-components-remain-as-orbitals) | Decision | Origin replaces init and service management; standalone components remain as orbitals | Proposed | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-D6](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-d6--first-foreign-orbital-nginx-redis-at-stage-15) | Decision | First foreign orbital: nginx; Redis at Stage 1.5 | Proposed | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-D7](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-d7--container-runtime-podman) | Decision | Container runtime: Podman | Proposed | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-D8](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-d8--zero-dependency-core-json-facility-is-an-optional-module) | Decision | Zero-dependency core; JSON facility is an optional module | Proposed | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-D9](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-d9--recursion-design-for-apply-later) | Decision | Recursion: design-for, apply-later | Proposed | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-D10](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-d10--node-tree-aligns-with-the-cgroup-v2-hierarchy) | Decision | Node tree aligns with the cgroup v2 hierarchy | Proposed | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-D11](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-d11--saved-core-boot-elevated-ahead-of-deep-recursion) | Decision | Saved-core boot elevated ahead of deep recursion | Proposed | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-orbital-images-D1](Log.OrbitalImages.md#origin-draft-orbital-images-d1--boot-strategy-quickload-at-boot) | Decision | Boot strategy: quickload-at-boot | Proposed | ORIGIN-DRAFT-orbital-images |
-| [ORIGIN-DRAFT-orbital-images-D2](Log.OrbitalImages.md#origin-draft-orbital-images-d2--control-channel-slynk-for-humans-os-level-for-lifecycle) | Decision | Control channel: Slynk for humans, OS-level for lifecycle | Proposed | ORIGIN-DRAFT-orbital-images |
-| [ORIGIN-DRAFT-orbital-images-D3](Log.OrbitalImages.md#origin-draft-orbital-images-d3--cross-image-status-deferred) | Decision | Cross-image status: deferred | Proposed | ORIGIN-DRAFT-orbital-images |
-| [ORIGIN-DRAFT-orbital-images-D4](Log.OrbitalImages.md#origin-draft-orbital-images-d4--child-configuration-an-evaluated-config-file) | Decision | Child configuration: an evaluated config file | Proposed | ORIGIN-DRAFT-orbital-images |
-| [ORIGIN-DRAFT-orbital-images-D5](Log.OrbitalImages.md#origin-draft-orbital-images-d5--code-placement-core-stays-pure) | Decision | Code placement: core stays pure | Proposed | ORIGIN-DRAFT-orbital-images |
-| [ORIGIN-DRAFT-orbital-images-D6](Log.OrbitalImages.md#origin-draft-orbital-images-d6--slynk-not-swank-is-the-interactivity-server) | Decision | Slynk (not Swank) is the interactivity server | Proposed | ORIGIN-DRAFT-orbital-images |
-| [ORIGIN-DRAFT-orbital-images-D7](Log.OrbitalImages.md#origin-draft-orbital-images-d7--smart-children) | Decision | Smart children | Proposed | ORIGIN-DRAFT-orbital-images |
-| [ORIGIN-DRAFT-orbital-images-D8](Log.OrbitalImages.md#origin-draft-orbital-images-d8--graceful-shutdown-sigterm-only-for-v1) | Decision | Graceful shutdown: SIGTERM only for v1 | Proposed | ORIGIN-DRAFT-orbital-images |
-| [ORIGIN-DRAFT-orbital-images-D9](Log.OrbitalImages.md#origin-draft-orbital-images-d9--output-handling-in-core-not-a-wrapper) | Decision | Output handling in core, not a wrapper | Proposed | ORIGIN-DRAFT-orbital-images |
 | [ORIGIN-DRAFT-orchestration-D1](Plan.Orchestration.md#origin-draft-orchestration-d1--scope-personal--small-fleet-transparency-first) | Decision | Scope: personal / small fleet, transparency-first | Proposed | ORIGIN-DRAFT-orchestration |
 | [ORIGIN-DRAFT-orchestration-D2](Plan.Orchestration.md#origin-draft-orchestration-d2--borrow-dont-build-for-scheduling-networking-and-storage) | Decision | Borrow, don't build for scheduling, networking, and storage | Proposed | ORIGIN-DRAFT-orchestration |
 | [ORIGIN-DRAFT-placement-D1](Plan.Placement.md#origin-draft-placement-d1--placement-is-a-pure-function) | Decision | Placement is a pure function | Proposed | ORIGIN-DRAFT-placement |
@@ -119,42 +120,42 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-O3](Survey.BrowserAsOrbital.md#origin-o3--digest-and-agent-pipeline) | Open question | Digest and agent pipeline | — | ORIGIN-DRAFT-browser-as-orbital |
 | [ORIGIN-O4](Survey.BrowserAsOrbital.md#origin-o4--first-externalized-service) | Open question | First externalized service | — | ORIGIN-DRAFT-browser-as-orbital |
 | [ORIGIN-O5](Survey.BrowserAsOrbital.md#origin-o5--security-domain-policy-schema) | Open question | Security-domain policy schema | — | ORIGIN-DRAFT-browser-as-orbital |
-| [ORIGIN-DRAFT-compass-migration-O1](Plan.CompassMigration.md#origin-draft-compass-migration-o1--which-documents-are-numbered-first) | Open question | Which documents are numbered first | — | ORIGIN-DRAFT-compass-migration |
-| [ORIGIN-DRAFT-compass-migration-O2](Plan.CompassMigration.md#origin-draft-compass-migration-o2--a-compiled-readme) | Open question | A compiled README | — | ORIGIN-DRAFT-compass-migration |
+| [ORIGIN-O6](Plan.CompassMigration.md#origin-o6--which-documents-are-numbered-first) | Open question | Which documents are numbered first | — | ORIGIN-0001 |
+| [ORIGIN-O7](Plan.CompassMigration.md#origin-o7--a-compiled-readme) | Open question | A compiled README | — | ORIGIN-0001 |
+| [ORIGIN-O8](Plan.ControlVocabulary.md#origin-o8--read-only-enforcement-strength) | Open question | Read-only enforcement strength | — | ORIGIN-0004 |
+| [ORIGIN-O9](Plan.ControlVocabulary.md#origin-o9--response-and-error-envelope) | Open question | Response and error envelope | — | ORIGIN-0004 |
+| [ORIGIN-O10](Plan.ControlVocabulary.md#origin-o10--streaming-and-subscription) | Open question | Streaming and subscription | — | ORIGIN-0004 |
+| [ORIGIN-O11](Plan.ControlVocabulary.md#origin-o11--restart-with-state-handoff) | Open question | Restart with state handoff | — | ORIGIN-0004 |
+| [ORIGIN-O12](Plan.ControlVocabulary.md#origin-o12--addressing-and-selectors) | Open question | Addressing and selectors | — | ORIGIN-0004 |
+| [ORIGIN-O13](Plan.ControlVocabulary.md#origin-o13--capability-and-permission-tiers) | Open question | Capability and permission tiers | — | ORIGIN-0004 |
+| [ORIGIN-O14](Plan.ControlVocabulary.md#origin-o14--vocabulary-versioning) | Open question | Vocabulary versioning | — | ORIGIN-0004 |
+| [ORIGIN-O15](Plan.ForeignOrbitals.md#origin-o15--config-atomicity-and-rollback) | Open question | Config atomicity and rollback | — | ORIGIN-0005 |
+| [ORIGIN-O16](Plan.ForeignOrbitals.md#origin-o16--json-facility-placement) | Open question | JSON facility placement | — | ORIGIN-0005 |
+| [ORIGIN-O17](Plan.ForeignOrbitals.md#origin-o17--secrets-in-generated-config) | Open question | Secrets in generated config | — | ORIGIN-0005 |
+| [ORIGIN-O18](Plan.ForeignOrbitals.md#origin-o18--log-rotation) | Open question | Log rotation | — | ORIGIN-0005 |
+| [ORIGIN-O19](Plan.ForeignOrbitals.md#origin-o19--health-versus-readiness) | Open question | Health versus readiness | — | ORIGIN-0005 |
+| [ORIGIN-O20](Plan.ForeignOrbitals.md#origin-o20--typed-config-sharing) | Open question | Typed config sharing | — | ORIGIN-0005 |
+| [ORIGIN-O21](Plan.ForeignOrbitals.md#origin-o21--state-handoff-relevance) | Open question | State handoff relevance | — | ORIGIN-0005 |
+| [ORIGIN-O22](Plan.LinuxServiceManager.md#origin-o22--stub-language-and-form) | Open question | Stub language and form | — | ORIGIN-0007 |
+| [ORIGIN-O23](Plan.LinuxServiceManager.md#origin-o23--core-shutdown-orphan-policy) | Open question | Core-shutdown orphan policy | — | ORIGIN-0007 |
+| [ORIGIN-O24](Plan.LinuxServiceManager.md#origin-o24--readiness-protocol-shape) | Open question | Readiness protocol shape | — | ORIGIN-0007 |
+| [ORIGIN-O25](Plan.LinuxServiceManager.md#origin-o25--saved-core-boot-mechanism) | Open question | Saved-core boot mechanism | — | ORIGIN-0007 |
+| [ORIGIN-O26](Plan.LinuxServiceManager.md#origin-o26--hierarchical-addressing-grammar) | Open question | Hierarchical addressing grammar | — | ORIGIN-0007 |
+| [ORIGIN-O27](Plan.LinuxServiceManager.md#origin-o27--gave-up-escalation-path) | Open question | gave-up escalation path | — | ORIGIN-0007 |
+| [ORIGIN-O28](Plan.LinuxServiceManager.md#origin-o28--cgroup-v2-delegation-semantics) | Open question | cgroup v2 delegation semantics | — | ORIGIN-0007 |
+| [ORIGIN-O29](Plan.LinuxServiceManager.md#origin-o29--durable-logging) | Open question | Durable logging | — | ORIGIN-0007 |
+| [ORIGIN-O30](Plan.LinuxServiceManager.md#origin-o30--boot-critical-tether-inventory) | Open question | Boot-critical Tether inventory | — | ORIGIN-0007 |
 | [ORIGIN-DRAFT-concern-topologies-O1](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o1--concern-dsl-surface) | Open question | Concern DSL surface | — | ORIGIN-DRAFT-concern-topologies |
 | [ORIGIN-DRAFT-concern-topologies-O2](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o2--density-model) | Open question | Density model | — | ORIGIN-DRAFT-concern-topologies |
 | [ORIGIN-DRAFT-concern-topologies-O3](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o3--event-driven-concerns) | Open question | Event-driven concerns | — | ORIGIN-DRAFT-concern-topologies |
 | [ORIGIN-DRAFT-concern-topologies-O4](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o4--concern-results-and-aggregation) | Open question | Concern results and aggregation | — | ORIGIN-DRAFT-concern-topologies |
 | [ORIGIN-DRAFT-concern-topologies-O5](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o5--cross-concern-interaction) | Open question | Cross-concern interaction | — | ORIGIN-DRAFT-concern-topologies |
 | [ORIGIN-DRAFT-concern-topologies-O6](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o6--physical-escalation-criteria) | Open question | Physical-escalation criteria | — | ORIGIN-DRAFT-concern-topologies |
-| [ORIGIN-DRAFT-control-vocabulary-O1](Plan.ControlVocabulary.md#origin-draft-control-vocabulary-o1--read-only-enforcement-strength) | Open question | Read-only enforcement strength | — | ORIGIN-DRAFT-control-vocabulary |
-| [ORIGIN-DRAFT-control-vocabulary-O2](Plan.ControlVocabulary.md#origin-draft-control-vocabulary-o2--response-and-error-envelope) | Open question | Response and error envelope | — | ORIGIN-DRAFT-control-vocabulary |
-| [ORIGIN-DRAFT-control-vocabulary-O3](Plan.ControlVocabulary.md#origin-draft-control-vocabulary-o3--streaming-and-subscription) | Open question | Streaming and subscription | — | ORIGIN-DRAFT-control-vocabulary |
-| [ORIGIN-DRAFT-control-vocabulary-O4](Plan.ControlVocabulary.md#origin-draft-control-vocabulary-o4--restart-with-state-handoff) | Open question | Restart with state handoff | — | ORIGIN-DRAFT-control-vocabulary |
-| [ORIGIN-DRAFT-control-vocabulary-O5](Plan.ControlVocabulary.md#origin-draft-control-vocabulary-o5--addressing-and-selectors) | Open question | Addressing and selectors | — | ORIGIN-DRAFT-control-vocabulary |
-| [ORIGIN-DRAFT-control-vocabulary-O6](Plan.ControlVocabulary.md#origin-draft-control-vocabulary-o6--capability-and-permission-tiers) | Open question | Capability and permission tiers | — | ORIGIN-DRAFT-control-vocabulary |
-| [ORIGIN-DRAFT-control-vocabulary-O7](Plan.ControlVocabulary.md#origin-draft-control-vocabulary-o7--vocabulary-versioning) | Open question | Vocabulary versioning | — | ORIGIN-DRAFT-control-vocabulary |
-| [ORIGIN-DRAFT-foreign-orbitals-O1](Plan.ForeignOrbitals.md#origin-draft-foreign-orbitals-o1--config-atomicity-and-rollback) | Open question | Config atomicity and rollback | — | ORIGIN-DRAFT-foreign-orbitals |
-| [ORIGIN-DRAFT-foreign-orbitals-O2](Plan.ForeignOrbitals.md#origin-draft-foreign-orbitals-o2--json-facility-placement) | Open question | JSON facility placement | — | ORIGIN-DRAFT-foreign-orbitals |
-| [ORIGIN-DRAFT-foreign-orbitals-O3](Plan.ForeignOrbitals.md#origin-draft-foreign-orbitals-o3--secrets-in-generated-config) | Open question | Secrets in generated config | — | ORIGIN-DRAFT-foreign-orbitals |
-| [ORIGIN-DRAFT-foreign-orbitals-O4](Plan.ForeignOrbitals.md#origin-draft-foreign-orbitals-o4--log-rotation) | Open question | Log rotation | — | ORIGIN-DRAFT-foreign-orbitals |
-| [ORIGIN-DRAFT-foreign-orbitals-O5](Plan.ForeignOrbitals.md#origin-draft-foreign-orbitals-o5--health-versus-readiness) | Open question | Health versus readiness | — | ORIGIN-DRAFT-foreign-orbitals |
-| [ORIGIN-DRAFT-foreign-orbitals-O6](Plan.ForeignOrbitals.md#origin-draft-foreign-orbitals-o6--typed-config-sharing) | Open question | Typed config sharing | — | ORIGIN-DRAFT-foreign-orbitals |
-| [ORIGIN-DRAFT-foreign-orbitals-O7](Plan.ForeignOrbitals.md#origin-draft-foreign-orbitals-o7--state-handoff-relevance) | Open question | State handoff relevance | — | ORIGIN-DRAFT-foreign-orbitals |
 | [ORIGIN-DRAFT-game-image-O1](Survey.GameImage.md#origin-draft-game-image-o1--saved-core-build-pipeline) | Open question | Saved-core build pipeline | — | ORIGIN-DRAFT-game-image |
 | [ORIGIN-DRAFT-game-image-O2](Survey.GameImage.md#origin-draft-game-image-o2--gpu-scheduling-integration) | Open question | GPU scheduling integration | — | ORIGIN-DRAFT-game-image |
 | [ORIGIN-DRAFT-game-image-O3](Survey.GameImage.md#origin-draft-game-image-o3--attestation-protocol-specifics) | Open question | Attestation protocol specifics | — | ORIGIN-DRAFT-game-image |
 | [ORIGIN-DRAFT-game-image-O4](Survey.GameImage.md#origin-draft-game-image-o4--state-persistence-across-crashes) | Open question | State persistence across crashes | — | ORIGIN-DRAFT-game-image |
 | [ORIGIN-DRAFT-game-image-O5](Survey.GameImage.md#origin-draft-game-image-o5--non-cl-game-support) | Open question | Non-CL game support | — | ORIGIN-DRAFT-game-image |
-| [ORIGIN-DRAFT-linux-service-manager-O1](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-o1--stub-language-and-form) | Open question | Stub language and form | — | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-O2](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-o2--core-shutdown-orphan-policy) | Open question | Core-shutdown orphan policy | — | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-O3](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-o3--readiness-protocol-shape) | Open question | Readiness protocol shape | — | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-O4](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-o4--saved-core-boot-mechanism) | Open question | Saved-core boot mechanism | — | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-O5](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-o5--hierarchical-addressing-grammar) | Open question | Hierarchical addressing grammar | — | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-O6](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-o6--gave-up-escalation-path) | Open question | gave-up escalation path | — | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-O7](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-o7--cgroup-v2-delegation-semantics) | Open question | cgroup v2 delegation semantics | — | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-O8](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-o8--durable-logging) | Open question | Durable logging | — | ORIGIN-DRAFT-linux-service-manager |
-| [ORIGIN-DRAFT-linux-service-manager-O9](Plan.LinuxServiceManager.md#origin-draft-linux-service-manager-o9--boot-critical-tether-inventory) | Open question | Boot-critical Tether inventory | — | ORIGIN-DRAFT-linux-service-manager |
 | [ORIGIN-DRAFT-orchestration-O1](Plan.Orchestration.md#origin-draft-orchestration-o1--transport-security-model) | Open question | Transport security model | — | ORIGIN-DRAFT-orchestration |
 | [ORIGIN-DRAFT-orchestration-O2](Plan.Orchestration.md#origin-draft-orchestration-o2--guest-agent-design) | Open question | Guest-agent design | — | ORIGIN-DRAFT-orchestration |
 | [ORIGIN-DRAFT-orchestration-O3](Plan.Orchestration.md#origin-draft-orchestration-o3--fleet-root-availability) | Open question | Fleet root availability | — | ORIGIN-DRAFT-orchestration |
@@ -173,6 +174,13 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-DRAFT-placement-O8](Plan.Placement.md#origin-draft-placement-o8--scale-thresholds) | Open question | Scale thresholds | — | ORIGIN-DRAFT-placement |
 | [ORIGIN-DRAFT-placement-O9](Plan.Placement.md#origin-draft-placement-o9--multi-tenancy-and-governance) | Open question | Multi-tenancy and governance | — | ORIGIN-DRAFT-placement |
 | [ORIGIN-DRAFT-placement-O10](Plan.Placement.md#origin-draft-placement-o10--learned-demand-integration) | Open question | Learned-demand integration | — | ORIGIN-DRAFT-placement |
+| [ORIGIN-DRAFT-power-management-O1](Survey.PowerManagement.md#origin-draft-power-management-o1--event-driven-supervision) | Open question | Event-driven supervision | — | ORIGIN-DRAFT-power-management |
+| [ORIGIN-DRAFT-power-management-O2](Survey.PowerManagement.md#origin-draft-power-management-o2--cooperative-parking-for-thread-orbitals) | Open question | Cooperative parking for thread orbitals | — | ORIGIN-DRAFT-power-management |
+| [ORIGIN-DRAFT-power-management-O3](Survey.PowerManagement.md#origin-draft-power-management-o3--assertion-vocabulary) | Open question | Assertion vocabulary | — | ORIGIN-DRAFT-power-management |
+| [ORIGIN-DRAFT-power-management-O4](Survey.PowerManagement.md#origin-draft-power-management-o4--profile-schema-and-triggers) | Open question | Profile schema and triggers | — | ORIGIN-DRAFT-power-management |
+| [ORIGIN-DRAFT-power-management-O5](Survey.PowerManagement.md#origin-draft-power-management-o5--escalation-from-freezing-to-hibernation) | Open question | Escalation from freezing to hibernation | — | ORIGIN-DRAFT-power-management |
+| [ORIGIN-DRAFT-power-management-O6](Survey.PowerManagement.md#origin-draft-power-management-o6--energy-attribution) | Open question | Energy attribution | — | ORIGIN-DRAFT-power-management |
+| [ORIGIN-DRAFT-power-management-O7](Survey.PowerManagement.md#origin-draft-power-management-o7--foreign-and-unmanaged-processes) | Open question | Foreign and unmanaged processes | — | ORIGIN-DRAFT-power-management |
 | [ORIGIN-DRAFT-user-facing-surfaces-O1](Plan.UserFacingSurfaces.md#origin-draft-user-facing-surfaces-o1--the-common-representational-layers-model) | Open question | The common representational layer's model | — | ORIGIN-DRAFT-user-facing-surfaces |
 | [ORIGIN-DRAFT-user-facing-surfaces-O2](Plan.UserFacingSurfaces.md#origin-draft-user-facing-surfaces-o2--meta-orbital-schema-and-authoring) | Open question | Meta-orbital schema and authoring | — | ORIGIN-DRAFT-user-facing-surfaces |
 | [ORIGIN-DRAFT-user-facing-surfaces-O3](Plan.UserFacingSurfaces.md#origin-draft-user-facing-surfaces-o3--focus-signal-vocabulary) | Open question | Focus-signal vocabulary | — | ORIGIN-DRAFT-user-facing-surfaces |

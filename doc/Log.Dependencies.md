@@ -10,9 +10,9 @@ status:        Draft
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-impulse-ii
-  - ORIGIN-DRAFT-orbital-images
-  - ORIGIN-DRAFT-linux-service-manager
+  - ORIGIN-0008
+  - ORIGIN-0002
+  - ORIGIN-0007
 ---
 
 # Orbital Dependencies & Ordered Lifecycle: Development Log

@@ -9,9 +9,9 @@ status:        Draft
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-orbital-images
+  - ORIGIN-0002
   - ORIGIN-DRAFT-user-facing-surfaces
-  - ORIGIN-DRAFT-linux-service-manager
+  - ORIGIN-0007
   - ORIGIN-DRAFT-granularity-and-image
   - ORIGIN-DRAFT-concern-topologies
   - ORIGIN-DRAFT-placement
@@ -32,13 +32,13 @@ crash isolation, and a non-invasive alternative to conventional anti-cheat
 technology. It is a conceptual sketch, not a build plan; it records why
 the idea is natural within Origin's model and where the genuine limits lie.
 It assumes the `:image` execution mode
-([ORIGIN-DRAFT-orbital-images](Log.OrbitalImages.md)), the focus-driven
+([ORIGIN-0002](Log.OrbitalImages.md)), the focus-driven
 workload management direction
 ([ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md)), the
 cgroup alignment principle
-([ORIGIN-DRAFT-linux-service-manager](Plan.LinuxServiceManager.md)), and
+([ORIGIN-0007](Plan.LinuxServiceManager.md)), and
 Impulse's `describe`/`status` vocabulary
-([ORIGIN-DRAFT-impulse-i](Log.ImpulseI.md)).
+([ORIGIN-0006](Log.ImpulseI.md)).
 
 **Date:** 2026-06-23
 
