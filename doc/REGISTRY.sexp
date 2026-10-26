@@ -154,3 +154,4 @@
 (:id "ORIGIN-O57" :kind :open-question :draft "ORIGIN-DRAFT-game-image-O3" :host "ORIGIN-0015" :date "2026-10-25" :by "Andrew Sengul")
 (:id "ORIGIN-O58" :kind :open-question :draft "ORIGIN-DRAFT-game-image-O4" :host "ORIGIN-0015" :date "2026-10-25" :by "Andrew Sengul")
 (:id "ORIGIN-O59" :kind :open-question :draft "ORIGIN-DRAFT-game-image-O5" :host "ORIGIN-0015" :date "2026-10-25" :by "Andrew Sengul")
+(:id "ORIGIN-0016" :kind :document :draft "ORIGIN-DRAFT-browser-as-orbital" :path "doc/Survey.BrowserAsOrbital.md" :date "2026-10-25" :by "Andrew Sengul")

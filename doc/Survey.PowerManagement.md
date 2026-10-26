@@ -15,7 +15,7 @@ relates-to:
   - ORIGIN-0014
   - ORIGIN-0008
   - ORIGIN-0012
-  - ORIGIN-DRAFT-browser-as-orbital
+  - ORIGIN-0016
   - ORIGIN-0015
 open-questions:
   - ORIGIN-DRAFT-power-management-O1
@@ -204,7 +204,7 @@ properties follow from the hierarchy:
 - **Policy per node, inherited.** A profile can act on a whole
   meta-orbital ("Research workbench") at once, a node can carry its own
   profile (the financial node of
-  [ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md#security-scoped-compositions)
+  [ORIGIN-0016](Survey.BrowserAsOrbital.md#security-scoped-compositions)
   might never be throttled while unlocked), and a single orbital can opt
   out with an assertion.
 - **Deferral through a concern.** A power concern, in the sense of
@@ -350,7 +350,7 @@ work. Hibernating an orbital reuses the restart handoff recorded in
 consequence of a decision recorded in
 [ORIGIN-0008](Log.ImpulseII.md). Freezing background browser
 sessions is the main payoff for
-[ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md), and the
+[ORIGIN-0016](Survey.BrowserAsOrbital.md), and the
 game image of [ORIGIN-0015](Survey.GameImage.md) is the
 opposite case: promotion of a focused orbital rather than demotion of a
 hidden one.

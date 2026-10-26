@@ -13,7 +13,7 @@ reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-browser-as-orbital
+  - ORIGIN-0016
 decisions:
   - ORIGIN-D1
   - ORIGIN-D2
@@ -52,7 +52,7 @@ to Origin's specific state.
 Origin adopted Compass infrastructure early: `compass.sexp`, `.mailmap`,
 and `doc/REGISTRY.sexp` are in place (commit `7ef2f48`), and files were
 renamed to genre prefixes (commit `4bbea31`). One document,
-[ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md), carries
+[ORIGIN-0016](Survey.BrowserAsOrbital.md), carries
 full Compass front-matter and checks clean. The remaining 15 documents have
 no front-matter and are skipped by `compass check --skip-unmarked`.
 

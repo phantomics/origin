@@ -25,7 +25,7 @@ Table: Documents in the ORIGIN namespace.
 | [ORIGIN-0013](Survey.GranularityAndImage.md) | Granularity and the Image Model: Survey | Survey | project | Accepted | — |
 | [ORIGIN-0014](Plan.ConcernTopologies.md) | Concern Topologies: Development Plan | Plan | project | Accepted | — |
 | [ORIGIN-0015](Survey.GameImage.md) | Dedicated Game Images: Survey | Survey | project | Accepted | — |
-| [ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md) | The Browser as Orbital: Survey | Survey | project | Draft | — |
+| [ORIGIN-0016](Survey.BrowserAsOrbital.md) | The Browser as Orbital: Survey | Survey | project | Accepted | — |
 | [ORIGIN-DRAFT-compass-migration-log](Log.CompassMigration.md) | Compass Migration: Development Log | Log | project | Draft | — |
 | [ORIGIN-DRAFT-power-management](Survey.PowerManagement.md) | Power Management: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md) | Origin User-Facing Surfaces: Development Plan | Plan | project | Draft | — |
@@ -115,11 +115,11 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-D79](Plan.ConcernTopologies.md#origin-d79--concerns-as-data-not-infrastructure) | Decision | Concerns as data, not infrastructure | Proposed | ORIGIN-0014 |
 | [ORIGIN-DRAFT-user-facing-surfaces-D1](Plan.UserFacingSurfaces.md#origin-draft-user-facing-surfaces-d1--surfaces-produced-from-a-common-representational-layer) | Decision | Surfaces produced from a common representational layer | Proposed | ORIGIN-DRAFT-user-facing-surfaces |
 | [ORIGIN-DRAFT-user-facing-surfaces-D2](Plan.UserFacingSurfaces.md#origin-draft-user-facing-surfaces-d2--focus-driven-workload-management-via-compositor-as-orbital) | Decision | Focus-driven workload management via compositor-as-orbital | Proposed | ORIGIN-DRAFT-user-facing-surfaces |
-| [ORIGIN-O1](Survey.BrowserAsOrbital.md#origin-o1--history-orbital-schema-and-storage) | Open question | History orbital schema and storage | — | ORIGIN-DRAFT-browser-as-orbital |
-| [ORIGIN-O2](Survey.BrowserAsOrbital.md#origin-o2--privacy-and-consent-model) | Open question | Privacy and consent model | — | ORIGIN-DRAFT-browser-as-orbital |
-| [ORIGIN-O3](Survey.BrowserAsOrbital.md#origin-o3--digest-and-agent-pipeline) | Open question | Digest and agent pipeline | — | ORIGIN-DRAFT-browser-as-orbital |
-| [ORIGIN-O4](Survey.BrowserAsOrbital.md#origin-o4--first-externalized-service) | Open question | First externalized service | — | ORIGIN-DRAFT-browser-as-orbital |
-| [ORIGIN-O5](Survey.BrowserAsOrbital.md#origin-o5--security-domain-policy-schema) | Open question | Security-domain policy schema | — | ORIGIN-DRAFT-browser-as-orbital |
+| [ORIGIN-O1](Survey.BrowserAsOrbital.md#origin-o1--history-orbital-schema-and-storage) | Open question | History orbital schema and storage | — | ORIGIN-0016 |
+| [ORIGIN-O2](Survey.BrowserAsOrbital.md#origin-o2--privacy-and-consent-model) | Open question | Privacy and consent model | — | ORIGIN-0016 |
+| [ORIGIN-O3](Survey.BrowserAsOrbital.md#origin-o3--digest-and-agent-pipeline) | Open question | Digest and agent pipeline | — | ORIGIN-0016 |
+| [ORIGIN-O4](Survey.BrowserAsOrbital.md#origin-o4--first-externalized-service) | Open question | First externalized service | — | ORIGIN-0016 |
+| [ORIGIN-O5](Survey.BrowserAsOrbital.md#origin-o5--security-domain-policy-schema) | Open question | Security-domain policy schema | — | ORIGIN-0016 |
 | [ORIGIN-O6](Plan.CompassMigration.md#origin-o6--which-documents-are-numbered-first) | Open question | Which documents are numbered first | — | ORIGIN-0001 |
 | [ORIGIN-O7](Plan.CompassMigration.md#origin-o7--a-compiled-readme) | Open question | A compiled README | — | ORIGIN-0001 |
 | [ORIGIN-O8](Plan.ControlVocabulary.md#origin-o8--read-only-enforcement-strength) | Open question | Read-only enforcement strength | — | ORIGIN-0004 |

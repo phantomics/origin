@@ -30,7 +30,7 @@ code.
 Origin adopted Compass infrastructure early: `compass.sexp`, `.mailmap`,
 and `doc/REGISTRY.sexp` were in place (commit `7ef2f48`), and files were
 renamed to genre prefixes (commit `4bbea31`). One document,
-[ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md), carried
+[ORIGIN-0016](Survey.BrowserAsOrbital.md), carried
 full front-matter and checked clean. The remaining 15 documents had no
 front-matter and were skipped by `compass check --skip-unmarked`.
 
