@@ -209,7 +209,7 @@ Spine headings capitalised ("The Shared Scenario", "The Rubric"). 7
 **[ORIGIN-DRAFT-game-image](Survey.GameImage.md).** 1 table caption.
 `Description:` paragraph after the architectural-sketch ASCII tree.
 
-**[ORIGIN-DRAFT-granularity-and-image](Survey.GranularityAndImage.md).**
+**[ORIGIN-0013](Survey.GranularityAndImage.md).**
 1 table caption. No open questions; the document closes on design
 principles, which the Survey spine permits.
 

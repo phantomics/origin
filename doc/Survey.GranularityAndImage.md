@@ -1,11 +1,15 @@
 ---
-id:            ORIGIN-DRAFT-granularity-and-image
+id:            ORIGIN-0013
 title:         "Granularity and the Image Model: Survey"
 genre:         Survey
 scope:         project
 project:       Origin
 language:      en
-status:        Draft
+status:        Accepted
+authors:
+  - Andrew Sengul
+approved-by:   Andrew Sengul
+reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:

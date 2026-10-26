@@ -9,7 +9,7 @@ status:        Draft
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-granularity-and-image
+  - ORIGIN-0013
   - ORIGIN-0007
   - ORIGIN-DRAFT-user-facing-surfaces
   - ORIGIN-DRAFT-concern-topologies
@@ -90,7 +90,7 @@ classifying the software it manages, applying power profiles that follow
 the machine's power state, and throttling, freezing, or hibernating
 non-essential work, browser sessions above all. It is exploratory and
 non-normative. It assumes the granularity model of
-[ORIGIN-DRAFT-granularity-and-image](Survey.GranularityAndImage.md), the
+[ORIGIN-0013](Survey.GranularityAndImage.md), the
 node-to-cgroup alignment of
 [ORIGIN-0007](Plan.LinuxServiceManager.md#origin-d44--node-tree-aligns-with-the-cgroup-v2-hierarchy),
 the focus-driven workload management of
@@ -336,7 +336,7 @@ application negotiates alone.
 ## Relationship to Other Work
 
 This Survey applies the granularity model of
-[ORIGIN-DRAFT-granularity-and-image](Survey.GranularityAndImage.md) to a
+[ORIGIN-0013](Survey.GranularityAndImage.md) to a
 new resource: the depths of suspension are its isolation ladder seen from
 the side of energy. It depends on the node-to-cgroup alignment and the
 demand-start direction of

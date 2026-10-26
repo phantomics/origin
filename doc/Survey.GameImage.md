@@ -12,7 +12,7 @@ relates-to:
   - ORIGIN-0002
   - ORIGIN-DRAFT-user-facing-surfaces
   - ORIGIN-0007
-  - ORIGIN-DRAFT-granularity-and-image
+  - ORIGIN-0013
   - ORIGIN-DRAFT-concern-topologies
   - ORIGIN-0011
 open-questions:

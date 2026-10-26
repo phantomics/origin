@@ -9,7 +9,7 @@ status:        Draft
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-granularity-and-image
+  - ORIGIN-0013
   - ORIGIN-DRAFT-game-image
   - ORIGIN-0002
   - ORIGIN-DRAFT-concern-topologies

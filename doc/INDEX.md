@@ -22,11 +22,11 @@ Table: Documents in the ORIGIN namespace.
 | [ORIGIN-0010](Plan.Orchestration.md) | Origin as a Recursive Orchestrator (Fleet Tier): Development Plan | Plan | project | Accepted | — |
 | [ORIGIN-0011](Plan.Placement.md) | Origin Placement and Topology: Development Plan | Plan | project | Accepted | — |
 | [ORIGIN-0012](Log.ImpulseIII.md) | Impulse, Part III (Phases 7-9): Development Log | Log | project | Implemented | impulse |
+| [ORIGIN-0013](Survey.GranularityAndImage.md) | Granularity and the Image Model: Survey | Survey | project | Accepted | — |
 | [ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md) | The Browser as Orbital: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-compass-migration-log](Log.CompassMigration.md) | Compass Migration: Development Log | Log | project | Draft | — |
 | [ORIGIN-DRAFT-concern-topologies](Plan.ConcernTopologies.md) | Concern Topologies: Development Plan | Plan | project | Draft | — |
 | [ORIGIN-DRAFT-game-image](Survey.GameImage.md) | Dedicated Game Images: Survey | Survey | project | Draft | — |
-| [ORIGIN-DRAFT-granularity-and-image](Survey.GranularityAndImage.md) | Granularity and the Image Model: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-power-management](Survey.PowerManagement.md) | Power Management: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md) | Origin User-Facing Surfaces: Development Plan | Plan | project | Draft | — |
 
@@ -52,22 +52,22 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-D16](Log.OrbitalImages.md#origin-d16--smart-children) | Decision | Smart children | Accepted | ORIGIN-0002 |
 | [ORIGIN-D17](Log.OrbitalImages.md#origin-d17--graceful-shutdown-sigterm-only-for-v1) | Decision | Graceful shutdown: SIGTERM only for v1 | Accepted | ORIGIN-0002 |
 | [ORIGIN-D18](Log.OrbitalImages.md#origin-d18--output-handling-in-core-not-a-wrapper) | Decision | Output handling in core, not a wrapper | Accepted | ORIGIN-0002 |
-| [ORIGIN-D19](Plan.ControlVocabulary.md#origin-d19--declarative-default-with-an-imperative-delta-form) | Decision | Declarative default with an imperative delta form | Accepted | ORIGIN-0004 |
-| [ORIGIN-D20](Plan.ControlVocabulary.md#origin-d20--capability-discovery-describe-is-in-the-v1-core) | Decision | Capability discovery (describe) is in the v1 core | Accepted | ORIGIN-0004 |
-| [ORIGIN-D21](Plan.ControlVocabulary.md#origin-d21--messages-are-dispatched-data-not-evaluated-code) | Decision | Messages are dispatched data, not evaluated code | Accepted | ORIGIN-0004 |
-| [ORIGIN-D22](Log.ImpulseI.md#origin-d22--a-separate-impulse-system-not-part-of-core) | Decision | A separate impulse system, not part of core | Accepted | ORIGIN-0006 |
-| [ORIGIN-D23](Log.ImpulseI.md#origin-d23--control-type-by-registry-not-by-class) | Decision | Control type by registry, not by class | Accepted | ORIGIN-0006 |
-| [ORIGIN-D24](Log.ImpulseI.md#origin-d24--the-dispatcher-never-signals) | Decision | The dispatcher never signals | Accepted | ORIGIN-0006 |
-| [ORIGIN-D25](Log.ImpulseI.md#origin-d25--effect-and-tier-enforced-in-phase-1-not-deferred) | Decision | Effect and tier enforced in Phase 1, not deferred | Accepted | ORIGIN-0006 |
-| [ORIGIN-D26](Log.ImpulseI.md#origin-d26--register-all-verbs-now-advertise-only-the-implemented-ones) | Decision | Register all verbs now; advertise only the implemented ones | Accepted | ORIGIN-0006 |
-| [ORIGIN-D27](Log.ImpulseI.md#origin-d27--serialization-by-call-next-method-not-a-registry-or-around) | Decision | Serialization by call-next-method, not a registry or :around | Accepted | ORIGIN-0006 |
-| [ORIGIN-D28](Log.ImpulseI.md#origin-d28--check-verb-and-tier-once-capture-per-target-outcomes) | Decision | Check verb and tier once; capture per-target outcomes | Accepted | ORIGIN-0006 |
-| [ORIGIN-D29](Log.ImpulseI.md#origin-d29--fan-out-reuses-single-target-dispatch) | Decision | Fan-out reuses single-target dispatch | Accepted | ORIGIN-0006 |
-| [ORIGIN-D30](Log.ImpulseI.md#origin-d30--validation-is-the-guarantee-the-readtable-is-defense-in-depth) | Decision | Validation is the guarantee; the readtable is defense in depth | Accepted | ORIGIN-0006 |
-| [ORIGIN-D31](Log.ImpulseI.md#origin-d31--keyword-only-enforced-symmetrically) | Decision | Keyword-only, enforced symmetrically | Accepted | ORIGIN-0006 |
-| [ORIGIN-D32](Log.ImpulseI.md#origin-d32--length-prefixed-framing-over-character-streams) | Decision | Length-prefixed framing over character streams | Accepted | ORIGIN-0006 |
-| [ORIGIN-D33](Log.ImpulseI.md#origin-d33--tier-pinned-by-the-listener-negotiated-down-by-the-client) | Decision | Tier pinned by the listener, negotiated down by the client | Accepted | ORIGIN-0006 |
-| [ORIGIN-D34](Log.ImpulseI.md#origin-d34--transport-reuses-dispatch-unchanged) | Decision | Transport reuses dispatch unchanged | Accepted | ORIGIN-0006 |
+| [ORIGIN-D19](Plan.ControlVocabulary.md#origin-d19--declarative-default-with-an-imperative-delta-form) | Decision | Declarative default with an imperative delta form | Implemented | ORIGIN-0004 |
+| [ORIGIN-D20](Plan.ControlVocabulary.md#origin-d20--capability-discovery-describe-is-in-the-v1-core) | Decision | Capability discovery (describe) is in the v1 core | Implemented | ORIGIN-0004 |
+| [ORIGIN-D21](Plan.ControlVocabulary.md#origin-d21--messages-are-dispatched-data-not-evaluated-code) | Decision | Messages are dispatched data, not evaluated code | Implemented | ORIGIN-0004 |
+| [ORIGIN-D22](Log.ImpulseI.md#origin-d22--a-separate-impulse-system-not-part-of-core) | Decision | A separate impulse system, not part of core | Implemented | ORIGIN-0006 |
+| [ORIGIN-D23](Log.ImpulseI.md#origin-d23--control-type-by-registry-not-by-class) | Decision | Control type by registry, not by class | Implemented | ORIGIN-0006 |
+| [ORIGIN-D24](Log.ImpulseI.md#origin-d24--the-dispatcher-never-signals) | Decision | The dispatcher never signals | Implemented | ORIGIN-0006 |
+| [ORIGIN-D25](Log.ImpulseI.md#origin-d25--effect-and-tier-enforced-in-phase-1-not-deferred) | Decision | Effect and tier enforced in Phase 1, not deferred | Implemented | ORIGIN-0006 |
+| [ORIGIN-D26](Log.ImpulseI.md#origin-d26--register-all-verbs-now-advertise-only-the-implemented-ones) | Decision | Register all verbs now; advertise only the implemented ones | Implemented | ORIGIN-0006 |
+| [ORIGIN-D27](Log.ImpulseI.md#origin-d27--serialization-by-call-next-method-not-a-registry-or-around) | Decision | Serialization by call-next-method, not a registry or :around | Implemented | ORIGIN-0006 |
+| [ORIGIN-D28](Log.ImpulseI.md#origin-d28--check-verb-and-tier-once-capture-per-target-outcomes) | Decision | Check verb and tier once; capture per-target outcomes | Implemented | ORIGIN-0006 |
+| [ORIGIN-D29](Log.ImpulseI.md#origin-d29--fan-out-reuses-single-target-dispatch) | Decision | Fan-out reuses single-target dispatch | Implemented | ORIGIN-0006 |
+| [ORIGIN-D30](Log.ImpulseI.md#origin-d30--validation-is-the-guarantee-the-readtable-is-defense-in-depth) | Decision | Validation is the guarantee; the readtable is defense in depth | Implemented | ORIGIN-0006 |
+| [ORIGIN-D31](Log.ImpulseI.md#origin-d31--keyword-only-enforced-symmetrically) | Decision | Keyword-only, enforced symmetrically | Implemented | ORIGIN-0006 |
+| [ORIGIN-D32](Log.ImpulseI.md#origin-d32--length-prefixed-framing-over-character-streams) | Decision | Length-prefixed framing over character streams | Implemented | ORIGIN-0006 |
+| [ORIGIN-D33](Log.ImpulseI.md#origin-d33--tier-pinned-by-the-listener-negotiated-down-by-the-client) | Decision | Tier pinned by the listener, negotiated down by the client | Implemented | ORIGIN-0006 |
+| [ORIGIN-D34](Log.ImpulseI.md#origin-d34--transport-reuses-dispatch-unchanged) | Decision | Transport reuses dispatch unchanged | Implemented | ORIGIN-0006 |
 | [ORIGIN-D35](Plan.LinuxServiceManager.md#origin-d35--two-layer-split-stub-pid-1-origin-core-as-service-manager) | Decision | Two-layer split: stub PID 1, Origin core as service manager | Accepted | ORIGIN-0007 |
 | [ORIGIN-D36](Plan.LinuxServiceManager.md#origin-d36--target-system-class-personal--cl-centric-appliance) | Decision | Target system class: personal / CL-centric appliance | Accepted | ORIGIN-0007 |
 | [ORIGIN-D37](Plan.LinuxServiceManager.md#origin-d37--core-stays-sbcl-ecl-is-used-only-for-orbitals) | Decision | Core stays SBCL; ECL is used only for orbitals | Accepted | ORIGIN-0007 |
@@ -79,19 +79,19 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-D43](Plan.LinuxServiceManager.md#origin-d43--recursion-design-for-apply-later) | Decision | Recursion: design-for, apply-later | Accepted | ORIGIN-0007 |
 | [ORIGIN-D44](Plan.LinuxServiceManager.md#origin-d44--node-tree-aligns-with-the-cgroup-v2-hierarchy) | Decision | Node tree aligns with the cgroup v2 hierarchy | Accepted | ORIGIN-0007 |
 | [ORIGIN-D45](Plan.LinuxServiceManager.md#origin-d45--saved-core-boot-elevated-ahead-of-deep-recursion) | Decision | Saved-core boot elevated ahead of deep recursion | Accepted | ORIGIN-0007 |
-| [ORIGIN-D46](Log.ImpulseII.md#origin-d46--spec-in-an-impulse-side-registry-not-on-the-orbital) | Decision | Spec in an Impulse-side registry, not on the orbital | Accepted | ORIGIN-0008 |
-| [ORIGIN-D47](Log.ImpulseII.md#origin-d47--declared-vs-observed-folded-into-status-view-not-a-new-verb) | Decision | Declared-vs-observed folded into status :view, not a new verb | Accepted | ORIGIN-0008 |
-| [ORIGIN-D48](Log.ImpulseII.md#origin-d48--one-high-level-apply-not-separate-editvalidatecommit-verbs) | Decision | One high-level apply, not separate edit/validate/commit verbs | Accepted | ORIGIN-0008 |
-| [ORIGIN-D49](Log.ImpulseII.md#origin-d49--health-via-a-generic-with-a-liveness-default) | Decision | Health via a generic with a liveness default | Accepted | ORIGIN-0008 |
-| [ORIGIN-D50](Log.ImpulseII.md#origin-d50--labels-in-an-impulse-side-registry-like-specs) | Decision | Labels in an Impulse-side registry, like specs | Accepted | ORIGIN-0008 |
-| [ORIGIN-D51](Log.ImpulseII.md#origin-d51--one-predicate-grammar-two-uses) | Decision | One predicate grammar, two uses | Accepted | ORIGIN-0008 |
-| [ORIGIN-D52](Log.ImpulseII.md#origin-d52--selectorslisp-loads-before-dispatchlisp) | Decision | selectors.lisp loads before dispatch.lisp | Accepted | ORIGIN-0008 |
-| [ORIGIN-D53](Log.ImpulseII.md#origin-d53--field-arguments-refine-they-do-not-re-dispatch) | Decision | Field arguments refine, they do not re-dispatch | Accepted | ORIGIN-0008 |
-| [ORIGIN-D54](Log.ImpulseII.md#origin-d54--the-connections-sink-is-the-only-transport-coupling) | Decision | The connection's sink is the only transport coupling | Accepted | ORIGIN-0008 |
-| [ORIGIN-D55](Log.ImpulseII.md#origin-d55--watch-is-poll-based-over-the-event-log-by-choice) | Decision | watch is poll-based over the event log, by choice | Accepted | ORIGIN-0008 |
-| [ORIGIN-D56](Log.ImpulseII.md#origin-d56--the-request-id-is-the-cancellationunwatch-token-lsp-model) | Decision | The request id is the cancellation/unwatch token (LSP model) | Accepted | ORIGIN-0008 |
-| [ORIGIN-D57](Log.ImpulseII.md#origin-d57--one-worker-thread-per-non-control-request) | Decision | One worker thread per non-control request | Accepted | ORIGIN-0008 |
-| [ORIGIN-D58](Log.ImpulseII.md#origin-d58--streamslisp-loads-before-apicodectransport) | Decision | streams.lisp loads before api/codec/transport | Accepted | ORIGIN-0008 |
+| [ORIGIN-D46](Log.ImpulseII.md#origin-d46--spec-in-an-impulse-side-registry-not-on-the-orbital) | Decision | Spec in an Impulse-side registry, not on the orbital | Implemented | ORIGIN-0008 |
+| [ORIGIN-D47](Log.ImpulseII.md#origin-d47--declared-vs-observed-folded-into-status-view-not-a-new-verb) | Decision | Declared-vs-observed folded into status :view, not a new verb | Implemented | ORIGIN-0008 |
+| [ORIGIN-D48](Log.ImpulseII.md#origin-d48--one-high-level-apply-not-separate-editvalidatecommit-verbs) | Decision | One high-level apply, not separate edit/validate/commit verbs | Implemented | ORIGIN-0008 |
+| [ORIGIN-D49](Log.ImpulseII.md#origin-d49--health-via-a-generic-with-a-liveness-default) | Decision | Health via a generic with a liveness default | Implemented | ORIGIN-0008 |
+| [ORIGIN-D50](Log.ImpulseII.md#origin-d50--labels-in-an-impulse-side-registry-like-specs) | Decision | Labels in an Impulse-side registry, like specs | Implemented | ORIGIN-0008 |
+| [ORIGIN-D51](Log.ImpulseII.md#origin-d51--one-predicate-grammar-two-uses) | Decision | One predicate grammar, two uses | Implemented | ORIGIN-0008 |
+| [ORIGIN-D52](Log.ImpulseII.md#origin-d52--selectorslisp-loads-before-dispatchlisp) | Decision | selectors.lisp loads before dispatch.lisp | Implemented | ORIGIN-0008 |
+| [ORIGIN-D53](Log.ImpulseII.md#origin-d53--field-arguments-refine-they-do-not-re-dispatch) | Decision | Field arguments refine, they do not re-dispatch | Implemented | ORIGIN-0008 |
+| [ORIGIN-D54](Log.ImpulseII.md#origin-d54--the-connections-sink-is-the-only-transport-coupling) | Decision | The connection's sink is the only transport coupling | Implemented | ORIGIN-0008 |
+| [ORIGIN-D55](Log.ImpulseII.md#origin-d55--watch-is-poll-based-over-the-event-log-by-choice) | Decision | watch is poll-based over the event log, by choice | Implemented | ORIGIN-0008 |
+| [ORIGIN-D56](Log.ImpulseII.md#origin-d56--the-request-id-is-the-cancellationunwatch-token-lsp-model) | Decision | The request id is the cancellation/unwatch token (LSP model) | Implemented | ORIGIN-0008 |
+| [ORIGIN-D57](Log.ImpulseII.md#origin-d57--one-worker-thread-per-non-control-request) | Decision | One worker thread per non-control request | Implemented | ORIGIN-0008 |
+| [ORIGIN-D58](Log.ImpulseII.md#origin-d58--streamslisp-loads-before-apicodectransport) | Decision | streams.lisp loads before api/codec/transport | Implemented | ORIGIN-0008 |
 | [ORIGIN-D59](Plan.Orchestration.md#origin-d59--scope-personal--small-fleet-transparency-first) | Decision | Scope: personal / small fleet, transparency-first | Accepted | ORIGIN-0010 |
 | [ORIGIN-D60](Plan.Orchestration.md#origin-d60--borrow-dont-build-for-scheduling-networking-and-storage) | Decision | Borrow, don't build for scheduling, networking, and storage | Accepted | ORIGIN-0010 |
 | [ORIGIN-D61](Plan.Placement.md#origin-d61--placement-is-a-pure-function) | Decision | Placement is a pure function | Accepted | ORIGIN-0011 |

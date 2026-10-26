@@ -138,3 +138,4 @@
 (:id "ORIGIN-D75" :kind :decision :draft "ORIGIN-DRAFT-impulse-iii-D13" :host "ORIGIN-0012" :date "2026-10-25" :by "Andrew Sengul")
 (:id "ORIGIN-D76" :kind :decision :draft "ORIGIN-DRAFT-impulse-iii-D14" :host "ORIGIN-0012" :date "2026-10-25" :by "Andrew Sengul")
 (:id "ORIGIN-D77" :kind :decision :draft "ORIGIN-DRAFT-impulse-iii-D15" :host "ORIGIN-0012" :date "2026-10-25" :by "Andrew Sengul")
+(:id "ORIGIN-0013" :kind :document :draft "ORIGIN-DRAFT-granularity-and-image" :path "doc/Survey.GranularityAndImage.md" :date "2026-10-25" :by "Andrew Sengul")
