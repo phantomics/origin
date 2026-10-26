@@ -1,12 +1,16 @@
 ---
-id:            ORIGIN-DRAFT-impulse-iii
+id:            ORIGIN-0012
 title:         "Impulse, Part III (Phases 7-9): Development Log"
 genre:         Log
 scope:         project
 project:       Origin
 component:     impulse
 language:      en
-status:        Draft
+status:        Implemented
+authors:
+  - Andrew Sengul
+approved-by:   Andrew Sengul
+reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:
@@ -14,21 +18,21 @@ relates-to:
   - ORIGIN-0008
   - ORIGIN-0005
 decisions:
-  - ORIGIN-DRAFT-impulse-iii-D1
-  - ORIGIN-DRAFT-impulse-iii-D2
-  - ORIGIN-DRAFT-impulse-iii-D3
-  - ORIGIN-DRAFT-impulse-iii-D4
-  - ORIGIN-DRAFT-impulse-iii-D5
-  - ORIGIN-DRAFT-impulse-iii-D6
-  - ORIGIN-DRAFT-impulse-iii-D7
-  - ORIGIN-DRAFT-impulse-iii-D8
-  - ORIGIN-DRAFT-impulse-iii-D9
-  - ORIGIN-DRAFT-impulse-iii-D10
-  - ORIGIN-DRAFT-impulse-iii-D11
-  - ORIGIN-DRAFT-impulse-iii-D12
-  - ORIGIN-DRAFT-impulse-iii-D13
-  - ORIGIN-DRAFT-impulse-iii-D14
-  - ORIGIN-DRAFT-impulse-iii-D15
+  - ORIGIN-D63
+  - ORIGIN-D64
+  - ORIGIN-D65
+  - ORIGIN-D66
+  - ORIGIN-D67
+  - ORIGIN-D68
+  - ORIGIN-D69
+  - ORIGIN-D70
+  - ORIGIN-D71
+  - ORIGIN-D72
+  - ORIGIN-D73
+  - ORIGIN-D74
+  - ORIGIN-D75
+  - ORIGIN-D76
+  - ORIGIN-D77
 ---
 
 # Impulse, Part III (Phases 7-9): Development Log
@@ -151,9 +155,9 @@ addresses it (`(:where (:eq :app :terminal))`, `:all`), and more powerfully
 keeps the orbital-per-window model and reuses target selection, honoring the
 selectors-file boundary between *which orbital* and *within one orbital*.
 
-### ORIGIN-DRAFT-impulse-iii-D1 — Sub-vocabulary lives in the Lexter repo; only a generic registration API is added to Impulse
+### ORIGIN-D63 — Sub-vocabulary lives in the Lexter repo; only a generic registration API is added to Impulse
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** The `:lexter-host` sub-vocabulary depends on Lexter code. It could live in Impulse or in the Lexter repository.
 
@@ -162,9 +166,9 @@ selectors-file boundary between *which orbital* and *within one orbital*.
 **Alternatives:**
 - Put the sub-vocabulary in Impulse. Rejected: would make Impulse depend on Lexter.
 
-### ORIGIN-DRAFT-impulse-iii-D2 — configure via validate-spec/commit-spec specialization, not a new verb handler
+### ORIGIN-D64 — configure via validate-spec/commit-spec specialization, not a new verb handler
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** The `:lexter-host` type needs its own `configure`/`apply` behavior for window parameters.
 
@@ -173,9 +177,9 @@ selectors-file boundary between *which orbital* and *within one orbital*.
 **Alternatives:**
 - A new verb handler. Not chosen: the generic handlers already route through the per-type generics.
 
-### ORIGIN-DRAFT-impulse-iii-D3 — Live-apply where safe; rebuild-spec always
+### ORIGIN-D65 — Live-apply where safe; rebuild-spec always
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** Some window parameters (geometry, font) need a rebuild; others (title, scale) are cheap to apply live.
 
@@ -184,9 +188,9 @@ selectors-file boundary between *which orbital* and *within one orbital*.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-iii-D4 — Orbital-per-window + target selection, not an intra-orbital window selector
+### ORIGIN-D66 — Orbital-per-window + target selection, not an intra-orbital window selector
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** Per-window addressing could use a bespoke `:window` sub-selector or reuse the Phase 5 selector grammar.
 
@@ -354,9 +358,9 @@ API, and provides:
 So a core or admin UI drives nginx through exactly the same structured surface
 as a native orbital, with no nginx-specific knowledge above the adapter.
 
-### ORIGIN-DRAFT-impulse-iii-D5 — The adapter, not the program, is the orbital
+### ORIGIN-D67 — The adapter, not the program, is the orbital
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** nginx-specific knowledge must live somewhere in the system.
 
@@ -365,9 +369,9 @@ as a native orbital, with no nginx-specific knowledge above the adapter.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-iii-D6 — mod/ add-on, depends only on origin + impulse
+### ORIGIN-D68 — mod/ add-on, depends only on origin + impulse
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** The Tether could live in Impulse, in core, or as a separate module.
 
@@ -376,9 +380,9 @@ as a native orbital, with no nginx-specific knowledge above the adapter.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-iii-D7 — Validate-before-commit, structured throughout
+### ORIGIN-D69 — Validate-before-commit, structured throughout
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** A config change could be applied directly or validated first.
 
@@ -387,9 +391,9 @@ as a native orbital, with no nginx-specific knowledge above the adapter.
 **Alternatives:**
 - Apply without validation. Rejected: risks a partial or broken live config.
 
-### ORIGIN-DRAFT-impulse-iii-D8 — Foreground + SIGQUIT
+### ORIGIN-D70 — Foreground + SIGQUIT
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** nginx daemonizes by default and uses SIGQUIT for graceful shutdown, not SIGTERM.
 
@@ -398,9 +402,9 @@ as a native orbital, with no nginx-specific knowledge above the adapter.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-iii-D9 — Readiness = serving, not alive
+### ORIGIN-D71 — Readiness = serving, not alive
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** An nginx orbital's OS process can be alive while not yet serving.
 
@@ -409,9 +413,9 @@ as a native orbital, with no nginx-specific knowledge above the adapter.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-iii-D10 — Graceful degradation without nginx
+### ORIGIN-D72 — Graceful degradation without nginx
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** The Tether must be testable and inspectable on systems where the nginx binary is absent.
 
@@ -545,9 +549,9 @@ no-op. That a native orbital preserves state and a foreign one degrades
 gracefully *through the same verb and protocol* is exactly the uniformity the
 phase set out to demonstrate.
 
-### ORIGIN-DRAFT-impulse-iii-D11 — Handoff is an Impulse protocol, not a core mechanism
+### ORIGIN-D73 — Handoff is an Impulse protocol, not a core mechanism
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** State handoff could be a core mechanism or a control-plane protocol.
 
@@ -556,9 +560,9 @@ phase set out to demonstrate.
 **Alternatives:**
 - A core mechanism. Not chosen: handoff is a control-plane concern, and the per-type dispatch belongs in Impulse.
 
-### ORIGIN-DRAFT-impulse-iii-D12 — Selective by stratum; volatile strata never serialized
+### ORIGIN-D74 — Selective by stratum; volatile strata never serialized
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** An orbital's state spans several strata (configuration, application, session, ephemera, binary). Not all are serializable.
 
@@ -567,9 +571,9 @@ phase set out to demonstrate.
 **Alternatives:**
 - Opaque whole-memory snapshot. Rejected: conflates the strata.
 
-### ORIGIN-DRAFT-impulse-iii-D13 — Carrier-agnostic datum
+### ORIGIN-D75 — Carrier-agnostic datum
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** The handoff datum could be tied to a specific carrier or independent of it.
 
@@ -578,9 +582,9 @@ phase set out to demonstrate.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-iii-D14 — Versioned and fail-safe
+### ORIGIN-D76 — Versioned and fail-safe
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** A handoff datum may be incompatible with a newer version of the orbital's code.
 
@@ -589,9 +593,9 @@ phase set out to demonstrate.
 **Alternatives:**
 - None recorded.
 
-### ORIGIN-DRAFT-impulse-iii-D15 — :preserve selector on restart
+### ORIGIN-D77 — :preserve selector on restart
 
-**Status:** Proposed
+**Status:** Implemented
 
 **Context:** Handoff could require a new verb or ride the existing `restart`.
 

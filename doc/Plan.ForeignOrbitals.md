@@ -15,7 +15,7 @@ provenance:
   assistant:   opencode
 relates-to:
   - ORIGIN-0004
-  - ORIGIN-DRAFT-impulse-iii
+  - ORIGIN-0012
   - ORIGIN-0007
 open-questions:
   - ORIGIN-O15

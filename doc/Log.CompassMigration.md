@@ -162,7 +162,7 @@ H3, matching Phases 2–3. Phase headings `--` → `—`. Tests → Verification
 Three new Files tables built from git (Phases 4–6). Tests → Verification
 (×3). `Table:` captions on all 6 tables. Intro dashes `--` → `—`.
 
-**[ORIGIN-DRAFT-impulse-iii](Log.ImpulseIII.md).** 15 records (ORIGIN-DRAFT-impulse-iii-D1 through -D15).
+**[ORIGIN-0012](Log.ImpulseIII.md).** 15 records (ORIGIN-D63 through -D15).
 Four new Files tables (Phase 7, Pre-Phase 8, Phase 8, Phase 9). Phase
 headings `--` → `—`. Tests → Verification (×3). `Table:` captions on all
 prior-art tables.

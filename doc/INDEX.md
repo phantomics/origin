@@ -21,12 +21,12 @@ Table: Documents in the ORIGIN namespace.
 | [ORIGIN-0009](Log.Dependencies.md) | Orbital Dependencies & Ordered Lifecycle: Development Log | Log | project | Implemented | core |
 | [ORIGIN-0010](Plan.Orchestration.md) | Origin as a Recursive Orchestrator (Fleet Tier): Development Plan | Plan | project | Accepted | — |
 | [ORIGIN-0011](Plan.Placement.md) | Origin Placement and Topology: Development Plan | Plan | project | Accepted | — |
+| [ORIGIN-0012](Log.ImpulseIII.md) | Impulse, Part III (Phases 7-9): Development Log | Log | project | Implemented | impulse |
 | [ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md) | The Browser as Orbital: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-compass-migration-log](Log.CompassMigration.md) | Compass Migration: Development Log | Log | project | Draft | — |
 | [ORIGIN-DRAFT-concern-topologies](Plan.ConcernTopologies.md) | Concern Topologies: Development Plan | Plan | project | Draft | — |
 | [ORIGIN-DRAFT-game-image](Survey.GameImage.md) | Dedicated Game Images: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-granularity-and-image](Survey.GranularityAndImage.md) | Granularity and the Image Model: Survey | Survey | project | Draft | — |
-| [ORIGIN-DRAFT-impulse-iii](Log.ImpulseIII.md) | Impulse, Part III (Phases 7-9): Development Log | Log | project | Draft | impulse |
 | [ORIGIN-DRAFT-power-management](Survey.PowerManagement.md) | Power Management: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md) | Origin User-Facing Surfaces: Development Plan | Plan | project | Draft | — |
 
@@ -96,23 +96,23 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-D60](Plan.Orchestration.md#origin-d60--borrow-dont-build-for-scheduling-networking-and-storage) | Decision | Borrow, don't build for scheduling, networking, and storage | Accepted | ORIGIN-0010 |
 | [ORIGIN-D61](Plan.Placement.md#origin-d61--placement-is-a-pure-function) | Decision | Placement is a pure function | Accepted | ORIGIN-0011 |
 | [ORIGIN-D62](Plan.Placement.md#origin-d62--filter-then-score-baseline-solver) | Decision | Filter-then-score baseline solver | Accepted | ORIGIN-0011 |
+| [ORIGIN-D63](Log.ImpulseIII.md#origin-d63--sub-vocabulary-lives-in-the-lexter-repo-only-a-generic-registration-api-is-added-to-impulse) | Decision | Sub-vocabulary lives in the Lexter repo; only a generic registration API is added to Impulse | Implemented | ORIGIN-0012 |
+| [ORIGIN-D64](Log.ImpulseIII.md#origin-d64--configure-via-validate-speccommit-spec-specialization-not-a-new-verb-handler) | Decision | configure via validate-spec/commit-spec specialization, not a new verb handler | Implemented | ORIGIN-0012 |
+| [ORIGIN-D65](Log.ImpulseIII.md#origin-d65--live-apply-where-safe-rebuild-spec-always) | Decision | Live-apply where safe; rebuild-spec always | Implemented | ORIGIN-0012 |
+| [ORIGIN-D66](Log.ImpulseIII.md#origin-d66--orbital-per-window--target-selection-not-an-intra-orbital-window-selector) | Decision | Orbital-per-window + target selection, not an intra-orbital window selector | Implemented | ORIGIN-0012 |
+| [ORIGIN-D67](Log.ImpulseIII.md#origin-d67--the-adapter-not-the-program-is-the-orbital) | Decision | The adapter, not the program, is the orbital | Implemented | ORIGIN-0012 |
+| [ORIGIN-D68](Log.ImpulseIII.md#origin-d68--mod-add-on-depends-only-on-origin--impulse) | Decision | mod/ add-on, depends only on origin + impulse | Implemented | ORIGIN-0012 |
+| [ORIGIN-D69](Log.ImpulseIII.md#origin-d69--validate-before-commit-structured-throughout) | Decision | Validate-before-commit, structured throughout | Implemented | ORIGIN-0012 |
+| [ORIGIN-D70](Log.ImpulseIII.md#origin-d70--foreground--sigquit) | Decision | Foreground + SIGQUIT | Implemented | ORIGIN-0012 |
+| [ORIGIN-D71](Log.ImpulseIII.md#origin-d71--readiness--serving-not-alive) | Decision | Readiness = serving, not alive | Implemented | ORIGIN-0012 |
+| [ORIGIN-D72](Log.ImpulseIII.md#origin-d72--graceful-degradation-without-nginx) | Decision | Graceful degradation without nginx | Implemented | ORIGIN-0012 |
+| [ORIGIN-D73](Log.ImpulseIII.md#origin-d73--handoff-is-an-impulse-protocol-not-a-core-mechanism) | Decision | Handoff is an Impulse protocol, not a core mechanism | Implemented | ORIGIN-0012 |
+| [ORIGIN-D74](Log.ImpulseIII.md#origin-d74--selective-by-stratum-volatile-strata-never-serialized) | Decision | Selective by stratum; volatile strata never serialized | Implemented | ORIGIN-0012 |
+| [ORIGIN-D75](Log.ImpulseIII.md#origin-d75--carrier-agnostic-datum) | Decision | Carrier-agnostic datum | Implemented | ORIGIN-0012 |
+| [ORIGIN-D76](Log.ImpulseIII.md#origin-d76--versioned-and-fail-safe) | Decision | Versioned and fail-safe | Implemented | ORIGIN-0012 |
+| [ORIGIN-D77](Log.ImpulseIII.md#origin-d77--preserve-selector-on-restart) | Decision | :preserve selector on restart | Implemented | ORIGIN-0012 |
 | [ORIGIN-DRAFT-concern-topologies-D1](Plan.ConcernTopologies.md#origin-draft-concern-topologies-d1--logical-overlays-first) | Decision | Logical overlays first | Proposed | ORIGIN-DRAFT-concern-topologies |
 | [ORIGIN-DRAFT-concern-topologies-D2](Plan.ConcernTopologies.md#origin-draft-concern-topologies-d2--concerns-as-data-not-infrastructure) | Decision | Concerns as data, not infrastructure | Proposed | ORIGIN-DRAFT-concern-topologies |
-| [ORIGIN-DRAFT-impulse-iii-D1](Log.ImpulseIII.md#origin-draft-impulse-iii-d1--sub-vocabulary-lives-in-the-lexter-repo-only-a-generic-registration-api-is-added-to-impulse) | Decision | Sub-vocabulary lives in the Lexter repo; only a generic registration API is added to Impulse | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-impulse-iii-D2](Log.ImpulseIII.md#origin-draft-impulse-iii-d2--configure-via-validate-speccommit-spec-specialization-not-a-new-verb-handler) | Decision | configure via validate-spec/commit-spec specialization, not a new verb handler | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-impulse-iii-D3](Log.ImpulseIII.md#origin-draft-impulse-iii-d3--live-apply-where-safe-rebuild-spec-always) | Decision | Live-apply where safe; rebuild-spec always | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-impulse-iii-D4](Log.ImpulseIII.md#origin-draft-impulse-iii-d4--orbital-per-window--target-selection-not-an-intra-orbital-window-selector) | Decision | Orbital-per-window + target selection, not an intra-orbital window selector | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-impulse-iii-D5](Log.ImpulseIII.md#origin-draft-impulse-iii-d5--the-adapter-not-the-program-is-the-orbital) | Decision | The adapter, not the program, is the orbital | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-impulse-iii-D6](Log.ImpulseIII.md#origin-draft-impulse-iii-d6--mod-add-on-depends-only-on-origin--impulse) | Decision | mod/ add-on, depends only on origin + impulse | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-impulse-iii-D7](Log.ImpulseIII.md#origin-draft-impulse-iii-d7--validate-before-commit-structured-throughout) | Decision | Validate-before-commit, structured throughout | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-impulse-iii-D8](Log.ImpulseIII.md#origin-draft-impulse-iii-d8--foreground--sigquit) | Decision | Foreground + SIGQUIT | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-impulse-iii-D9](Log.ImpulseIII.md#origin-draft-impulse-iii-d9--readiness--serving-not-alive) | Decision | Readiness = serving, not alive | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-impulse-iii-D10](Log.ImpulseIII.md#origin-draft-impulse-iii-d10--graceful-degradation-without-nginx) | Decision | Graceful degradation without nginx | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-impulse-iii-D11](Log.ImpulseIII.md#origin-draft-impulse-iii-d11--handoff-is-an-impulse-protocol-not-a-core-mechanism) | Decision | Handoff is an Impulse protocol, not a core mechanism | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-impulse-iii-D12](Log.ImpulseIII.md#origin-draft-impulse-iii-d12--selective-by-stratum-volatile-strata-never-serialized) | Decision | Selective by stratum; volatile strata never serialized | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-impulse-iii-D13](Log.ImpulseIII.md#origin-draft-impulse-iii-d13--carrier-agnostic-datum) | Decision | Carrier-agnostic datum | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-impulse-iii-D14](Log.ImpulseIII.md#origin-draft-impulse-iii-d14--versioned-and-fail-safe) | Decision | Versioned and fail-safe | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-impulse-iii-D15](Log.ImpulseIII.md#origin-draft-impulse-iii-d15--preserve-selector-on-restart) | Decision | :preserve selector on restart | Proposed | ORIGIN-DRAFT-impulse-iii |
 | [ORIGIN-DRAFT-user-facing-surfaces-D1](Plan.UserFacingSurfaces.md#origin-draft-user-facing-surfaces-d1--surfaces-produced-from-a-common-representational-layer) | Decision | Surfaces produced from a common representational layer | Proposed | ORIGIN-DRAFT-user-facing-surfaces |
 | [ORIGIN-DRAFT-user-facing-surfaces-D2](Plan.UserFacingSurfaces.md#origin-draft-user-facing-surfaces-d2--focus-driven-workload-management-via-compositor-as-orbital) | Decision | Focus-driven workload management via compositor-as-orbital | Proposed | ORIGIN-DRAFT-user-facing-surfaces |
 | [ORIGIN-O1](Survey.BrowserAsOrbital.md#origin-o1--history-orbital-schema-and-storage) | Open question | History orbital schema and storage | — | ORIGIN-DRAFT-browser-as-orbital |

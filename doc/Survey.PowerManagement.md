@@ -14,7 +14,7 @@ relates-to:
   - ORIGIN-DRAFT-user-facing-surfaces
   - ORIGIN-DRAFT-concern-topologies
   - ORIGIN-0008
-  - ORIGIN-DRAFT-impulse-iii
+  - ORIGIN-0012
   - ORIGIN-DRAFT-browser-as-orbital
   - ORIGIN-DRAFT-game-image
 open-questions:
@@ -96,7 +96,7 @@ node-to-cgroup alignment of
 the focus-driven workload management of
 [ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md#focus-driven-workload-management),
 and the restart state handoff of
-[ORIGIN-DRAFT-impulse-iii](Log.ImpulseIII.md#phase-9--restart-state-handoff-handofflisp).
+[ORIGIN-0012](Log.ImpulseIII.md#phase-9--restart-state-handoff-handofflisp).
 
 ## Motivation
 
@@ -346,7 +346,7 @@ focus-driven workload management of
 the concern model of
 [ORIGIN-DRAFT-concern-topologies](Plan.ConcernTopologies.md) for deferred
 work. Hibernating an orbital reuses the restart handoff recorded in
-[ORIGIN-DRAFT-impulse-iii](Log.ImpulseIII.md), and Origin's polling is the
+[ORIGIN-0012](Log.ImpulseIII.md), and Origin's polling is the
 consequence of a decision recorded in
 [ORIGIN-0008](Log.ImpulseII.md). Freezing background browser
 sessions is the main payoff for

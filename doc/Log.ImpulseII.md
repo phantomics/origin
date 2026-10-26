@@ -15,7 +15,7 @@ provenance:
   assistant:   opencode
 relates-to:
   - ORIGIN-0006
-  - ORIGIN-DRAFT-impulse-iii
+  - ORIGIN-0012
   - ORIGIN-0003
 decisions:
   - ORIGIN-D46
