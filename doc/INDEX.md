@@ -20,13 +20,13 @@ Table: Documents in the ORIGIN namespace.
 | [ORIGIN-0008](Log.ImpulseII.md) | Impulse, Part II (Phases 4-6): Development Log | Log | project | Implemented | impulse |
 | [ORIGIN-0009](Log.Dependencies.md) | Orbital Dependencies & Ordered Lifecycle: Development Log | Log | project | Implemented | core |
 | [ORIGIN-0010](Plan.Orchestration.md) | Origin as a Recursive Orchestrator (Fleet Tier): Development Plan | Plan | project | Accepted | — |
+| [ORIGIN-0011](Plan.Placement.md) | Origin Placement and Topology: Development Plan | Plan | project | Accepted | — |
 | [ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md) | The Browser as Orbital: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-compass-migration-log](Log.CompassMigration.md) | Compass Migration: Development Log | Log | project | Draft | — |
 | [ORIGIN-DRAFT-concern-topologies](Plan.ConcernTopologies.md) | Concern Topologies: Development Plan | Plan | project | Draft | — |
 | [ORIGIN-DRAFT-game-image](Survey.GameImage.md) | Dedicated Game Images: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-granularity-and-image](Survey.GranularityAndImage.md) | Granularity and the Image Model: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-impulse-iii](Log.ImpulseIII.md) | Impulse, Part III (Phases 7-9): Development Log | Log | project | Draft | impulse |
-| [ORIGIN-DRAFT-placement](Plan.Placement.md) | Origin Placement and Topology: Development Plan | Plan | project | Draft | — |
 | [ORIGIN-DRAFT-power-management](Survey.PowerManagement.md) | Power Management: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md) | Origin User-Facing Surfaces: Development Plan | Plan | project | Draft | — |
 
@@ -94,6 +94,8 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-D58](Log.ImpulseII.md#origin-d58--streamslisp-loads-before-apicodectransport) | Decision | streams.lisp loads before api/codec/transport | Accepted | ORIGIN-0008 |
 | [ORIGIN-D59](Plan.Orchestration.md#origin-d59--scope-personal--small-fleet-transparency-first) | Decision | Scope: personal / small fleet, transparency-first | Accepted | ORIGIN-0010 |
 | [ORIGIN-D60](Plan.Orchestration.md#origin-d60--borrow-dont-build-for-scheduling-networking-and-storage) | Decision | Borrow, don't build for scheduling, networking, and storage | Accepted | ORIGIN-0010 |
+| [ORIGIN-D61](Plan.Placement.md#origin-d61--placement-is-a-pure-function) | Decision | Placement is a pure function | Accepted | ORIGIN-0011 |
+| [ORIGIN-D62](Plan.Placement.md#origin-d62--filter-then-score-baseline-solver) | Decision | Filter-then-score baseline solver | Accepted | ORIGIN-0011 |
 | [ORIGIN-DRAFT-concern-topologies-D1](Plan.ConcernTopologies.md#origin-draft-concern-topologies-d1--logical-overlays-first) | Decision | Logical overlays first | Proposed | ORIGIN-DRAFT-concern-topologies |
 | [ORIGIN-DRAFT-concern-topologies-D2](Plan.ConcernTopologies.md#origin-draft-concern-topologies-d2--concerns-as-data-not-infrastructure) | Decision | Concerns as data, not infrastructure | Proposed | ORIGIN-DRAFT-concern-topologies |
 | [ORIGIN-DRAFT-impulse-iii-D1](Log.ImpulseIII.md#origin-draft-impulse-iii-d1--sub-vocabulary-lives-in-the-lexter-repo-only-a-generic-registration-api-is-added-to-impulse) | Decision | Sub-vocabulary lives in the Lexter repo; only a generic registration API is added to Impulse | Proposed | ORIGIN-DRAFT-impulse-iii |
@@ -111,8 +113,6 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-DRAFT-impulse-iii-D13](Log.ImpulseIII.md#origin-draft-impulse-iii-d13--carrier-agnostic-datum) | Decision | Carrier-agnostic datum | Proposed | ORIGIN-DRAFT-impulse-iii |
 | [ORIGIN-DRAFT-impulse-iii-D14](Log.ImpulseIII.md#origin-draft-impulse-iii-d14--versioned-and-fail-safe) | Decision | Versioned and fail-safe | Proposed | ORIGIN-DRAFT-impulse-iii |
 | [ORIGIN-DRAFT-impulse-iii-D15](Log.ImpulseIII.md#origin-draft-impulse-iii-d15--preserve-selector-on-restart) | Decision | :preserve selector on restart | Proposed | ORIGIN-DRAFT-impulse-iii |
-| [ORIGIN-DRAFT-placement-D1](Plan.Placement.md#origin-draft-placement-d1--placement-is-a-pure-function) | Decision | Placement is a pure function | Proposed | ORIGIN-DRAFT-placement |
-| [ORIGIN-DRAFT-placement-D2](Plan.Placement.md#origin-draft-placement-d2--filter-then-score-baseline-solver) | Decision | Filter-then-score baseline solver | Proposed | ORIGIN-DRAFT-placement |
 | [ORIGIN-DRAFT-user-facing-surfaces-D1](Plan.UserFacingSurfaces.md#origin-draft-user-facing-surfaces-d1--surfaces-produced-from-a-common-representational-layer) | Decision | Surfaces produced from a common representational layer | Proposed | ORIGIN-DRAFT-user-facing-surfaces |
 | [ORIGIN-DRAFT-user-facing-surfaces-D2](Plan.UserFacingSurfaces.md#origin-draft-user-facing-surfaces-d2--focus-driven-workload-management-via-compositor-as-orbital) | Decision | Focus-driven workload management via compositor-as-orbital | Proposed | ORIGIN-DRAFT-user-facing-surfaces |
 | [ORIGIN-O1](Survey.BrowserAsOrbital.md#origin-o1--history-orbital-schema-and-storage) | Open question | History orbital schema and storage | — | ORIGIN-DRAFT-browser-as-orbital |
@@ -153,6 +153,16 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-O36](Plan.Orchestration.md#origin-o36--placement-model) | Open question | Placement model | — | ORIGIN-0010 |
 | [ORIGIN-O37](Plan.Orchestration.md#origin-o37--borrowed-networking-choice) | Open question | Borrowed-networking choice | — | ORIGIN-0010 |
 | [ORIGIN-O38](Plan.Orchestration.md#origin-o38--opaque-guest-ux) | Open question | Opaque-guest UX | — | ORIGIN-0010 |
+| [ORIGIN-O39](Plan.Placement.md#origin-o39--dsl-surface) | Open question | DSL surface | — | ORIGIN-0011 |
+| [ORIGIN-O40](Plan.Placement.md#origin-o40--demand-model) | Open question | Demand model | — | ORIGIN-0011 |
+| [ORIGIN-O41](Plan.Placement.md#origin-o41--scoring-weights) | Open question | Scoring weights | — | ORIGIN-0011 |
+| [ORIGIN-O42](Plan.Placement.md#origin-o42--infeasibility-output) | Open question | Infeasibility output | — | ORIGIN-0011 |
+| [ORIGIN-O43](Plan.Placement.md#origin-o43--pet-redundancy-boundary) | Open question | Pet redundancy boundary | — | ORIGIN-0011 |
+| [ORIGIN-O44](Plan.Placement.md#origin-o44--reconciler-design) | Open question | Reconciler design | — | ORIGIN-0011 |
+| [ORIGIN-O45](Plan.Placement.md#origin-o45--re-placement-triggers) | Open question | Re-placement triggers | — | ORIGIN-0011 |
+| [ORIGIN-O46](Plan.Placement.md#origin-o46--scale-thresholds) | Open question | Scale thresholds | — | ORIGIN-0011 |
+| [ORIGIN-O47](Plan.Placement.md#origin-o47--multi-tenancy-and-governance) | Open question | Multi-tenancy and governance | — | ORIGIN-0011 |
+| [ORIGIN-O48](Plan.Placement.md#origin-o48--learned-demand-integration) | Open question | Learned-demand integration | — | ORIGIN-0011 |
 | [ORIGIN-DRAFT-concern-topologies-O1](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o1--concern-dsl-surface) | Open question | Concern DSL surface | — | ORIGIN-DRAFT-concern-topologies |
 | [ORIGIN-DRAFT-concern-topologies-O2](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o2--density-model) | Open question | Density model | — | ORIGIN-DRAFT-concern-topologies |
 | [ORIGIN-DRAFT-concern-topologies-O3](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o3--event-driven-concerns) | Open question | Event-driven concerns | — | ORIGIN-DRAFT-concern-topologies |
@@ -164,16 +174,6 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-DRAFT-game-image-O3](Survey.GameImage.md#origin-draft-game-image-o3--attestation-protocol-specifics) | Open question | Attestation protocol specifics | — | ORIGIN-DRAFT-game-image |
 | [ORIGIN-DRAFT-game-image-O4](Survey.GameImage.md#origin-draft-game-image-o4--state-persistence-across-crashes) | Open question | State persistence across crashes | — | ORIGIN-DRAFT-game-image |
 | [ORIGIN-DRAFT-game-image-O5](Survey.GameImage.md#origin-draft-game-image-o5--non-cl-game-support) | Open question | Non-CL game support | — | ORIGIN-DRAFT-game-image |
-| [ORIGIN-DRAFT-placement-O1](Plan.Placement.md#origin-draft-placement-o1--dsl-surface) | Open question | DSL surface | — | ORIGIN-DRAFT-placement |
-| [ORIGIN-DRAFT-placement-O2](Plan.Placement.md#origin-draft-placement-o2--demand-model) | Open question | Demand model | — | ORIGIN-DRAFT-placement |
-| [ORIGIN-DRAFT-placement-O3](Plan.Placement.md#origin-draft-placement-o3--scoring-weights) | Open question | Scoring weights | — | ORIGIN-DRAFT-placement |
-| [ORIGIN-DRAFT-placement-O4](Plan.Placement.md#origin-draft-placement-o4--infeasibility-output) | Open question | Infeasibility output | — | ORIGIN-DRAFT-placement |
-| [ORIGIN-DRAFT-placement-O5](Plan.Placement.md#origin-draft-placement-o5--pet-redundancy-boundary) | Open question | Pet redundancy boundary | — | ORIGIN-DRAFT-placement |
-| [ORIGIN-DRAFT-placement-O6](Plan.Placement.md#origin-draft-placement-o6--reconciler-design) | Open question | Reconciler design | — | ORIGIN-DRAFT-placement |
-| [ORIGIN-DRAFT-placement-O7](Plan.Placement.md#origin-draft-placement-o7--re-placement-triggers) | Open question | Re-placement triggers | — | ORIGIN-DRAFT-placement |
-| [ORIGIN-DRAFT-placement-O8](Plan.Placement.md#origin-draft-placement-o8--scale-thresholds) | Open question | Scale thresholds | — | ORIGIN-DRAFT-placement |
-| [ORIGIN-DRAFT-placement-O9](Plan.Placement.md#origin-draft-placement-o9--multi-tenancy-and-governance) | Open question | Multi-tenancy and governance | — | ORIGIN-DRAFT-placement |
-| [ORIGIN-DRAFT-placement-O10](Plan.Placement.md#origin-draft-placement-o10--learned-demand-integration) | Open question | Learned-demand integration | — | ORIGIN-DRAFT-placement |
 | [ORIGIN-DRAFT-power-management-O1](Survey.PowerManagement.md#origin-draft-power-management-o1--event-driven-supervision) | Open question | Event-driven supervision | — | ORIGIN-DRAFT-power-management |
 | [ORIGIN-DRAFT-power-management-O2](Survey.PowerManagement.md#origin-draft-power-management-o2--cooperative-parking-for-thread-orbitals) | Open question | Cooperative parking for thread orbitals | — | ORIGIN-DRAFT-power-management |
 | [ORIGIN-DRAFT-power-management-O3](Survey.PowerManagement.md#origin-draft-power-management-o3--assertion-vocabulary) | Open question | Assertion vocabulary | — | ORIGIN-DRAFT-power-management |

@@ -18,7 +18,7 @@ relates-to:
   - ORIGIN-0005
   - ORIGIN-0004
   - ORIGIN-0010
-  - ORIGIN-DRAFT-placement
+  - ORIGIN-0011
 decisions:
   - ORIGIN-D35
   - ORIGIN-D36

@@ -14,7 +14,7 @@ relates-to:
   - ORIGIN-0007
   - ORIGIN-DRAFT-granularity-and-image
   - ORIGIN-DRAFT-concern-topologies
-  - ORIGIN-DRAFT-placement
+  - ORIGIN-0011
 open-questions:
   - ORIGIN-DRAFT-game-image-O1
   - ORIGIN-DRAFT-game-image-O2

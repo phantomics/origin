@@ -18,7 +18,7 @@ relates-to:
   - ORIGIN-0005
   - ORIGIN-0007
   - ORIGIN-DRAFT-user-facing-surfaces
-  - ORIGIN-DRAFT-placement
+  - ORIGIN-0011
 decisions:
   - ORIGIN-D59
   - ORIGIN-D60

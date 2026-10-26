@@ -1,11 +1,15 @@
 ---
-id:            ORIGIN-DRAFT-placement
+id:            ORIGIN-0011
 title:         "Origin Placement and Topology: Development Plan"
 genre:         Plan
 scope:         project
 project:       Origin
 language:      en
-status:        Draft
+status:        Accepted
+authors:
+  - Andrew Sengul
+approved-by:   Andrew Sengul
+reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:
@@ -13,19 +17,19 @@ relates-to:
   - ORIGIN-0007
   - ORIGIN-0004
 decisions:
-  - ORIGIN-DRAFT-placement-D1
-  - ORIGIN-DRAFT-placement-D2
+  - ORIGIN-D61
+  - ORIGIN-D62
 open-questions:
-  - ORIGIN-DRAFT-placement-O1
-  - ORIGIN-DRAFT-placement-O2
-  - ORIGIN-DRAFT-placement-O3
-  - ORIGIN-DRAFT-placement-O4
-  - ORIGIN-DRAFT-placement-O5
-  - ORIGIN-DRAFT-placement-O6
-  - ORIGIN-DRAFT-placement-O7
-  - ORIGIN-DRAFT-placement-O8
-  - ORIGIN-DRAFT-placement-O9
-  - ORIGIN-DRAFT-placement-O10
+  - ORIGIN-O39
+  - ORIGIN-O40
+  - ORIGIN-O41
+  - ORIGIN-O42
+  - ORIGIN-O43
+  - ORIGIN-O44
+  - ORIGIN-O45
+  - ORIGIN-O46
+  - ORIGIN-O47
+  - ORIGIN-O48
 ---
 
 # Origin Placement and Topology: Development Plan
@@ -50,9 +54,9 @@ reconciler is sketched but deferred. No implementation has begun.
 
 ## Settled Decisions
 
-### ORIGIN-DRAFT-placement-D1 — Placement is a pure function
+### ORIGIN-D61 — Placement is a pure function
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Placement could be a pure function or interleaved with
 enactment.
@@ -65,9 +69,9 @@ infeasibilities.
 **Alternatives:** Interleave placement with enactment. Rejected: mixing pure
 reasoning with side effects.
 
-### ORIGIN-DRAFT-placement-D2 — Filter-then-score baseline solver
+### ORIGIN-D62 — Filter-then-score baseline solver
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The solver could be optimal (SAT/SMT), heuristic, or learned.
 
@@ -457,53 +461,53 @@ Table: Prior art and what to draw from each.
 
 ## Open Questions
 
-### ORIGIN-DRAFT-placement-O1 — DSL surface
+### ORIGIN-O39 — DSL surface
 
 Final macro forms for `stateless`/`stateful` units, constraints, edges, and
 the manifest; how roles/tiers compose.
 
-### ORIGIN-DRAFT-placement-O2 — Demand model
+### ORIGIN-O40 — Demand model
 
 Static `:demand` declarations vs. measured/profiled demand, and how the
 placer treats uncertainty.
 
-### ORIGIN-DRAFT-placement-O3 — Scoring weights
+### ORIGIN-O41 — Scoring weights
 
 How balance, locality, and churn are weighted, and whether weights are
 policy a user can express.
 
-### ORIGIN-DRAFT-placement-O4 — Infeasibility output
+### ORIGIN-O42 — Infeasibility output
 
 The structured shape of "why not" and how it suggests minimal manifest
 changes.
 
-### ORIGIN-DRAFT-placement-O5 — Pet redundancy boundary
+### ORIGIN-O43 — Pet redundancy boundary
 
 Exactly where Origin's placement of stateful instances ends and the
 service's own replication begins.
 
-### ORIGIN-DRAFT-placement-O6 — Reconciler design
+### ORIGIN-O44 — Reconciler design
 
 The deferred impure layer: diffing, transition plans (C1), and integration
 with Impulse and borrowed runtimes.
 
-### ORIGIN-DRAFT-placement-O7 — Re-placement triggers
+### ORIGIN-O45 — Re-placement triggers
 
 When `place` re-runs (manifest change, node failure) and who
 authoritatively decides under partition.
 
-### ORIGIN-DRAFT-placement-O8 — Scale thresholds
+### ORIGIN-O46 — Scale thresholds
 
 The node counts and fan-out at which hierarchy becomes mandatory and
 control-plane HA stops being deferrable.
 
-### ORIGIN-DRAFT-placement-O9 — Multi-tenancy and governance
+### ORIGIN-O47 — Multi-tenancy and governance
 
 Mapping labs / trust domains onto subordinate Origin domains, with
 per-domain tier policy, audit, and compliance attestation (e.g. for
 regulated medical research).
 
-### ORIGIN-DRAFT-placement-O10 — Learned-demand integration
+### ORIGIN-O48 — Learned-demand integration
 
 Feeding Origin's telemetry into a demand predictor and a score-weight tuner
 without compromising the pure placer's feasibility guarantees and

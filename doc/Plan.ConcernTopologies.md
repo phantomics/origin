@@ -12,7 +12,7 @@ relates-to:
   - ORIGIN-0006
   - ORIGIN-0002
   - ORIGIN-0010
-  - ORIGIN-DRAFT-placement
+  - ORIGIN-0011
 decisions:
   - ORIGIN-DRAFT-concern-topologies-D1
   - ORIGIN-DRAFT-concern-topologies-D2
@@ -42,7 +42,7 @@ the system. It assumes the Impulse control vocabulary
 ([ORIGIN-0006](Log.ImpulseI.md)), the recursive node model
 ([ORIGIN-0002](Log.OrbitalImages.md)), the fleet tier
 ([ORIGIN-0010](Plan.Orchestration.md)), and the topology
-DSL ([ORIGIN-DRAFT-placement](Plan.Placement.md)).
+DSL ([ORIGIN-0011](Plan.Placement.md)).
 
 **Date:** 2026-06-22
 

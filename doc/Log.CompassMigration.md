@@ -188,7 +188,7 @@ D-records; 6 O-records. 3 table captions.
 **[ORIGIN-0010](Plan.Orchestration.md).** 2 D-records
 extracted from "decided" markers in Scope. 8 O-records. 3 table captions.
 
-**[ORIGIN-DRAFT-placement](Plan.Placement.md).** 2 D-records extracted
+**[ORIGIN-0011](Plan.Placement.md).** 2 D-records extracted
 from "keystone design decision" and "chosen baseline" markers. 10
 O-records. 5 table captions.
 
