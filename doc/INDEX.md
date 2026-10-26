@@ -26,7 +26,7 @@ Table: Documents in the ORIGIN namespace.
 | [ORIGIN-0014](Plan.ConcernTopologies.md) | Concern Topologies: Development Plan | Plan | project | Accepted | — |
 | [ORIGIN-0015](Survey.GameImage.md) | Dedicated Game Images: Survey | Survey | project | Accepted | — |
 | [ORIGIN-0016](Survey.BrowserAsOrbital.md) | The Browser as Orbital: Survey | Survey | project | Accepted | — |
-| [ORIGIN-DRAFT-compass-migration-log](Log.CompassMigration.md) | Compass Migration: Development Log | Log | project | Draft | — |
+| [ORIGIN-0017](Log.CompassMigration.md) | Compass Migration: Development Log | Log | project | Implemented | — |
 | [ORIGIN-DRAFT-power-management](Survey.PowerManagement.md) | Power Management: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md) | Origin User-Facing Surfaces: Development Plan | Plan | project | Draft | — |
 
