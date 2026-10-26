@@ -23,9 +23,9 @@ Table: Documents in the ORIGIN namespace.
 | [ORIGIN-0011](Plan.Placement.md) | Origin Placement and Topology: Development Plan | Plan | project | Accepted | — |
 | [ORIGIN-0012](Log.ImpulseIII.md) | Impulse, Part III (Phases 7-9): Development Log | Log | project | Implemented | impulse |
 | [ORIGIN-0013](Survey.GranularityAndImage.md) | Granularity and the Image Model: Survey | Survey | project | Accepted | — |
+| [ORIGIN-0014](Plan.ConcernTopologies.md) | Concern Topologies: Development Plan | Plan | project | Accepted | — |
 | [ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md) | The Browser as Orbital: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-compass-migration-log](Log.CompassMigration.md) | Compass Migration: Development Log | Log | project | Draft | — |
-| [ORIGIN-DRAFT-concern-topologies](Plan.ConcernTopologies.md) | Concern Topologies: Development Plan | Plan | project | Draft | — |
 | [ORIGIN-DRAFT-game-image](Survey.GameImage.md) | Dedicated Game Images: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-power-management](Survey.PowerManagement.md) | Power Management: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md) | Origin User-Facing Surfaces: Development Plan | Plan | project | Draft | — |
@@ -111,8 +111,8 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-D75](Log.ImpulseIII.md#origin-d75--carrier-agnostic-datum) | Decision | Carrier-agnostic datum | Implemented | ORIGIN-0012 |
 | [ORIGIN-D76](Log.ImpulseIII.md#origin-d76--versioned-and-fail-safe) | Decision | Versioned and fail-safe | Implemented | ORIGIN-0012 |
 | [ORIGIN-D77](Log.ImpulseIII.md#origin-d77--preserve-selector-on-restart) | Decision | :preserve selector on restart | Implemented | ORIGIN-0012 |
-| [ORIGIN-DRAFT-concern-topologies-D1](Plan.ConcernTopologies.md#origin-draft-concern-topologies-d1--logical-overlays-first) | Decision | Logical overlays first | Proposed | ORIGIN-DRAFT-concern-topologies |
-| [ORIGIN-DRAFT-concern-topologies-D2](Plan.ConcernTopologies.md#origin-draft-concern-topologies-d2--concerns-as-data-not-infrastructure) | Decision | Concerns as data, not infrastructure | Proposed | ORIGIN-DRAFT-concern-topologies |
+| [ORIGIN-D78](Plan.ConcernTopologies.md#origin-d78--logical-overlays-first) | Decision | Logical overlays first | Proposed | ORIGIN-0014 |
+| [ORIGIN-D79](Plan.ConcernTopologies.md#origin-d79--concerns-as-data-not-infrastructure) | Decision | Concerns as data, not infrastructure | Proposed | ORIGIN-0014 |
 | [ORIGIN-DRAFT-user-facing-surfaces-D1](Plan.UserFacingSurfaces.md#origin-draft-user-facing-surfaces-d1--surfaces-produced-from-a-common-representational-layer) | Decision | Surfaces produced from a common representational layer | Proposed | ORIGIN-DRAFT-user-facing-surfaces |
 | [ORIGIN-DRAFT-user-facing-surfaces-D2](Plan.UserFacingSurfaces.md#origin-draft-user-facing-surfaces-d2--focus-driven-workload-management-via-compositor-as-orbital) | Decision | Focus-driven workload management via compositor-as-orbital | Proposed | ORIGIN-DRAFT-user-facing-surfaces |
 | [ORIGIN-O1](Survey.BrowserAsOrbital.md#origin-o1--history-orbital-schema-and-storage) | Open question | History orbital schema and storage | — | ORIGIN-DRAFT-browser-as-orbital |
@@ -163,12 +163,12 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-O46](Plan.Placement.md#origin-o46--scale-thresholds) | Open question | Scale thresholds | — | ORIGIN-0011 |
 | [ORIGIN-O47](Plan.Placement.md#origin-o47--multi-tenancy-and-governance) | Open question | Multi-tenancy and governance | — | ORIGIN-0011 |
 | [ORIGIN-O48](Plan.Placement.md#origin-o48--learned-demand-integration) | Open question | Learned-demand integration | — | ORIGIN-0011 |
-| [ORIGIN-DRAFT-concern-topologies-O1](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o1--concern-dsl-surface) | Open question | Concern DSL surface | — | ORIGIN-DRAFT-concern-topologies |
-| [ORIGIN-DRAFT-concern-topologies-O2](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o2--density-model) | Open question | Density model | — | ORIGIN-DRAFT-concern-topologies |
-| [ORIGIN-DRAFT-concern-topologies-O3](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o3--event-driven-concerns) | Open question | Event-driven concerns | — | ORIGIN-DRAFT-concern-topologies |
-| [ORIGIN-DRAFT-concern-topologies-O4](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o4--concern-results-and-aggregation) | Open question | Concern results and aggregation | — | ORIGIN-DRAFT-concern-topologies |
-| [ORIGIN-DRAFT-concern-topologies-O5](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o5--cross-concern-interaction) | Open question | Cross-concern interaction | — | ORIGIN-DRAFT-concern-topologies |
-| [ORIGIN-DRAFT-concern-topologies-O6](Plan.ConcernTopologies.md#origin-draft-concern-topologies-o6--physical-escalation-criteria) | Open question | Physical-escalation criteria | — | ORIGIN-DRAFT-concern-topologies |
+| [ORIGIN-O49](Plan.ConcernTopologies.md#origin-o49--concern-dsl-surface) | Open question | Concern DSL surface | — | ORIGIN-0014 |
+| [ORIGIN-O50](Plan.ConcernTopologies.md#origin-o50--density-model) | Open question | Density model | — | ORIGIN-0014 |
+| [ORIGIN-O51](Plan.ConcernTopologies.md#origin-o51--event-driven-concerns) | Open question | Event-driven concerns | — | ORIGIN-0014 |
+| [ORIGIN-O52](Plan.ConcernTopologies.md#origin-o52--concern-results-and-aggregation) | Open question | Concern results and aggregation | — | ORIGIN-0014 |
+| [ORIGIN-O53](Plan.ConcernTopologies.md#origin-o53--cross-concern-interaction) | Open question | Cross-concern interaction | — | ORIGIN-0014 |
+| [ORIGIN-O54](Plan.ConcernTopologies.md#origin-o54--physical-escalation-criteria) | Open question | Physical-escalation criteria | — | ORIGIN-0014 |
 | [ORIGIN-DRAFT-game-image-O1](Survey.GameImage.md#origin-draft-game-image-o1--saved-core-build-pipeline) | Open question | Saved-core build pipeline | — | ORIGIN-DRAFT-game-image |
 | [ORIGIN-DRAFT-game-image-O2](Survey.GameImage.md#origin-draft-game-image-o2--gpu-scheduling-integration) | Open question | GPU scheduling integration | — | ORIGIN-DRAFT-game-image |
 | [ORIGIN-DRAFT-game-image-O3](Survey.GameImage.md#origin-draft-game-image-o3--attestation-protocol-specifics) | Open question | Attestation protocol specifics | — | ORIGIN-DRAFT-game-image |

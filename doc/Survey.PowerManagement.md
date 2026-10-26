@@ -12,7 +12,7 @@ relates-to:
   - ORIGIN-0013
   - ORIGIN-0007
   - ORIGIN-DRAFT-user-facing-surfaces
-  - ORIGIN-DRAFT-concern-topologies
+  - ORIGIN-0014
   - ORIGIN-0008
   - ORIGIN-0012
   - ORIGIN-DRAFT-browser-as-orbital
@@ -182,7 +182,7 @@ Table: Power-management mechanisms on other platforms and in Linux userspace, th
 | App Nap (macOS) | focus and visibility signals from a compositor orbital ([ORIGIN-DRAFT-user-facing-surfaces-D2](Plan.UserFacingSurfaces.md#origin-draft-user-facing-surfaces-d2--focus-driven-workload-management-via-compositor-as-orbital)) | `cpu.max`, timer slack, the freezer |
 | App Standby Buckets (Android) | classes of orbital and meta-orbital named in a power profile | per-node cgroup limits |
 | Cached-apps freezer (Android) | freezing a node or meta-orbital | `cgroup.freeze` on the node's subtree |
-| Deferred background scheduling (macOS, Doze) | a power concern whose cadence follows power state ([ORIGIN-DRAFT-concern-topologies](Plan.ConcernTopologies.md#the-concern-model-sketch)) | none needed; policy |
+| Deferred background scheduling (macOS, Doze) | a power concern whose cadence follows power state ([ORIGIN-0014](Plan.ConcernTopologies.md#the-concern-model-sketch)) | none needed; policy |
 | On-demand launch and idle exit (launchd) | start-on-demand with idle stop ([ORIGIN-0007](Plan.LinuxServiceManager.md#dependency-ordering-and-readiness-c1c2)), made cheap by saved-core boot | none needed; policy |
 | Power assertions (macOS) | an assertion an orbital declares through Impulse | logind inhibitor locks for sleep and idle; otherwise policy |
 | Game modes (GameMode on Linux) | promotion of a focused orbital ([ORIGIN-DRAFT-game-image](Survey.GameImage.md#wlm-integrated-resource-priority)) | `cpu.weight`, `cpu.uclamp.min`, the CPU governor |
@@ -208,7 +208,7 @@ properties follow from the hierarchy:
   might never be throttled while unlocked), and a single orbital can opt
   out with an assertion.
 - **Deferral through a concern.** A power concern, in the sense of
-  [ORIGIN-DRAFT-concern-topologies](Plan.ConcernTopologies.md#thesis),
+  [ORIGIN-0014](Plan.ConcernTopologies.md#thesis),
   holds discretionary work (indexing, digest generation, synchronization)
   until the machine is on mains power or idle, the role macOS's background
   scheduler plays.
@@ -344,7 +344,7 @@ demand-start direction of
 focus-driven workload management of
 [ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md), and on
 the concern model of
-[ORIGIN-DRAFT-concern-topologies](Plan.ConcernTopologies.md) for deferred
+[ORIGIN-0014](Plan.ConcernTopologies.md) for deferred
 work. Hibernating an orbital reuses the restart handoff recorded in
 [ORIGIN-0012](Log.ImpulseIII.md), and Origin's polling is the
 consequence of a decision recorded in

@@ -1,11 +1,15 @@
 ---
-id:            ORIGIN-DRAFT-concern-topologies
+id:            ORIGIN-0014
 title:         "Concern Topologies: Development Plan"
 genre:         Plan
 scope:         project
 project:       Origin
 language:      en
-status:        Draft
+status:        Accepted
+authors:
+  - Andrew Sengul
+approved-by:   Andrew Sengul
+reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:
@@ -14,15 +18,15 @@ relates-to:
   - ORIGIN-0010
   - ORIGIN-0011
 decisions:
-  - ORIGIN-DRAFT-concern-topologies-D1
-  - ORIGIN-DRAFT-concern-topologies-D2
+  - ORIGIN-D78
+  - ORIGIN-D79
 open-questions:
-  - ORIGIN-DRAFT-concern-topologies-O1
-  - ORIGIN-DRAFT-concern-topologies-O2
-  - ORIGIN-DRAFT-concern-topologies-O3
-  - ORIGIN-DRAFT-concern-topologies-O4
-  - ORIGIN-DRAFT-concern-topologies-O5
-  - ORIGIN-DRAFT-concern-topologies-O6
+  - ORIGIN-O49
+  - ORIGIN-O50
+  - ORIGIN-O51
+  - ORIGIN-O52
+  - ORIGIN-O53
+  - ORIGIN-O54
 ---
 
 # Concern Topologies: Development Plan
@@ -97,7 +101,7 @@ The machinery exists; concerns are a structured way to drive it.
 
 ## Settled Decisions
 
-### ORIGIN-DRAFT-concern-topologies-D1 — Logical overlays first
+### ORIGIN-D78 — Logical overlays first
 
 **Status:** Proposed
 
@@ -112,7 +116,7 @@ requirement, not the default.
 
 **Alternatives:** None recorded.
 
-### ORIGIN-DRAFT-concern-topologies-D2 — Concerns as data, not infrastructure
+### ORIGIN-D79 — Concerns as data, not infrastructure
 
 **Status:** Proposed
 
@@ -253,34 +257,34 @@ Table: Prior art and what to draw from each.
 
 ## Open Questions
 
-### ORIGIN-DRAFT-concern-topologies-O1 — Concern DSL surface
+### ORIGIN-O49 — Concern DSL surface
 
 Final syntax for `define-concern`, its relationship to `define-topology`,
 and how selectors compose with placement labels.
 
-### ORIGIN-DRAFT-concern-topologies-O2 — Density model
+### ORIGIN-O50 — Density model
 
 How "dense" and "sparse" are quantified (every cycle vs. every Nth vs.
 probabilistic sampling), and whether density adapts dynamically (e.g.
 increase security scan density after a failed check).
 
-### ORIGIN-DRAFT-concern-topologies-O3 — Event-driven concerns
+### ORIGIN-O51 — Event-driven concerns
 
 Concerns triggered by signals (focus change, deploy event) rather than
 periodic cadence; how they integrate with Impulse's planned
 `watch`/subscription mechanism.
 
-### ORIGIN-DRAFT-concern-topologies-O4 — Concern results and aggregation
+### ORIGIN-O52 — Concern results and aggregation
 
 How scan results, health maps, and compliance attestations are collected,
 stored, and rendered in the dashboard surfaces.
 
-### ORIGIN-DRAFT-concern-topologies-O5 — Cross-concern interaction
+### ORIGIN-O53 — Cross-concern interaction
 
 Whether concerns can depend on each other (e.g. a deployment concern gates
 on the security concern's latest scan results).
 
-### ORIGIN-DRAFT-concern-topologies-O6 — Physical-escalation criteria
+### ORIGIN-O54 — Physical-escalation criteria
 
 The specific conditions under which a logical concern should graduate to a
 physically separate Origin instance.

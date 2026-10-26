@@ -12,7 +12,7 @@ relates-to:
   - ORIGIN-0013
   - ORIGIN-DRAFT-game-image
   - ORIGIN-0002
-  - ORIGIN-DRAFT-concern-topologies
+  - ORIGIN-0014
 open-questions:
   - ORIGIN-O1
   - ORIGIN-O2
