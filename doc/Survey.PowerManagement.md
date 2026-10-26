@@ -16,7 +16,7 @@ relates-to:
   - ORIGIN-0008
   - ORIGIN-0012
   - ORIGIN-DRAFT-browser-as-orbital
-  - ORIGIN-DRAFT-game-image
+  - ORIGIN-0015
 open-questions:
   - ORIGIN-DRAFT-power-management-O1
   - ORIGIN-DRAFT-power-management-O2
@@ -185,7 +185,7 @@ Table: Power-management mechanisms on other platforms and in Linux userspace, th
 | Deferred background scheduling (macOS, Doze) | a power concern whose cadence follows power state ([ORIGIN-0014](Plan.ConcernTopologies.md#the-concern-model-sketch)) | none needed; policy |
 | On-demand launch and idle exit (launchd) | start-on-demand with idle stop ([ORIGIN-0007](Plan.LinuxServiceManager.md#dependency-ordering-and-readiness-c1c2)), made cheap by saved-core boot | none needed; policy |
 | Power assertions (macOS) | an assertion an orbital declares through Impulse | logind inhibitor locks for sleep and idle; otherwise policy |
-| Game modes (GameMode on Linux) | promotion of a focused orbital ([ORIGIN-DRAFT-game-image](Survey.GameImage.md#wlm-integrated-resource-priority)) | `cpu.weight`, `cpu.uclamp.min`, the CPU governor |
+| Game modes (GameMode on Linux) | promotion of a focused orbital ([ORIGIN-0015](Survey.GameImage.md#wlm-integrated-resource-priority)) | `cpu.weight`, `cpu.uclamp.min`, the CPU governor |
 
 Where the third column names a mechanism, Linux already provides it, and
 none needs a kernel change; the other rows need only policy. What Origin
@@ -272,7 +272,7 @@ The same machinery runs in the other direction. A focused, demanding
 orbital, a game above all, can be promoted: a higher CPU weight, a raised
 utilization floor (`cpu.uclamp.min`), and a performance CPU governor
 while it holds focus, demoted again when it loses it.
-[ORIGIN-DRAFT-game-image](Survey.GameImage.md#wlm-integrated-resource-priority)
+[ORIGIN-0015](Survey.GameImage.md#wlm-integrated-resource-priority)
 describes this for dedicated game images. On Linux today, Feral
 Interactive's GameMode does it by request: a game asks the GameMode
 daemon to apply a set of optimizations (the CPU governor, I/O priority,
@@ -351,7 +351,7 @@ consequence of a decision recorded in
 [ORIGIN-0008](Log.ImpulseII.md). Freezing background browser
 sessions is the main payoff for
 [ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md), and the
-game image of [ORIGIN-DRAFT-game-image](Survey.GameImage.md) is the
+game image of [ORIGIN-0015](Survey.GameImage.md) is the
 opposite case: promotion of a focused orbital rather than demotion of a
 hidden one.
 

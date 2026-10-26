@@ -1,11 +1,15 @@
 ---
-id:            ORIGIN-DRAFT-game-image
+id:            ORIGIN-0015
 title:         "Dedicated Game Images: Survey"
 genre:         Survey
 scope:         project
 project:       Origin
 language:      en
-status:        Draft
+status:        Accepted
+authors:
+  - Andrew Sengul
+approved-by:   Andrew Sengul
+reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:
@@ -16,11 +20,11 @@ relates-to:
   - ORIGIN-0014
   - ORIGIN-0011
 open-questions:
-  - ORIGIN-DRAFT-game-image-O1
-  - ORIGIN-DRAFT-game-image-O2
-  - ORIGIN-DRAFT-game-image-O3
-  - ORIGIN-DRAFT-game-image-O4
-  - ORIGIN-DRAFT-game-image-O5
+  - ORIGIN-O55
+  - ORIGIN-O56
+  - ORIGIN-O57
+  - ORIGIN-O58
+  - ORIGIN-O59
 ---
 
 # Dedicated Game Images: Survey
@@ -254,29 +258,29 @@ Table: Game-image capabilities and the Origin primitives they compose.
 
 ## Open Questions
 
-### ORIGIN-DRAFT-game-image-O1 — Saved-core build pipeline
+### ORIGIN-O55 — Saved-core build pipeline
 
 How game images are built, hashed, signed, and distributed (ties to the
 ocicl/OCI direction from the founding discussion).
 
-### ORIGIN-DRAFT-game-image-O2 — GPU scheduling integration
+### ORIGIN-O56 — GPU scheduling integration
 
 Whether and how Origin can influence DRM/GPU scheduler priority beyond
 CPU/memory cgroup controls.
 
-### ORIGIN-DRAFT-game-image-O3 — Attestation protocol specifics
+### ORIGIN-O57 — Attestation protocol specifics
 
 The image-hash format, the Impulse query/response schema for integrity
 checks, and the server-side verification flow (deferred until a concrete
 game exists to protect).
 
-### ORIGIN-DRAFT-game-image-O4 — State persistence across crashes
+### ORIGIN-O58 — State persistence across crashes
 
 How much game state the integrity responder can checkpoint for
 crash-recovery (ties to the state-handoff direction in ControlVocabulary
 milestone 7).
 
-### ORIGIN-DRAFT-game-image-O5 — Non-CL game support
+### ORIGIN-O59 — Non-CL game support
 
 Whether the namespace-isolation and WLM benefits extend to non-CL games
 run through a tether (lifecycle and resource management yes; introspective

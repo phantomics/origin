@@ -16,7 +16,7 @@ relates-to:
   - ORIGIN-0002
   - ORIGIN-DRAFT-user-facing-surfaces
   - ORIGIN-0007
-  - ORIGIN-DRAFT-game-image
+  - ORIGIN-0015
 ---
 
 # Granularity and the Image Model: Survey

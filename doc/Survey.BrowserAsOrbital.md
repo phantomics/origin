@@ -10,7 +10,7 @@ provenance:
   assistant:   opencode
 relates-to:
   - ORIGIN-0013
-  - ORIGIN-DRAFT-game-image
+  - ORIGIN-0015
   - ORIGIN-0002
   - ORIGIN-0014
 open-questions:

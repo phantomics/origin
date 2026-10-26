@@ -111,8 +111,8 @@ Several Phase 2 shortfalls were corrected:
   name the file had at the time of the commit
   (ORIGIN-D6).
 - **GameImage open questions.** The five open questions in
-  [ORIGIN-DRAFT-game-image](Survey.GameImage.md) converted to
-  `ORIGIN-DRAFT-game-image-O1` through `-O5` records. Spine headings
+  [ORIGIN-0015](Survey.GameImage.md) converted to
+  `ORIGIN-O55` through `-O5` records. Spine headings
   renamed to "Relationship to Other Work" and "Open Questions".
 - **Title/H1 alignment.** Nine `title:` fields updated to match their
   H1 headings exactly.
@@ -206,7 +206,7 @@ captions.
 Spine headings capitalised ("The Shared Scenario", "The Rubric"). 7
 `Table:` captions.
 
-**[ORIGIN-DRAFT-game-image](Survey.GameImage.md).** 1 table caption.
+**[ORIGIN-0015](Survey.GameImage.md).** 1 table caption.
 `Description:` paragraph after the architectural-sketch ASCII tree.
 
 **[ORIGIN-0013](Survey.GranularityAndImage.md).**

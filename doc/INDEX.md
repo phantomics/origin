@@ -24,9 +24,9 @@ Table: Documents in the ORIGIN namespace.
 | [ORIGIN-0012](Log.ImpulseIII.md) | Impulse, Part III (Phases 7-9): Development Log | Log | project | Implemented | impulse |
 | [ORIGIN-0013](Survey.GranularityAndImage.md) | Granularity and the Image Model: Survey | Survey | project | Accepted | — |
 | [ORIGIN-0014](Plan.ConcernTopologies.md) | Concern Topologies: Development Plan | Plan | project | Accepted | — |
+| [ORIGIN-0015](Survey.GameImage.md) | Dedicated Game Images: Survey | Survey | project | Accepted | — |
 | [ORIGIN-DRAFT-browser-as-orbital](Survey.BrowserAsOrbital.md) | The Browser as Orbital: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-compass-migration-log](Log.CompassMigration.md) | Compass Migration: Development Log | Log | project | Draft | — |
-| [ORIGIN-DRAFT-game-image](Survey.GameImage.md) | Dedicated Game Images: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-power-management](Survey.PowerManagement.md) | Power Management: Survey | Survey | project | Draft | — |
 | [ORIGIN-DRAFT-user-facing-surfaces](Plan.UserFacingSurfaces.md) | Origin User-Facing Surfaces: Development Plan | Plan | project | Draft | — |
 
@@ -169,11 +169,11 @@ Table: Decision, open-question, and memo records in the ORIGIN namespace.
 | [ORIGIN-O52](Plan.ConcernTopologies.md#origin-o52--concern-results-and-aggregation) | Open question | Concern results and aggregation | — | ORIGIN-0014 |
 | [ORIGIN-O53](Plan.ConcernTopologies.md#origin-o53--cross-concern-interaction) | Open question | Cross-concern interaction | — | ORIGIN-0014 |
 | [ORIGIN-O54](Plan.ConcernTopologies.md#origin-o54--physical-escalation-criteria) | Open question | Physical-escalation criteria | — | ORIGIN-0014 |
-| [ORIGIN-DRAFT-game-image-O1](Survey.GameImage.md#origin-draft-game-image-o1--saved-core-build-pipeline) | Open question | Saved-core build pipeline | — | ORIGIN-DRAFT-game-image |
-| [ORIGIN-DRAFT-game-image-O2](Survey.GameImage.md#origin-draft-game-image-o2--gpu-scheduling-integration) | Open question | GPU scheduling integration | — | ORIGIN-DRAFT-game-image |
-| [ORIGIN-DRAFT-game-image-O3](Survey.GameImage.md#origin-draft-game-image-o3--attestation-protocol-specifics) | Open question | Attestation protocol specifics | — | ORIGIN-DRAFT-game-image |
-| [ORIGIN-DRAFT-game-image-O4](Survey.GameImage.md#origin-draft-game-image-o4--state-persistence-across-crashes) | Open question | State persistence across crashes | — | ORIGIN-DRAFT-game-image |
-| [ORIGIN-DRAFT-game-image-O5](Survey.GameImage.md#origin-draft-game-image-o5--non-cl-game-support) | Open question | Non-CL game support | — | ORIGIN-DRAFT-game-image |
+| [ORIGIN-O55](Survey.GameImage.md#origin-o55--saved-core-build-pipeline) | Open question | Saved-core build pipeline | — | ORIGIN-0015 |
+| [ORIGIN-O56](Survey.GameImage.md#origin-o56--gpu-scheduling-integration) | Open question | GPU scheduling integration | — | ORIGIN-0015 |
+| [ORIGIN-O57](Survey.GameImage.md#origin-o57--attestation-protocol-specifics) | Open question | Attestation protocol specifics | — | ORIGIN-0015 |
+| [ORIGIN-O58](Survey.GameImage.md#origin-o58--state-persistence-across-crashes) | Open question | State persistence across crashes | — | ORIGIN-0015 |
+| [ORIGIN-O59](Survey.GameImage.md#origin-o59--non-cl-game-support) | Open question | Non-CL game support | — | ORIGIN-0015 |
 | [ORIGIN-DRAFT-power-management-O1](Survey.PowerManagement.md#origin-draft-power-management-o1--event-driven-supervision) | Open question | Event-driven supervision | — | ORIGIN-DRAFT-power-management |
 | [ORIGIN-DRAFT-power-management-O2](Survey.PowerManagement.md#origin-draft-power-management-o2--cooperative-parking-for-thread-orbitals) | Open question | Cooperative parking for thread orbitals | — | ORIGIN-DRAFT-power-management |
 | [ORIGIN-DRAFT-power-management-O3](Survey.PowerManagement.md#origin-draft-power-management-o3--assertion-vocabulary) | Open question | Assertion vocabulary | — | ORIGIN-DRAFT-power-management |
