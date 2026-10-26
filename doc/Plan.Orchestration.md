@@ -1,11 +1,15 @@
 ---
-id:            ORIGIN-DRAFT-orchestration
+id:            ORIGIN-0010
 title:         "Origin as a Recursive Orchestrator (Fleet Tier): Development Plan"
 genre:         Plan
 scope:         project
 project:       Origin
 language:      en
-status:        Draft
+status:        Accepted
+authors:
+  - Andrew Sengul
+approved-by:   Andrew Sengul
+reviewed:      2026-10-25
 provenance:
   assistant:   opencode
 relates-to:
@@ -16,17 +20,17 @@ relates-to:
   - ORIGIN-DRAFT-user-facing-surfaces
   - ORIGIN-DRAFT-placement
 decisions:
-  - ORIGIN-DRAFT-orchestration-D1
-  - ORIGIN-DRAFT-orchestration-D2
+  - ORIGIN-D59
+  - ORIGIN-D60
 open-questions:
-  - ORIGIN-DRAFT-orchestration-O1
-  - ORIGIN-DRAFT-orchestration-O2
-  - ORIGIN-DRAFT-orchestration-O3
-  - ORIGIN-DRAFT-orchestration-O4
-  - ORIGIN-DRAFT-orchestration-O5
-  - ORIGIN-DRAFT-orchestration-O6
-  - ORIGIN-DRAFT-orchestration-O7
-  - ORIGIN-DRAFT-orchestration-O8
+  - ORIGIN-O31
+  - ORIGIN-O32
+  - ORIGIN-O33
+  - ORIGIN-O34
+  - ORIGIN-O35
+  - ORIGIN-O36
+  - ORIGIN-O37
+  - ORIGIN-O38
 ---
 
 # Origin as a Recursive Orchestrator (Fleet Tier): Development Plan
@@ -102,9 +106,9 @@ fleet."
 
 ## Settled Decisions
 
-### ORIGIN-DRAFT-orchestration-D1 — Scope: personal / small fleet, transparency-first
+### ORIGIN-D59 — Scope: personal / small fleet, transparency-first
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** The target could be hyperscale or small fleet.
 
@@ -114,9 +118,9 @@ coherence and recursive transparency. Hyperscale is explicitly out of scope.
 
 **Alternatives:** None recorded.
 
-### ORIGIN-DRAFT-orchestration-D2 — Borrow, don't build for scheduling, networking, and storage
+### ORIGIN-D60 — Borrow, don't build for scheduling, networking, and storage
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Context:** Origin could reimplement scheduling/placement, networking (CNI),
 and storage (CSI), or delegate them to existing runtimes.
@@ -310,43 +314,43 @@ one layer.
 
 ## Open Questions
 
-### ORIGIN-DRAFT-orchestration-O1 — Transport security model
+### ORIGIN-O31 — Transport security model
 
 mTLS/identity/authZ specifics for host-to-host Impulse, and how node
 identity is provisioned and rotated.
 
-### ORIGIN-DRAFT-orchestration-O2 — Guest-agent design
+### ORIGIN-O32 — Guest-agent design
 
 The vsock guest-agent orbital that exposes a guest's Impulse socket, and its
 trust relationship to the host.
 
-### ORIGIN-DRAFT-orchestration-O3 — Fleet root availability
+### ORIGIN-O33 — Fleet root availability
 
 Whether/when to introduce HA/consensus for the fleet root, or accept a
 single root with fast respawn at small scale.
 
-### ORIGIN-DRAFT-orchestration-O4 — Adapter set
+### ORIGIN-O34 — Adapter set
 
 Which runtime adapters first -- Podman almost certainly, then libvirt/QEMU;
 what each maps `describe`/`status`/`apply` onto.
 
-### ORIGIN-DRAFT-orchestration-O5 — Discovery and addressing
+### ORIGIN-O35 — Discovery and addressing
 
 How the hierarchical path addressing (fleet/host/guest/orbital) and the
 service registry interoperate across the network, and how unreachable
 subtrees are represented honestly.
 
-### ORIGIN-DRAFT-orchestration-O6 — Placement model
+### ORIGIN-O36 — Placement model
 
 Explicit operator placement vs. delegated-to-runtime vs. a future native
 scheduler -- and where the line sits.
 
-### ORIGIN-DRAFT-orchestration-O7 — Borrowed-networking choice
+### ORIGIN-O37 — Borrowed-networking choice
 
 Whether a mesh (e.g. WireGuard) is supervised as an orbital for cross-host
 reachability, and how it relates to the Impulse transport.
 
-### ORIGIN-DRAFT-orchestration-O8 — Opaque-guest UX
+### ORIGIN-O38 — Opaque-guest UX
 
 How non-Origin guests appear in the recursive dashboards (lifecycle/health
 only) without implying transparency they lack.

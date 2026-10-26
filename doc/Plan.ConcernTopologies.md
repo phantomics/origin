@@ -11,7 +11,7 @@ provenance:
 relates-to:
   - ORIGIN-0006
   - ORIGIN-0002
-  - ORIGIN-DRAFT-orchestration
+  - ORIGIN-0010
   - ORIGIN-DRAFT-placement
 decisions:
   - ORIGIN-DRAFT-concern-topologies-D1
@@ -41,7 +41,7 @@ adapting management intensity to the concern's actual distribution across
 the system. It assumes the Impulse control vocabulary
 ([ORIGIN-0006](Log.ImpulseI.md)), the recursive node model
 ([ORIGIN-0002](Log.OrbitalImages.md)), the fleet tier
-([ORIGIN-DRAFT-orchestration](Plan.Orchestration.md)), and the topology
+([ORIGIN-0010](Plan.Orchestration.md)), and the topology
 DSL ([ORIGIN-DRAFT-placement](Plan.Placement.md)).
 
 **Date:** 2026-06-22

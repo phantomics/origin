@@ -185,7 +185,7 @@ rewritten to avoid `ref/short-record` warnings. 7 table captions.
 **[ORIGIN-DRAFT-concern-topologies](Plan.ConcernTopologies.md).** 2
 D-records; 6 O-records. 3 table captions.
 
-**[ORIGIN-DRAFT-orchestration](Plan.Orchestration.md).** 2 D-records
+**[ORIGIN-0010](Plan.Orchestration.md).** 2 D-records
 extracted from "decided" markers in Scope. 8 O-records. 3 table captions.
 
 **[ORIGIN-DRAFT-placement](Plan.Placement.md).** 2 D-records extracted

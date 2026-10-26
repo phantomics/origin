@@ -17,7 +17,7 @@ relates-to:
   - ORIGIN-0006
   - ORIGIN-0005
   - ORIGIN-0004
-  - ORIGIN-DRAFT-orchestration
+  - ORIGIN-0010
   - ORIGIN-DRAFT-placement
 decisions:
   - ORIGIN-D35

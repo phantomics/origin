@@ -9,7 +9,7 @@ status:        Draft
 provenance:
   assistant:   opencode
 relates-to:
-  - ORIGIN-DRAFT-orchestration
+  - ORIGIN-0010
   - ORIGIN-0007
   - ORIGIN-0004
 decisions:
@@ -36,7 +36,7 @@ resources. It deliberately confines itself to the **modeling layer** -- the
 part where CL is strongest -- and draws a hard line between *placement* (a
 pure function over data) and *enactment* (an impure reconciler that drives
 reality toward a placement, treated as a separate concern). It is the
-companion to [ORIGIN-DRAFT-orchestration](Plan.Orchestration.md), which
+companion to [ORIGIN-0010](Plan.Orchestration.md), which
 covers the fleet tier and the borrow-not-build stance, and it reuses the
 dependency-ordering direction (C1) noted in
 [ORIGIN-0007](Plan.LinuxServiceManager.md) and the
