@@ -142,7 +142,7 @@ and the status schema gained the `:health` leaf.
 
 ### ORIGIN-D46 — Spec in an Impulse-side registry, not on the orbital
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** The declared spec could live on `managed-process` or in Impulse.
 
@@ -153,7 +153,7 @@ and the status schema gained the `:health` leaf.
 
 ### ORIGIN-D47 — Declared-vs-observed folded into status :view, not a new verb
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** Declared-vs-observed state could be a new verb or a view on `status`.
 
@@ -164,7 +164,7 @@ and the status schema gained the `:health` leaf.
 
 ### ORIGIN-D48 — One high-level apply, not separate edit/validate/commit verbs
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** The declarative workflow could use NETCONF-literal separate verbs or one combined verb.
 
@@ -175,7 +175,7 @@ and the status schema gained the `:health` leaf.
 
 ### ORIGIN-D49 — Health via a generic with a liveness default
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** Readiness needs a seam for typed/foreign orbitals to refine later.
 
@@ -295,7 +295,7 @@ of the Lexter sub-vocabulary.
 
 ### ORIGIN-D50 — Labels in an Impulse-side registry, like specs
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** Consistent with Phase 4, fleet metadata (labels) is a control-plane concept that needs a home.
 
@@ -306,7 +306,7 @@ of the Lexter sub-vocabulary.
 
 ### ORIGIN-D51 — One predicate grammar, two uses
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** The predicate matcher could be one grammar shared between target selection and result filtering, or two separate grammars.
 
@@ -317,7 +317,7 @@ of the Lexter sub-vocabulary.
 
 ### ORIGIN-D52 — selectors.lisp loads before dispatch.lisp
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** The selector helpers depend only on the registry, the orbit, and the envelope accessors — not on dispatch.
 
@@ -328,7 +328,7 @@ of the Lexter sub-vocabulary.
 
 ### ORIGIN-D53 — Field arguments refine, they do not re-dispatch
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** Field arguments could re-dispatch per target or post-process the already-collected results.
 
@@ -463,7 +463,7 @@ share one connection with ordinary traffic:
 
 ### ORIGIN-D54 — The connection's sink is the only transport coupling
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** The streaming tier needs a transport interface.
 
@@ -474,7 +474,7 @@ share one connection with ordinary traffic:
 
 ### ORIGIN-D55 — watch is poll-based over the event log, by choice
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** `watch` could use a push hook in Origin core or poll the event log.
 
@@ -485,7 +485,7 @@ share one connection with ordinary traffic:
 
 ### ORIGIN-D56 — The request id is the cancellation/unwatch token (LSP model)
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** Cancel and unwatch must be actionable while a worker is mid-dispatch.
 
@@ -496,7 +496,7 @@ share one connection with ordinary traffic:
 
 ### ORIGIN-D57 — One worker thread per non-control request
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** The read loop must stay responsive to a cancel during a long operation.
 
@@ -507,7 +507,7 @@ share one connection with ordinary traffic:
 
 ### ORIGIN-D58 — streams.lisp loads before api/codec/transport
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** `streams.lisp` depends only on dispatch (for the `:watch` handler and `*context*`) and the event log — not on the codec or socket.
 

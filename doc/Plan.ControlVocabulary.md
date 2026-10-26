@@ -159,7 +159,7 @@ These were settled in discussion and frame the design space below.
 
 ### ORIGIN-D19 — Declarative default with an imperative delta form
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** The vocabulary must support both whole-state declarations and
 incremental changes against a running configuration.
@@ -176,7 +176,7 @@ are explicit so that idempotence is never ambiguous.
 
 ### ORIGIN-D20 — Capability discovery (describe) is in the v1 core
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** Whether self-description should be part of the initial version
 or deferred.
@@ -192,7 +192,7 @@ and it keeps the protocol introspectable from day one.
 
 ### ORIGIN-D21 — Messages are dispatched data, not evaluated code
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:** Whether control messages should be evaluated code or
 dispatched data, given the availability of arbitrary eval through Slynk.

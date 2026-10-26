@@ -227,7 +227,7 @@ Table: Implemented features and their reference lineage.
 
 ### ORIGIN-D22 — A separate impulse system, not part of core
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:**
 Impulse is the meta-OS's control layer, but it is not needed to manage
@@ -244,7 +244,7 @@ system.
 
 ### ORIGIN-D23 — Control type by registry, not by class
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:**
 Sub-vocabularies (Lexter windows, nginx) need a way to claim a richer set
@@ -263,7 +263,7 @@ from the first phase.
 
 ### ORIGIN-D24 — The dispatcher never signals
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:**
 A control request can fail in many ways, and several of them (unknown verb,
@@ -280,7 +280,7 @@ day one, not bolted on later.
 
 ### ORIGIN-D25 — Effect and tier enforced in Phase 1, not deferred
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:**
 The plan placed CQS enforcement in Phase 2.
@@ -298,7 +298,7 @@ and per-connection contexts rather than the core CQS gate.
 
 ### ORIGIN-D26 — Register all verbs now; advertise only the implemented ones
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:**
 The full universal verb set needs to be visible to `describe` and the tier
@@ -453,7 +453,7 @@ Table: Implemented features and their reference lineage.
 
 ### ORIGIN-D27 — Serialization by call-next-method, not a registry or :around
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:**
 An initial `:around` design double-counted the base keys.
@@ -468,7 +468,7 @@ no central table, and a new condition participates by defining one method.
 
 ### ORIGIN-D28 — Check verb and tier once; capture per-target outcomes
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:**
 Effect and tier are properties of the verb and the connection, not of the
@@ -484,7 +484,7 @@ envelope is for.
 
 ### ORIGIN-D29 — Fan-out reuses single-target dispatch
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:**
 Single and fan-out dispatch share the same verb logic.
@@ -629,7 +629,7 @@ Table: Implemented features and their reference lineage.
 
 ### ORIGIN-D30 — Validation is the guarantee; the readtable is defense in depth
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:**
 The codec is where untrusted bytes become Lisp data, and multiple defense
@@ -646,7 +646,7 @@ cannot be crossed.
 
 ### ORIGIN-D31 — Keyword-only, enforced symmetrically
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:**
 The wire format needs a policy for symbol handling.
@@ -662,7 +662,7 @@ now mechanical.
 
 ### ORIGIN-D32 — Length-prefixed framing over character streams
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:**
 Message boundaries must be unambiguous on a socket stream.
@@ -678,7 +678,7 @@ socket stream.
 
 ### ORIGIN-D33 — Tier pinned by the listener, negotiated down by the client
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:**
 Socket file permissions are the coarse auth (who can open it at all); the
@@ -693,7 +693,7 @@ This is enough for a single-host nexus without per-user identity (Q6).
 
 ### ORIGIN-D34 — Transport reuses dispatch unchanged
 
-**Status:** Accepted
+**Status:** Implemented
 
 **Context:**
 The envelope, the verb model, and the error/partial responses need to work
